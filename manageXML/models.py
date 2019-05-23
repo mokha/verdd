@@ -59,6 +59,9 @@ class Translation(models.Model):
     text = models.CharField(max_length=250)
     language = models.CharField(max_length=3)
     pos = models.CharField(max_length=25)
+    contlex = models.CharField(max_length=250)
+    type = models.CharField(max_length=25)
+    lemmaId = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     added_date = models.DateTimeField('date published', auto_now_add=True)
 
     def __str__(self):

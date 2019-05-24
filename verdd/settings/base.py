@@ -175,4 +175,4 @@ ACCOUNT_LOGOUT_ON_GET = True
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Application settings
-WIKI_PATH = config('WIKI_PATH')
+WIKI_URL = config('WIKI_URL')

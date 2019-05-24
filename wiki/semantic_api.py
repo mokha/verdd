@@ -6,7 +6,7 @@ import urllib.parse
 
 class SemanticAPI:
     def __init__(self, username='', password=''):
-        self.wiki_url = settings.WIKI_PATH
+        self.wiki_url = settings.WIKI_URL
         self.api_url = self.wiki_url.rstrip('/') + '/api.php'
         self.session = requests.Session()
         if username and password:

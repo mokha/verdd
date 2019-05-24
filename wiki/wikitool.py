@@ -9,7 +9,7 @@ class WikiTool:
     '''
 
     def __init__(self, username, password, language):
-        self.wiki_url = settings.WIKI_PATH
+        self.wiki_url = settings.WIKI_URL
         self.username = username
         self.password = password
         self.login_cookies = {}

@@ -16,6 +16,7 @@ class Element(models.Model):
     language = models.CharField(max_length=3)
     pos = models.CharField(max_length=25)
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)
+    notes = models.CharField(max_length=250)
     added_date = models.DateTimeField('date published', auto_now_add=True)
 
     def __str__(self):
@@ -62,7 +63,17 @@ class Translation(models.Model):
     contlex = models.CharField(max_length=250)
     type = models.CharField(max_length=25)
     lemmaId = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+    inflexId = models.CharField(max_length=25, blank=True)
     added_date = models.DateTimeField('date published', auto_now_add=True)
 
     def __str__(self):
         return self.text
+
+
+class MiniParadigm(models.Model):
+    translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
+    msd = models.CharField(max_length=25)
+    wordform = models.CharField(max_length=250)
+
+    def __str__(self):
+        return "%s: %s" % (self.msd, self.wordform)

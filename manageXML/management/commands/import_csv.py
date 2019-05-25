@@ -3,10 +3,6 @@ from manageXML.models import *
 import io, csv, os, glob, re
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from xml.dom import minidom
-from functools import reduce
-import operator
-from uralicNLP import uralicApi
 
 new_xml = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
 pos_files = defaultdict(list)
@@ -52,7 +48,7 @@ def read_xmls(xml_dir, lang_target='sms', lang_source='fin'):
         parseXML(filename, lang_source)
 
 
-def read_tsv(filename):
+def old_read_tsv(filename):
     results = []
 
     match_ptrn = re.compile("^(.*)([ ]{2,}|\t+)(.*)$", re.IGNORECASE | re.UNICODE)
@@ -81,24 +77,64 @@ def read_tsv(filename):
     return results
 
 
+def read_csv(filename, delimiter=';'):
+    with io.open(filename, 'r', encoding='utf-8') as fp:
+        #     reader = csv.DictReader(fp, dialect='excel-tab')
+        #     for row in reader:
+        reader = csv.reader(fp, delimiter=delimiter)
+        headers = next(reader, None)  # ignore header
+        for row in reader:
+            yield row
+
+
+match_para = re.compile('\(.*?\)')  # match parenthesis
+
+
+def process_row(row, df, lang_source, lang_target):
+    word_1 = row[0]  # first data
+    word_2 = row[1]
+
+    if not word_1.strip() or not word_2.strip():
+        return
+
+    extra_notes = match_para.findall(word_1)  # get any extra notes
+    extra_notes = list(map(lambda w: re.sub('\(|\)', '', w).strip(), extra_notes))  # remove parenthesis
+
+    word_1 = match_para.sub('', word_1).strip()  # remove any additional information
+
+    if len(row) > 2:
+        notes = list(filter(lambda d: d, row[2:]))
+        if notes:
+            extra_notes += notes
+
+    e = Element(lexeme=word_2, language=lang_source, notes="\n".join(extra_notes), imported_from=df)
+    e.save()
+
+    t = Translation(element=e, text=word_1, language=lang_target)
+    t.save()
+
+
 class Command(BaseCommand):
     '''
-    Example: python manage.py import_tsv -f ../data/sms-fin_2004-6-30_jmr_03c.txt -s sms -t fin -n smsfin2004
+    Example: python manage.py import_csv -f ../data/Suomi-koltansaame_sanakirja_v1991_30052013.csv -s sms -t fin -n smsfin2004 -d ';'
     '''
 
-    help = 'This command imports a TSV file into the database to be edited.'
+    help = 'This command imports a CSV file into the database to be edited.'
 
     def add_arguments(self, parser):
-        parser.add_argument('-f', '--file', type=str, help='The TSV file to import.', )
+        parser.add_argument('-f', '--file', type=str, help='The CSV file to import.', )
         parser.add_argument('-t', '--target', type=str, help='Three letter code of target language.', )
         parser.add_argument('-s', '--source', type=str, help='Three letter code of source language.', )
         parser.add_argument('-n', '--name', type=str, nargs='?', default=None,
                             help='The name to give for the import.', )
+        parser.add_argument('-d', '--delimiter', type=str, nargs='?', default=';',
+                            help='The delimiter to use when reading the CSV file.', )
 
     def handle(self, *args, **options):
         file_path = options['file']
         lang_target = options['target']  # language target (e.g. sms)
         lang_source = options['source']  # language source (e.g. fin)
+        d = options['delimiter']
 
         if not os.path.isfile(file_path):
             raise CommandError('File "%s" does not exist.' % file_path)
@@ -110,13 +146,7 @@ class Command(BaseCommand):
         df = DataFile(lang_source=lang_source, lang_target=lang_target, name=filename)
         df.save()
 
-        data = read_tsv(file_path)
-
-        for word_1, word_2, additional in data:
-            e = Element(lexeme=word_1, language=lang_target, imported_from=df)
-            e.save()
-
-            t = Translation(element=e, text=word_2, language=lang_source)
-            t.save()
+        for row in read_csv(file_path, delimiter=d):
+            process_row(row, df, lang_source, lang_target)
 
         self.stdout.write(self.style.SUCCESS('Successfully imported the file "%s", with ID: %d' % (file_path, df.id)))

@@ -28,14 +28,17 @@
     <table class="table table-bordered">
         <thead>
         <tr>
+            <th>ID</th>
             <th>Lexeme</th>
             <th>POS</th>
             <th>Translations</th>
+            <th>Notes</th>
         </tr>
         </thead>
         <tbody>
         {% for obj in object_list %}
             <tr>
+                <td>{{ obj.id }}</td>
                 <td>{{ obj.lexeme }}</td>
                 <td>{{ obj.pos }}</td>
                 <td>
@@ -45,6 +48,7 @@
                         {% endfor %}
                     </ul>
                 </td>
+                <td>{{ obj.notes|linebreaksbr }}</td>
             </tr>
         {% endfor %}
         </tbody>

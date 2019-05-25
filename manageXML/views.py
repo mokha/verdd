@@ -44,3 +44,4 @@ class ElementView(FilteredListView):
     model = Element
     template_name = 'index.html'
     paginate_by = 50
+    ordering = ['-id']

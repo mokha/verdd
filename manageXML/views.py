@@ -3,9 +3,12 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.template.loader import get_template
 import datetime
+from django_filters import DateFromToRangeFilter, DateFilter, CharFilter, NumberFilter, ModelChoiceFilter, ChoiceFilter
+from django_filters.widgets import RangeWidget
 import django_filters
 from django.views.generic.list import ListView
 from manageXML.models import *
+import string
 
 
 class FilteredListView(ListView):
@@ -29,9 +32,18 @@ class FilteredListView(ListView):
 
 
 class ElementFilter(django_filters.FilterSet):
+    STATUS_CHOICES = (
+        (0, 'Yes'),
+        (1, 'No'),
+    )
+
+    is_checked = ChoiceFilter(choices=STATUS_CHOICES, label='Checked')
+    range_from = ChoiceFilter(choices=enumerate(string.ascii_uppercase), label='Range from')
+    range_to = ChoiceFilter(choices=enumerate(string.ascii_uppercase), label='Range to')
+
     class Meta:
         model = Element
-        fields = ['lexeme', 'pos']
+        fields = ['lexeme', 'pos', 'is_checked', 'range_from', 'range_to']
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()

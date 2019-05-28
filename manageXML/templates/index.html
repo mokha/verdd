@@ -16,6 +16,20 @@
                     {{ filterset.form.pos.label_tag }}
                     {% render_field filterset.form.pos class="form-control" %}
                 </div>
+                <div class="form-group col-sm-4 col-md-3">
+                    {{ filterset.form.is_checked.label_tag }}
+                    {% render_field filterset.form.is_checked class="form-control" %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-4 col-md-3">
+                    {{ filterset.form.range_from.label_tag }}
+                    {% render_field filterset.form.range_from class="form-control" %}
+                </div>
+                <div class="form-group col-sm-4 col-md-3">
+                    {{ filterset.form.range_to.label_tag }}
+                    {% render_field filterset.form.range_to class="form-control" %}
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">
                 <span class="glyphicon glyphicon-search"></span> Search

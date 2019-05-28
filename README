@@ -9,3 +9,9 @@ python manage.py runserver
 
 #### For development
 cp dev.env .env
+
+When running the above commands in development, pass the following parameters to the `manage.py`:
+`--settings verdd.settings.development`
+
+
+sudo ln -s FULLPATH/verdd/conf/verdd.service /etc/systemd/system/

@@ -1,0 +1,16 @@
+[Unit]
+Description=uWSGI verdd
+After=syslog.target
+
+[Service]
+ExecStart=/www/verdd/venv/bin/uwsgi --ini /etc/uwsgi/apps-available/verdd.ini
+# Requires systemd version 211 or newer
+RuntimeDirectory=uwsgi
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

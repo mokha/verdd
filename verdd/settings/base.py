@@ -118,7 +118,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+
+# Application settings
+WIKI_URL = config('WIKI_URL')
+BASE_URL = config('BASE_URL')
+
+STATIC_URL = BASE_URL.rstrip('/') + '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "../static"),
 ]
@@ -173,6 +178,3 @@ ACCOUNT_LOGOUT_ON_GET = True
 
 # For templating
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
-# Application settings
-WIKI_URL = config('WIKI_URL')

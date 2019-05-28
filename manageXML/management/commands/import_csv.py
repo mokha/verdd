@@ -84,39 +84,34 @@ def read_csv(filename, delimiter=';'):
         reader = csv.reader(fp, delimiter=delimiter)
         headers = next(reader, None)  # ignore header
         for row in reader:
-            yield row
+            yield list(zip(headers, row))
 
 
 match_para = re.compile('\(.*?\)')  # match parenthesis
 
 
 def process_row(row, df, lang_source, lang_target):
-    word_1 = row[0]  # first data
-    word_2 = row[1]
+    word_1 = row[0][1]  # first word
+    word_2 = row[1][1]  # second word
 
     if not word_1.strip() or not word_2.strip():
         return
 
-    extra_notes = match_para.findall(word_1)  # get any extra notes
-    extra_notes = list(map(lambda w: re.sub('\(|\)', '', w).strip(), extra_notes))  # remove parenthesis
-
     word_1 = match_para.sub('', word_1).strip()  # remove any additional information
+    word_2 = match_para.sub('', word_2).strip()  # remove any additional information
 
-    if len(row) > 2:
-        notes = list(filter(lambda d: d, row[2:]))
-        if notes:
-            extra_notes += notes
+    extra_notes = map(lambda v: ':'.join(v), row)  # convert the row into (k:v)
 
-    e = Element(lexeme=word_2, language=lang_source, notes="\n".join(extra_notes), imported_from=df)
+    e = Element(lexeme=word_1, language=lang_target, notes="\n".join(extra_notes), imported_from=df)
     e.save()
 
-    t = Translation(element=e, text=word_1, language=lang_target)
+    t = Translation(element=e, text=word_2, language=lang_source)
     t.save()
 
 
 class Command(BaseCommand):
     '''
-    Example: python manage.py import_csv -f ../data/Suomi-koltansaame_sanakirja_v1991_30052013.csv -s sms -t fin -n smsfin2004 -d ';'
+    Example: python manage.py import_csv -f ../data/Suomi-koltansaame_sanakirja_v1991_30052013.csv -s fin -t sms -n smsfin2004 -d ';'
     '''
 
     help = 'This command imports a CSV file into the database to be edited.'
@@ -132,8 +127,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file_path = options['file']
-        lang_target = options['target']  # language target (e.g. sms)
         lang_source = options['source']  # language source (e.g. fin)
+        lang_target = options['target']  # language target (e.g. sms)
         d = options['delimiter']
 
         if not os.path.isfile(file_path):

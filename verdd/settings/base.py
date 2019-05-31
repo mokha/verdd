@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 from decouple import config, Csv
 from django.utils.translation import ugettext_lazy as _  # for translations
-from django.urls import get_script_prefix
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,8 +121,10 @@ USE_TZ = True
 
 # Application settings
 WIKI_URL = config('WIKI_URL')
+BASE_URL = config('BASE_URL')
+FORCE_SCRIPT_NAME = BASE_URL.rstrip('/')
 
-STATIC_URL = get_script_prefix().rstrip('/') + '/static/'
+STATIC_URL = '%s/static/' % FORCE_SCRIPT_NAME
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "../static"),
 ]
@@ -157,8 +158,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-LOGIN_REDIRECT_URL = get_script_prefix()
-LOGOUT_REDIRECT_URL = get_script_prefix()
+LOGIN_REDIRECT_URL = '%s/' % FORCE_SCRIPT_NAME
+ACCOUNT_LOGOUT_REDIRECT_URL = '%s/' % FORCE_SCRIPT_NAME
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_FORMS = {

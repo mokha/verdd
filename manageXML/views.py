@@ -7,12 +7,17 @@ from django_filters import DateFromToRangeFilter, DateFilter, CharFilter, Number
 from django_filters.widgets import RangeWidget
 import django_filters
 from django.views.generic.list import ListView
-from manageXML.models import *
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
+from django.utils.translation import gettext as _
 import string
+from manageXML.models import *
+from manageXML.forms import *
 
 
 class FilteredListView(ListView):
     filterset_class = None
+    title = None
 
     def get_queryset(self):
         # Get the queryset however you usually would.  For example:
@@ -28,20 +33,24 @@ class FilteredListView(ListView):
         context = super().get_context_data(**kwargs)
         # Pass the filterset to the template - it provides the form.
         context['filterset'] = self.filterset
+        context['title'] = self.get_title()
         return context
+
+    def get_title(self):
+        return self.title
 
 
 class ElementFilter(django_filters.FilterSet):
     STATUS_CHOICES = (
-        (True, 'Yes'),
-        (False, 'No'),
+        (True, _('Yes')),
+        (False, _('No')),
     )
 
     ALPHABETS_CHOICES = list(enumerate(string.ascii_uppercase + 'ÄÅÖ'))
 
-    checked = ChoiceFilter(choices=STATUS_CHOICES, label='Checked')
-    range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label='Range from', method='filter_range')
-    range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label='Range to', method='filter_range')
+    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
+    range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
+    range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range to'), method='filter_range')
 
     class Meta:
         model = Element
@@ -75,6 +84,17 @@ class ElementFilter(django_filters.FilterSet):
 class ElementView(FilteredListView):
     filterset_class = ElementFilter
     model = Element
-    template_name = 'index.html'
+    template_name = 'element_list.html'
     paginate_by = 50
     ordering = ['lexeme']  # -id
+    title = _("Homepage")
+
+
+class ElementDetailView(DetailView):
+    model = Element
+    template_name = 'element_detail.html'
+
+
+class ElementEditView(FormView):
+    template_name = 'element_edit.html'
+    form_class = ElementForm

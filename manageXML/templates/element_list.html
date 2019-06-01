@@ -1,12 +1,12 @@
 {% extends 'template.html' %}
+{% load i18n %}
 {% load custom_tags %}
 {% load widget_tweaks %}
 
 {% block main_content %}
-    <h1>Words</h1>
     <form method="get">
         <div class="well">
-            <h4 style="margin-top: 0">Filter</h4>
+            <h4 style="margin-top: 0">{% trans "Filter" %}</h4>
             <div class="row">
                 <div class="form-group col-sm-4 col-md-3">
                     {{ filterset.form.lexeme.label_tag }}
@@ -42,11 +42,13 @@
     <table class="table table-bordered">
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Lexeme</th>
-            <th>POS</th>
-            <th>Translations</th>
-            <th>Notes</th>
+            <th>{% trans "ID" %}</th>
+            <th>{% trans "Lexeme" %}</th>
+            <th>{% trans "POS" %}</th>
+            <th>{% trans "Translations" %}</th>
+            <th>{% trans "Processed" %}</th>
+            <th>{% trans "Notes" %}</th>
+            <th>{% trans "Actions" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -62,7 +64,14 @@
                         {% endfor %}
                     </ul>
                 </td>
+                <td>{% if t.checked %}✓{% else %}✗{% endif %}</td>
                 <td>{{ obj.notes|linebreaksbr }}</td>
+                <td>
+                    <ul>
+                        <li><a href="{% url 'element-detail' pk=obj.pk slug=obj.slug %}">{% trans "view" %}</a></li>
+                        <li><a href="{% url 'element-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
+                    </ul>
+                </td>
             </tr>
         {% endfor %}
         </tbody>
@@ -76,7 +85,7 @@
             {% endif %}
         {% endif %}
 
-        Page {{ page_obj.number }} of {{ paginator.num_pages }}
+        {% trans "Page" %} {{ page_obj.number }} of {{ paginator.num_pages }}
 
         {% if page_obj.has_next %}
             {% if page_obj.next_page_number != paginator.num_pages %}
@@ -85,6 +94,6 @@
             <a href="?{% param_replace page=paginator.num_pages %}">Last</a>
         {% endif %}
 
-        <p>Objects {{ page_obj.start_index }}—{{ page_obj.end_index }}</p>
+        {#        <p>{% trans "Results" %}: {{ page_obj.start_index }}—{{ page_obj.end_index }}</p>#}
     {% endif %}
 {% endblock %}

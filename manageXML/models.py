@@ -1,5 +1,6 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
+from django.utils.text import slugify
 
 
 class DataFile(models.Model):
@@ -24,6 +25,9 @@ class Element(models.Model):
 
     def __str__(self):
         return self.lexeme
+
+    def slug(self):
+        return slugify(self.lexeme) if self.lexeme else 'NA'
 
 
 class Stem(models.Model):

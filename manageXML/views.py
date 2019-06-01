@@ -33,22 +33,43 @@ class FilteredListView(ListView):
 
 class ElementFilter(django_filters.FilterSet):
     STATUS_CHOICES = (
-        (0, 'Yes'),
-        (1, 'No'),
+        (True, 'Yes'),
+        (False, 'No'),
     )
 
-    is_checked = ChoiceFilter(choices=STATUS_CHOICES, label='Checked')
-    range_from = ChoiceFilter(choices=enumerate(string.ascii_uppercase), label='Range from')
-    range_to = ChoiceFilter(choices=enumerate(string.ascii_uppercase), label='Range to')
+    ALPHABETS_CHOICES = list(enumerate(string.ascii_uppercase + 'ÄÅÖ'))
+
+    checked = ChoiceFilter(choices=STATUS_CHOICES, label='Checked')
+    range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label='Range from', method='filter_range')
+    range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label='Range to', method='filter_range')
 
     class Meta:
         model = Element
-        fields = ['lexeme', 'pos', 'is_checked', 'range_from', 'range_to']
+        fields = ['lexeme', 'pos', 'checked', 'range_from', 'range_to']
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
         data.setdefault('order', '+lexeme')
         super().__init__(data, *args, **kwargs)
+
+    def filter_range(self, queryset, name, value):
+        # transform datetime into timestamp
+        range_from = self.data['range_from']  # get key
+        range_to = self.data['range_to']  # get key
+
+        range_from = int(range_from) if range_from else 0
+        range_to = int(range_to) if range_to else len(ElementFilter.ALPHABETS_CHOICES) - 1
+
+        if range_from > range_to:
+            return queryset.none()
+
+        filters = models.Q()
+        for i in range(range_from, range_to + 1):
+            filters |= models.Q(
+                lexeme__istartswith=ElementFilter.ALPHABETS_CHOICES[i][1],
+            )
+
+        return queryset.filter(filters)
 
 
 class ElementView(FilteredListView):
@@ -56,4 +77,4 @@ class ElementView(FilteredListView):
     model = Element
     template_name = 'index.html'
     paginate_by = 50
-    ordering = ['-id']
+    ordering = ['lexeme']  # -id

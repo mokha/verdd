@@ -19,6 +19,7 @@ class Element(models.Model):
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)
     notes = models.CharField(max_length=250)
     added_date = models.DateTimeField('date published', auto_now_add=True)
+    checked = models.BooleanField(default=False)
     history = HistoricalRecords()
 
     def __str__(self):

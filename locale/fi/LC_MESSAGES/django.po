@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-22 19:36+0000\n"
+"POT-Creation-Date: 2019-06-01 09:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: templates/base.html:54
-msgid "Note"
+#: templates/base.html:19 templates/base.html:36
+msgid "Verdd"
 msgstr ""
 
-#: templates/base.html:54
-#, python-format
+#: templates/base.html:41
 msgid ""
-"you are already logged in as %(user_display)s\n"
-"                    ."
+"\n"
+"                                Logout"
+msgstr ""
+
+#: templates/base.html:45
+msgid ""
+"Sign\n"
+"                                In"
 msgstr ""
 
 #: users/forms.py:28
@@ -37,10 +42,10 @@ msgstr ""
 msgid "Sign In"
 msgstr ""
 
-#: verdd/settings/base.py:135
+#: verdd/settings/base.py:144
 msgid "English"
 msgstr ""
 
-#: verdd/settings/base.py:136
+#: verdd/settings/base.py:145
 msgid "Finnish"
 msgstr ""

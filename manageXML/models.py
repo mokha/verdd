@@ -1,4 +1,5 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class DataFile(models.Model):
@@ -18,6 +19,7 @@ class Element(models.Model):
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)
     notes = models.CharField(max_length=250)
     added_date = models.DateTimeField('date published', auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.lexeme
@@ -39,6 +41,7 @@ class Etymon(models.Model):
     text = models.CharField(max_length=250)
     language = models.CharField(max_length=3)
     added_date = models.DateTimeField('date published', auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.text
@@ -50,6 +53,7 @@ class Source(models.Model):
     page = models.CharField(max_length=25, blank=True)
     type = models.CharField(max_length=25)
     added_date = models.DateTimeField('date published', auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -65,6 +69,7 @@ class Translation(models.Model):
     lemmaId = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     inflexId = models.CharField(max_length=25, blank=True)
     added_date = models.DateTimeField('date published', auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.text
@@ -74,6 +79,7 @@ class MiniParadigm(models.Model):
     translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
     msd = models.CharField(max_length=25)
     wordform = models.CharField(max_length=250)
+    history = HistoricalRecords()
 
     def __str__(self):
         return "%s: %s" % (self.msd, self.wordform)

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     'widget_tweaks',
     'django_filters',
+    'simple_history',  # simple_history: keep track of changes done by the user
 ]
 
 MIDDLEWARE = [
@@ -138,6 +139,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',  # simple_history
 )
 # Provide a lists of languages which your site supports.
 LANGUAGES = (

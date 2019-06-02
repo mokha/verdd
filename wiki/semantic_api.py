@@ -48,6 +48,10 @@ class SemanticAPI:
         return self.session.get(self.api_url, params=param).json()
 
     def ask(self, query=()):
+        '''
+        query=[[Lang::Fin]]%0D[[POS::N]]|%3FPOS|sort=POS|order=desc
+        :return:
+        '''
         q = '|'.join(query)
 
         param = {
@@ -57,12 +61,17 @@ class SemanticAPI:
 
         return self.get(param)
 
-    def query(self):
+    def parse(self, title):
         '''
-        query=[[Lang::Fin]]%0D[[POS::N]]|%3FPOS|sort=POS|order=desc
+
+        :param title: The page title
         :return:
         '''
-        pass
+        param = {
+            'action': 'parse',
+            'page': title
+        }
+        return self.get(param)
 
     def post(self, data):
         data.update({'format': 'json', 'token': self.token, })
@@ -71,4 +80,4 @@ class SemanticAPI:
 
 if __name__ == '__main__':
     sa = SemanticAPI()
-    r = sa.ask(query=('[[Lang::Fin]]\n[[POS::N]]', '?POS', 'sort=POS', 'order=desc'))
+    r = sa.ask(query=('[[Lang::Fin]]\n[[POS::N]]\n[[Fin:suomi]]', '?Category', '?POS', 'sort=POS', 'order=desc'))

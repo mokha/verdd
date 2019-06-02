@@ -29,6 +29,9 @@ class Element(models.Model):
     def slug(self):
         return slugify(self.lexeme) if self.lexeme else 'NA'
 
+    def get_absolute_url(self):
+        return "/lexeme/%i-%s" % (self.id, self.slug())
+
 
 class Stem(models.Model):
     element = models.ForeignKey(Element, on_delete=models.CASCADE)
@@ -52,18 +55,6 @@ class Etymon(models.Model):
         return self.text
 
 
-class Source(models.Model):
-    element = models.ForeignKey(Element, on_delete=models.CASCADE)
-    name = models.CharField(max_length=250)
-    page = models.CharField(max_length=25, blank=True)
-    type = models.CharField(max_length=25)
-    added_date = models.DateTimeField('date published', auto_now_add=True)
-    history = HistoricalRecords()
-
-    def __str__(self):
-        return self.name
-
-
 class Translation(models.Model):
     element = models.ForeignKey(Element, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
@@ -73,11 +64,34 @@ class Translation(models.Model):
     type = models.CharField(max_length=25)
     lemmaId = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     inflexId = models.CharField(max_length=25, blank=True)
+    notes = models.CharField(max_length=250)
     added_date = models.DateTimeField('date published', auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
         return self.text
+
+    def slug(self):
+        return slugify(self.element.lexeme + "-" + self.text) if self.text and self.element.lexeme else 'NA'
+
+    def get_absolute_url(self):
+        return "/translation/%i-%s" % (self.id, self.slug())
+
+
+class Source(models.Model):
+    translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
+    name = models.CharField(max_length=250)
+    page = models.CharField(max_length=25, blank=True)
+    type = models.CharField(max_length=25)
+    notes = models.CharField(max_length=250)
+    added_date = models.DateTimeField('date published', auto_now_add=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "/source/%i" % self.id
 
 
 class MiniParadigm(models.Model):
@@ -88,3 +102,12 @@ class MiniParadigm(models.Model):
 
     def __str__(self):
         return "%s: %s" % (self.msd, self.wordform)
+
+    def get_absolute_url(self):
+        return "/mini-paradigm/%i" % self.id
+
+
+class Affiliation(models.Model):
+    translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
+    title = models.CharField(max_length=250)
+    pageId = models.CharField(max_length=25)

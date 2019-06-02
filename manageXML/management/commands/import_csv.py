@@ -3,6 +3,14 @@ from manageXML.models import *
 import io, csv, os, glob, re
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from uralicNLP import uralicApi
+from wiki.semantic_api import SemanticAPI
+import json, html, re
+from lxml import etree
+from io import StringIO
+
+semAPI = SemanticAPI()
+parser = etree.HTMLParser()
 
 new_xml = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
 pos_files = defaultdict(list)
@@ -90,7 +98,84 @@ def read_csv(filename, delimiter=';'):
 match_para = re.compile('\(.*?\)')  # match parenthesis
 
 
+def analyze(word, lang):
+    # word = word.lower()
+    a = uralicApi.analyze(word, lang)
+    a = map(lambda r: r[0].split('+'), a)
+    a = list(filter(lambda r: r[0] == word, a))
+    if not a:
+        return [[None]]
+    a = list(map(lambda r: r[1:], a))
+    return a
+
+
+def mediawiki_query(word, lexeme):
+    '''
+    Queries MediaWiki to retrieve information stored there.
+
+    :param word: Skolt Sami word
+    :param lexeme: Finnish word
+    :return:
+    '''
+    # Contlex (can download XMLs and parse them later using https://github.com/mikahama/saame_testi/blob/master/download_sanat.py)
+
+    title, pageId, pos, translations, contlex, miniparam = (None,) * 6
+
+    r1 = semAPI.ask(query=(
+        '[[Sms:%s]]' % word, '?Category', '?POS', '?Lang', '?Contlex')
+    )
+
+    if not r1['query']['results']:
+        return title, pageId, pos, translations, contlex, miniparam
+
+    title, info = r1['query']['results'].popitem()
+    info = info['printouts']
+    pos = info['POS'][0]['fulltext']
+    contlexs = [i['fulltext'] for i in info['Contlex']]
+
+    r2 = semAPI.parse(title)
+    if "error" not in r2:
+        r2 = r2['parse']
+        pageId = r2['pageid']
+        lines = r2['text']['*'].split('\n')
+        lines = filter(lambda t: 'class="json_data"' in t, lines)
+        lines = map(lambda t:
+                    t[len('<p><span style="display:none" class="json_data">'):],
+                    lines)
+        data = list(map(lambda t: json.loads(t), lines))
+        for d in data:
+            translations = d['translations']
+            if 'fin' in translations:
+                translations = translations['fin']  # [{'word':..., 'pos':...}]
+                translations = list(map(lambda t:
+                                        (t['word'].strip(), t['pos'],),
+                                        translations))
+                if lexeme not in dict(translations):
+                    continue
+
+            try:
+                morph = html.unescape(d['morph']['lg']['stg'])
+                tree = etree.parse(StringIO(morph), parser=parser)
+                sts = tree.xpath("//st")
+                contlex = [{**st.attrib, 'text': st.text.strip()} for st in sts]
+            except:
+                pass
+
+            try:
+                variants = html.unescape(d['morph']['lg']['variants'])
+                tree = etree.parse(StringIO(variants), parser=parser)
+                l_vars = tree.xpath("//l_var")
+                miniparam = [l_var.text for l_var in l_vars]
+            except:
+                pass
+
+            return title, pageId, pos, translations, contlex, miniparam
+
+    return title, pageId, pos, translations, contlex, miniparam
+
+
 def process_row(row, df, lang_source, lang_target):
+    row_dict = dict(row)
     word_1 = row[0][1]  # first word
     word_2 = row[1][1]  # second word
 
@@ -100,13 +185,67 @@ def process_row(row, df, lang_source, lang_target):
     word_1 = match_para.sub('', word_1).strip()  # remove any additional information
     word_2 = match_para.sub('', word_2).strip()  # remove any additional information
 
+    word_1_analysis = analyze(word_1, 'fin')
+    lexeme_pos = word_1_analysis[0][0] if word_1_analysis[0][0] else ''
+
+    word_2_analysis = analyze(word_2, 'sms')
+    mediawiki_data = mediawiki_query(word_2, word_1)
+    title, pageId, pos, translations, contlex, miniparam = mediawiki_data
+
     extra_notes = map(lambda v: ':'.join(v), row)  # convert the row into (k:v)
 
-    e = Element(lexeme=word_1, language=lang_target, notes="\n".join(extra_notes), imported_from=df)
+    # add the lexeme
+    e = Element(lexeme=word_1,
+                pos=lexeme_pos,
+                language=lang_target,
+                notes="\n".join(extra_notes),
+                imported_from=df)
     e.save()
 
-    t = Translation(element=e, text=word_2, language=lang_source)
-    t.save()
+    if not word_2_analysis[0][0]:
+        t = Translation(element=e,
+                        text=word_2,
+                        language=lang_source)
+        t.save()
+        return
+
+    word_2_analysis = set(map(lambda wa: wa[0], word_2_analysis))
+
+    for analysis in word_2_analysis:
+        pos = analysis
+
+        # add its translation
+        c = list(filter(lambda c: 'contlex' in c and c['contlex'].startswith(pos + '_'), contlex)) if contlex else []
+
+        if c:
+            c = c[0]
+            t = Translation(element=e,
+                            text=word_2,
+                            pos=pos,
+                            contlex=c['contlex'] if 'contlex' in c else '',
+                            inflexId=c['inflexid'] if 'inflexid' in c else '',
+                            language=lang_source)
+        else:
+            t = Translation(element=e,
+                            text=word_2,
+                            pos=pos,
+                            language=lang_source)
+        t.save()
+
+        # for each translation, add the source
+        s = Source(translation=t, name=row_dict['teâttkäivv'], type='book')
+        s.save()
+
+        # add mini paradigms
+        if miniparam:
+            for mp in miniparam:
+                m = MiniParadigm(translation=t, wordform=mp)
+                m.save()
+
+        if title:
+            # add affiliation
+            a = Affiliation(translation=t, title=title, pageId=pageId)
+            a.save()
 
 
 class Command(BaseCommand):

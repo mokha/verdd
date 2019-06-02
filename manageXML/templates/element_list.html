@@ -32,7 +32,7 @@
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">
-                <span class="glyphicon glyphicon-search"></span> Search
+                <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
             </button>
         </div>
     </form>
@@ -53,7 +53,7 @@
         </thead>
         <tbody>
         {% for obj in object_list %}
-            <tr>
+            <tr {% if obj.checked %}class="table-success"{% endif %}>
                 <td>{{ obj.id }}</td>
                 <td>{{ obj.lexeme }}</td>
                 <td>{{ obj.pos }}</td>
@@ -64,12 +64,14 @@
                         {% endfor %}
                     </ul>
                 </td>
-                <td>{% if t.checked %}✓{% else %}✗{% endif %}</td>
+                <td>{% if obj.checked %}✓{% else %}✗{% endif %}</td>
                 <td>{{ obj.notes|linebreaksbr }}</td>
                 <td>
                     <ul>
                         <li><a href="{% url 'element-detail' pk=obj.pk slug=obj.slug %}">{% trans "view" %}</a></li>
-                        <li><a href="{% url 'element-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'element-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
+                        {% endif %}
                     </ul>
                 </td>
             </tr>
@@ -79,21 +81,22 @@
 
     {% if is_paginated %}
         {% if page_obj.has_previous %}
-            <a href="?{% param_replace page=1 %}">First</a>
+            <a href="?{% param_replace page=1 %}">{% trans "First" %}</a>
             {% if page_obj.previous_page_number != 1 %}
-                <a href="?{% param_replace page=page_obj.previous_page_number %}">Previous</a>
+                <a href="?{% param_replace page=page_obj.previous_page_number %}">{% trans "Previous" %}</a>
             {% endif %}
         {% endif %}
 
-        {% trans "Page" %} {{ page_obj.number }} of {{ paginator.num_pages }}
+        {% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ paginator.num_pages }}
 
         {% if page_obj.has_next %}
             {% if page_obj.next_page_number != paginator.num_pages %}
-                <a href="?{% param_replace page=page_obj.next_page_number %}">Next</a>
+                <a href="?{% param_replace page=page_obj.next_page_number %}">{% trans "Next" %}</a>
             {% endif %}
-            <a href="?{% param_replace page=paginator.num_pages %}">Last</a>
+            <a href="?{% param_replace page=paginator.num_pages %}">{% trans "Last" %}</a>
         {% endif %}
 
-        {#        <p>{% trans "Results" %}: {{ page_obj.start_index }}—{{ page_obj.end_index }}</p>#}
+        <p></p>
     {% endif %}
+    <p><b>{% trans "Total" %}:</b> {{ page_obj.paginator.count }} {% if is_paginated %}({% trans "Showing" %}: {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %}</p>
 {% endblock %}

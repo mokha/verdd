@@ -1,6 +1,120 @@
+from .models import *
 from django import forms
+from django.utils.translation import gettext as _
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column
+from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML
 
-class ElementForm(forms.Form):
-    pass
+
+class ElementForm(forms.ModelForm):
+    lexeme = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Lexeme')}))
+    pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Processed'))
+
+    class Meta:
+        model = Element
+        fields = ['lexeme', 'pos', 'notes', 'checked']
+
+    def __init__(self, *args, **kwargs):
+        super(ElementForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h3>%s</h3>" % _("Lexeme: %s") % "{{ form.instance.lexeme }}"),
+                css_class=''
+            ),
+            Row(
+                Column('lexeme', css_class='form-group col-md-6 mb-0'),
+                Column('pos', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            'notes',
+            Div(
+                HTML("<h3>%s</h3>" % _("Translations (%s)") % "{{ form.instance.lexeme.translations|length }}"),
+                HTML('{% include "translation_data.html" with translations=form.instance.translation_set.all %}'),
+                css_class=''
+            ),
+            'checked',
+            Submit('submit', 'Save')
+        )
+
+
+class TranslationForm(forms.ModelForm):
+    lexeme = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Word')}))
+    pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
+    contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
+    type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
+    lemmaId = forms.ChoiceField(required=False, label=_('Lemma ID'))
+    inflexId = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Inflex ID')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+
+    class Meta:
+        model = Translation
+        fields = ['text', 'pos', 'contlex', 'type', 'lemmaId', 'inflexId', 'notes']
+
+    def __init__(self, *args, **kwargs):
+        super(TranslationForm, self).__init__(*args, **kwargs)
+        self.fields['lemmaId'].queryset = Translation.objects.filter(element=self.instance.element)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h3>%s</h3>" % _("Translation: %s") % "{{ form.instance.text }}"),
+                css_class=''
+            ),
+            Row(
+                Column('text', css_class='form-group col-md-6 mb-0'),
+                Column('pos', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('contlex', css_class='form-group col-md-6 mb-0'),
+                Column('type', css_class='form-group col-md-3 mb-0'),
+                Column('inflexId', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            ),
+            'lemmaId',
+            'notes',
+            Submit('submit', 'Save')
+        )
+
+
+class SourceForm(forms.ModelForm):
+    class Meta:
+        model = Source
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super(SourceForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit('submit', 'Save')
+        )
+
+
+class MiniParadigmForm(forms.ModelForm):
+    class Meta:
+        model = MiniParadigm
+        fields = ['wordform']
+
+    def __init__(self, *args, **kwargs):
+        super(MiniParadigmForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit('submit', 'Save')
+        )
+
+
+class MiniParadigmCreateForm(forms.ModelForm):
+    class Meta:
+        model = MiniParadigm
+        fields = ['wordform']
+
+    def __init__(self, *args, **kwargs):
+        super(MiniParadigmCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit('submit', 'Save')
+        )

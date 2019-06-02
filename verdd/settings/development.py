@@ -18,3 +18,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '',
 }
+
+INTERNAL_IPS = ['127.0.0.1']
+DEBUG_TOOLBAR_PATCH_SETTINGS = False

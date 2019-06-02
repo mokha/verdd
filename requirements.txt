@@ -12,6 +12,7 @@ django-simple-history==2.7.2
 django-widget-tweaks==1.4.3
 hfst==3.15.0.0b0
 idna==2.8
+lxml==4.3.3
 mikatools==0.0.6
 oauthlib==3.0.1
 python-decouple==3.1

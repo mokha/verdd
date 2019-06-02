@@ -1,0 +1,57 @@
+{% load i18n %}
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>{% trans "ID" %}</th>
+        <th>{% trans "Text" %}</th>
+        <th>{% trans "Lang" %}</th>
+        <th>{% trans "POS" %}</th>
+        <th>{% trans "Sources" %}</th>
+        <th>{% trans "Mini Paradigm" %}</th>
+        <th>{% trans "Actions" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for translation in translations %}
+        <tr>
+            <td>{{ translation.id }}</td>
+            <td>{{ translation.text }}</td>
+            <td>{{ translation.language }}</td>
+            <td>{{ translation.pos }}</td>
+            <td>
+                <ul>
+                    {% for s in translation.source_set.all %}
+                        <li>{{ s.name }} (<a href="{% url 'source-detail' pk=s.pk %}">{% trans "view" %}</a>
+                            {% if user.is_authenticated %} / <a
+                                    href="{% url 'source-detail' pk=s.pk %}">{% trans "edit" %}</a>{% endif %})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    {% for m in translation.mini_paradigm_set.all %}
+                        <li>{{ m.wordform }} (<a href="{% url 'mini-paradigm-detail' pk=m.pk %}">{% trans "view" %}</a>
+                            {% if user.is_authenticated %} / <a
+                                    href="{% url 'mini-paradigm-detail' pk=m.pk %}">{% trans "edit" %}</a>{% endif %})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>
+                        <a href="{% url 'translation-detail' pk=translation.pk slug=translation.slug %}">{% trans "view" %}</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li>
+                            <a href="{% url 'translation-edit' pk=translation.pk slug=translation.slug %}">{% trans "edit" %}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

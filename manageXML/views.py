@@ -8,11 +8,12 @@ from django_filters.widgets import RangeWidget
 import django_filters
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext as _
 import string
-from manageXML.models import *
-from manageXML.forms import *
+from .models import *
+from .forms import *
 
 
 class FilteredListView(ListView):
@@ -95,6 +96,46 @@ class ElementDetailView(DetailView):
     template_name = 'element_detail.html'
 
 
-class ElementEditView(FormView):
+class TranslationDetailView(DetailView):
+    model = Translation
+    template_name = 'translation_detail.html'
+
+
+class SourceDetailView(DetailView):
+    model = Source
+    template_name = 'source_detail.html'
+
+
+class MiniParadigmDetailView(DetailView):
+    model = MiniParadigm
+    template_name = 'mini_paradigm_detail.html'
+
+
+class ElementEditView(LoginRequiredMixin, UpdateView):
     template_name = 'element_edit.html'
+    model = Element
     form_class = ElementForm
+
+
+class TranslationEditView(LoginRequiredMixin, UpdateView):
+    template_name = 'translation_edit.html'
+    model = Translation
+    form_class = TranslationForm
+
+
+class SourceEditView(LoginRequiredMixin, UpdateView):
+    template_name = 'source_edit.html'
+    model = Source
+    form_class = SourceForm
+
+
+class MiniParadigmEditView(LoginRequiredMixin, UpdateView):
+    template_name = 'mini_paradigm_edit.html'
+    model = MiniParadigm
+    form_class = MiniParadigmForm
+
+
+class MiniParadigmCreateView(LoginRequiredMixin, CreateView):
+    template_name = 'mini_paradigm_add.html'
+    model = MiniParadigm
+    form_class = MiniParadigmCreateForm

@@ -1,9 +1,11 @@
 {% extends 'template.html' %}
 {% load i18n %}
 {% load custom_tags %}
-{% load widget_tweaks %}
 
 {% block main_content %}
-    <h1>{{ object.lexeme }}</h1>
-
+    {% include 'element_data.html' with object=object %}
+    <h2>{% trans "Translations:" %}</h2>
+    <div id="translations-details">
+        {% include "translation_data.html" with translations=object.translation_set.all %}
+    </div>
 {% endblock %}

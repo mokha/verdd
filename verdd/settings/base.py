@@ -128,7 +128,7 @@ FORCE_SCRIPT_NAME = BASE_URL.rstrip('/')
 STATIC_ROOT = 'static'
 STATIC_URL = '%s/static/' % FORCE_SCRIPT_NAME
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "../static"),
+    os.path.join(BASE_DIR, "../assets"),
 ]
 
 # Localization settings

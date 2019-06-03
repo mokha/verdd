@@ -125,6 +125,7 @@ WIKI_URL = config('WIKI_URL')
 BASE_URL = config('BASE_URL')
 FORCE_SCRIPT_NAME = BASE_URL.rstrip('/')
 
+STATIC_ROOT = 'static'
 STATIC_URL = '%s/static/' % FORCE_SCRIPT_NAME
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "../static"),

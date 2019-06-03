@@ -91,7 +91,7 @@ class Source(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return "/source/%i" % self.id
+        return "/translation/%i-%s" % (self.translation.id, self.translation.slug())
 
 
 class MiniParadigm(models.Model):
@@ -104,7 +104,7 @@ class MiniParadigm(models.Model):
         return "%s: %s" % (self.msd, self.wordform)
 
     def get_absolute_url(self):
-        return "/mini-paradigm/%i" % self.id
+        return "/translation/%i-%s" % (self.translation.id, self.translation.slug())
 
 
 class Affiliation(models.Model):

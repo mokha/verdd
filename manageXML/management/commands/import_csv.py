@@ -152,7 +152,7 @@ def mediawiki_query(word, lexeme):
             if 'fin' in translations:
                 translations = translations['fin']  # [{'word':..., 'pos':...}]
                 translations = list(map(lambda t:
-                                        (t['word'].strip(), t['pos'],),
+                                        (t['word'].strip(), t['pos'] if 'pos' in t else '',),
                                         translations))
                 if lexeme not in dict(translations):
                     continue

@@ -21,15 +21,15 @@ class CustomLoginForm(LoginForm):
                 "{% endif %}"
             )
         )
-        # Add password reset link.
-        self.helper.layout.append(
-            HTML(
-                "<p><a class='button secondaryAction' href={url}>{text}</a></p>".format(
-                    url=reverse('account_reset_password'),
-                    text=_('Forgot Password?')
-                )
-            )
-        )
+        # # Add password reset link.
+        # self.helper.layout.append(
+        #     HTML(
+        #         "<p><a class='button secondaryAction' href={url}>{text}</a></p>".format(
+        #             url=reverse('account_reset_password'),
+        #             text=_('Forgot Password?')
+        #         )
+        #     )
+        # )
         # Add submit button like in original form.
         self.helper.layout.append(
             HTML(

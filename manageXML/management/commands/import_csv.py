@@ -100,13 +100,17 @@ match_para = re.compile('\(.*?\)')  # match parenthesis
 
 def analyze(word, lang):
     # word = word.lower()
-    a = uralicApi.analyze(word, lang)
-    a = map(lambda r: r[0].split('+'), a)
-    a = list(filter(lambda r: r[0] == word, a))
-    if not a:
-        return [[None]]
-    a = list(map(lambda r: r[1:], a))
-    return a
+    try:
+        a = uralicApi.analyze(word, lang)
+        a = map(lambda r: r[0].split('+'), a)
+        a = list(filter(lambda r: r[0] == word, a))
+        if not a:
+            return [[None]]
+        a = list(map(lambda r: r[1:], a))
+        return a
+    except:
+        pass
+    return [[None]]
 
 
 def mediawiki_query(word, lexeme):

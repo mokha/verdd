@@ -21,7 +21,7 @@ class ElementForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 HTML(
-                    "<h3>%s</h3>" % _("Lexeme: %s") % "{{ form.instance.lexeme }}"),
+                    "<h3>%s: %s</h3>" % (_("Lexeme"), "{{ form.instance.lexeme }}")),
                 css_class=''
             ),
             Row(
@@ -32,7 +32,7 @@ class ElementForm(forms.ModelForm):
             'notes',
             Div(
                 HTML("<h3>%s</h3>" % _("Translations (%s)") % "{{ form.instance.lexeme.translations|length }}"),
-                HTML('{% include "translation_data.html" with translations=form.instance.translation_set.all %}'),
+                HTML('{% include "translation_data_list.html" with translations=form.instance.translation_set.all %}'),
                 css_class=''
             ),
             'checked',
@@ -61,7 +61,7 @@ class TranslationForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 HTML(
-                    "<h3>%s</h3>" % _("Translation: %s") % "{{ form.instance.text }}"),
+                    "<h3>%s: %s</h3>" % (_("Translation"), "{{ form.instance.text }}")),
                 css_class=''
             ),
             Row(
@@ -82,39 +82,78 @@ class TranslationForm(forms.ModelForm):
 
 
 class SourceForm(forms.ModelForm):
+    type = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Type')}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Name')}))
+    page = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Page')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+
     class Meta:
         model = Source
-        fields = ['name']
+        fields = ['type', 'name', 'page', 'notes']
 
     def __init__(self, *args, **kwargs):
         super(SourceForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h3>%s: %s</h3>" % (_("Source"), "{{ form.instance.name }}")),
+                css_class=''
+            ),
+            Row(
+                Column('name', css_class='form-group col-md-6 mb-0'),
+                Column('type', css_class='form-group col-md-3 mb-0'),
+                Column('page', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            ),
+            'notes',
             Submit('submit', 'Save')
         )
 
 
 class MiniParadigmForm(forms.ModelForm):
+    wordform = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Word form')}))
+    msd = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Morphosyntactic description')}))
+
     class Meta:
         model = MiniParadigm
-        fields = ['wordform']
+        fields = ['wordform', 'msd']
 
     def __init__(self, *args, **kwargs):
         super(MiniParadigmForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h3>%s: %s</h3>" % (_("Word form"), "{{ form.instance.wordform }}")),
+                css_class=''
+            ),
+            Row(
+                Column('wordform', css_class='form-group col-md-7 mb-0'),
+                Column('msd', css_class='form-group col-md-5 mb-0'),
+                css_class='form-row'
+            ),
             Submit('submit', 'Save')
         )
 
 
 class MiniParadigmCreateForm(forms.ModelForm):
+    wordform = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Word form')}))
+    msd = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Morphosyntactic description')}))
+
     class Meta:
         model = MiniParadigm
-        fields = ['wordform']
+        fields = ['wordform', 'msd']
 
     def __init__(self, *args, **kwargs):
         super(MiniParadigmCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+
+            Row(
+                Column('wordform', css_class='form-group col-md-7 mb-0'),
+                Column('msd', css_class='form-group col-md-5 mb-0'),
+                css_class='form-row'
+            ),
             Submit('submit', 'Save')
         )

@@ -1,0 +1,59 @@
+{% load i18n %}
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>{% trans "ID" %}</th>
+        <th>{% trans "Text" %}</th>
+        <th>{% trans "Lang" %}</th>
+        <th>{% trans "POS" %}</th>
+        <th>{% trans "Sources" %}</th>
+        <th>{% trans "Mini Paradigm" %}</th>
+        <th>{% trans "Actions" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for translation in translations %}
+        <tr>
+            <td>{{ translation.id }}</td>
+            <td>{{ translation.text }}</td>
+            <td>{{ translation.language }}</td>
+            <td>{{ translation.pos }}</td>
+            <td>
+                <ul>
+                    {% for s in translation.source_set.all %}
+                        <li>{{ s.name }} ({% if user.is_authenticated %}<a
+                                href="{% url 'source-edit' pk=s.pk %}">{% trans "edit" %}</a>{% endif %})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    {% for m in translation.miniparadigm_set.all %}
+                        <li>{{ m.wordform }} ({% if user.is_authenticated %}<a
+                                href="{% url 'mini-paradigm-edit' pk=m.pk %}">{% trans "edit" %}</a>{% endif %})
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p>{% if user.is_authenticated %}
+                    <a class="btn btn-outline-secondary btn-block"
+                       href="{% url 'mini-paradigm-add' translation_id=translation.id %}">{% trans "add" %}</a>{% endif %}
+                </p>
+            </td>
+            <td>
+                <ul>
+                    <li>
+                        <a href="{% url 'translation-detail' pk=translation.pk slug=translation.slug %}">{% trans "view" %}</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li>
+                            <a href="{% url 'translation-edit' pk=translation.pk slug=translation.slug %}">{% trans "edit" %}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

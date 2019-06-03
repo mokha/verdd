@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 import string
 from .models import *
 from .forms import *
+from django.shortcuts import get_object_or_404
 
 
 class FilteredListView(ListView):
@@ -139,3 +140,8 @@ class MiniParadigmCreateView(LoginRequiredMixin, CreateView):
     template_name = 'mini_paradigm_add.html'
     model = MiniParadigm
     form_class = MiniParadigmCreateForm
+
+    def form_valid(self, form):
+        form.instance.translation = get_object_or_404(Translation,
+                                                      pk=self.kwargs['translation_id'])
+        return super().form_valid(form)

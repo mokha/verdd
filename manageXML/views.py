@@ -17,9 +17,20 @@ from .forms import *
 from django.shortcuts import get_object_or_404
 
 
-class FilteredListView(ListView):
-    filterset_class = None
+class TitleMixin:
     title = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.get_title()
+        return context
+
+    def get_title(self):
+        return self.title
+
+
+class FilteredListView(TitleMixin, ListView):
+    filterset_class = None
 
     def get_queryset(self):
         # Get the queryset however you usually would.  For example:
@@ -35,11 +46,7 @@ class FilteredListView(ListView):
         context = super().get_context_data(**kwargs)
         # Pass the filterset to the template - it provides the form.
         context['filterset'] = self.filterset
-        context['title'] = self.get_title()
         return context
-
-    def get_title(self):
-        return self.title
 
 
 class ElementFilter(django_filters.FilterSet):
@@ -92,54 +99,86 @@ class ElementView(FilteredListView):
     title = _("Homepage")
 
 
-class ElementDetailView(DetailView):
+class ElementDetailView(TitleMixin, DetailView):
     model = Element
     template_name = 'element_detail.html'
 
+    def get_title(self):
+        return self.object
 
-class TranslationDetailView(DetailView):
+
+class TranslationDetailView(TitleMixin, DetailView):
     model = Translation
     template_name = 'translation_detail.html'
 
-
-class SourceDetailView(DetailView):
-    model = Source
-    template_name = 'source_detail.html'
+    def get_title(self):
+        return "%s (%s)" % (self.object.text, self.object.element.lexeme)
 
 
-class MiniParadigmDetailView(DetailView):
-    model = MiniParadigm
-    template_name = 'mini_paradigm_detail.html'
+#
+# class SourceDetailView(DetailView):
+#     model = Source
+#     template_name = 'source_detail.html'
+#
+#
+# class MiniParadigmDetailView(DetailView):
+#     model = MiniParadigm
+#     template_name = 'mini_paradigm_detail.html'
 
 
-class ElementEditView(LoginRequiredMixin, UpdateView):
+class ElementEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     template_name = 'element_edit.html'
     model = Element
     form_class = ElementForm
 
+    def get_title(self):
+        return "%s: %s" % (_("Edit"), self.object.lexeme)
 
-class TranslationEditView(LoginRequiredMixin, UpdateView):
+
+class TranslationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     template_name = 'translation_edit.html'
     model = Translation
     form_class = TranslationForm
 
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit translation"), self.object.text, self.object.element.lexeme)
 
-class SourceEditView(LoginRequiredMixin, UpdateView):
+
+class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     template_name = 'source_edit.html'
     model = Source
     form_class = SourceForm
 
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit source"), self.object.translation.text, self.object.translation.element.lexeme)
 
-class MiniParadigmEditView(LoginRequiredMixin, UpdateView):
+
+class MiniParadigmEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     template_name = 'mini_paradigm_edit.html'
     model = MiniParadigm
     form_class = MiniParadigmForm
 
+    def get_title(self):
+        return "%s: %s (%s)" % (
+            _("Edit mini paradigm"), self.object.translation.text, self.object.translation.element.lexeme)
 
-class MiniParadigmCreateView(LoginRequiredMixin, CreateView):
+
+class MiniParadigmCreateView(LoginRequiredMixin, TitleMixin, CreateView):
     template_name = 'mini_paradigm_add.html'
     model = MiniParadigm
     form_class = MiniParadigmCreateForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pass the filterset to the template - it provides the form.
+        context['translation'] = get_object_or_404(Translation,
+                                                      pk=self.kwargs['translation_id'])
+        return context
+
+    def get_title(self):
+        translation = Translation.objects.get(pk=self.kwargs['translation_id'])
+        return "%s: %s (%s)" % (
+            _("Add mini paradigm"), translation.text, translation.element.lexeme)
 
     def form_valid(self, form):
         form.instance.translation = get_object_or_404(Translation,

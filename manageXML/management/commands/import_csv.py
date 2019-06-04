@@ -107,6 +107,7 @@ def analyze(word, lang):
         if not a:
             return [[None]]
         a = list(map(lambda r: r[1:], a))
+        a = list(filter(lambda r: r, a))
         return a
     except:
         pass
@@ -135,47 +136,52 @@ def mediawiki_query(word, lexeme):
     title, info = r1['query']['results'].popitem()
     info = info['printouts']
     pos = info['POS'][0]['fulltext']
-    contlex = [i['fulltext'] for i in info['Contlex']] # @ TODO: USE THE FIRST CONTELX HERE
+    contlex = [i['fulltext'] for i in info['Contlex']]  # @ TODO: USE THE FIRST CONTELX HERE
 
     r2 = semAPI.parse(title)
     if "error" not in r2:
         r2 = r2['parse']
         pageId = r2['pageid']
-        lines = r2['text']['*'].split('\n')
-        lines = filter(lambda t: 'class="json_data"' in t, lines)
-        lines = map(lambda t:
-                    t[len('<p><span style="display:none" class="json_data">'):],
-                    lines)
-        data = list(map(lambda t: json.loads(t), lines))
-        # @TODO: make sure that the translation is matched to Finnish word (for contlex and miniparadigm)
-        # @TODO: if varId exists, always use 1, else use first one
-        for d in data:
-            translations = d['translations']
-            if 'fin' in translations:
-                translations = translations['fin']  # [{'word':..., 'pos':...}]
-                translations = list(map(lambda t:
-                                        (t['word'].strip(), t['pos'],),
-                                        translations))
-                if lexeme not in dict(translations):
-                    continue
 
-            # try:
-            #     morph = html.unescape(d['morph']['lg']['stg'])
-            #     tree = etree.parse(StringIO(morph), parser=parser)
-            #     sts = tree.xpath("//st")
-            #     contlex = [{**st.attrib, 'text': st.text.strip()} for st in sts]
-            # except:
-            #     pass
+        lines = ''.join(r2['text']['*'].split('\n'))  # combine everything
 
-            try:
-                variants = html.unescape(d['morph']['lg']['variants']) # @TODO: it should be the mini_paradigm tag
-                tree = etree.parse(StringIO(variants), parser=parser)
-                l_vars = tree.xpath("//l_var")
-                miniparam = [l_var.text for l_var in l_vars]
-            except:
-                pass
+        lines = re.findall(r'<span style="display:none" class="json_data">(.+?)</span>', lines,
+                           re.UNICODE | re.IGNORECASE)  # get the json data only
 
-            return title, pageId, pos, translations, contlex, miniparam
+        lines = map(lambda t: re.sub(r'<audio>(.+?)</audio>', '', html.unescape(t.replace('\\n', '')),
+                                     re.UNICODE | re.IGNORECASE), lines)  # audios aren't imported in the JSON properly
+        try:
+            data = list(map(lambda t: json.loads(t), lines))
+            for d in data:
+                translations = d['translations']
+                if 'fin' in translations:
+                    translations = translations['fin']  # [{'word':..., 'pos':...}]
+                    translations = list(map(lambda t:
+                                            (t['word'].strip() if 'word' in t and t['word'] else '',
+                                             t['pos'] if 'pos' in t else '',),
+                                            translations))
+                    if lexeme not in dict(translations):
+                        continue
+
+                try:
+                    morph = html.unescape(d['morph']['lg']['stg'])
+                    tree = etree.parse(StringIO(morph), parser=parser)
+                    sts = tree.xpath("//st")
+                    contlex = [{**st.attrib, 'text': st.text.strip()} for st in sts]
+                except:
+                    pass
+
+                try:
+                    variants = html.unescape(d['morph']['lg']['variants'])
+                    tree = etree.parse(StringIO(variants), parser=parser)
+                    l_vars = tree.xpath("//l_var")
+                    miniparam = [l_var.text for l_var in l_vars]
+                except:
+                    pass
+
+                return title, pageId, pos, translations, contlex, miniparam
+        except:
+            pass
 
     return title, pageId, pos, translations, contlex, miniparam
 
@@ -208,7 +214,7 @@ def process_row(row, df, lang_source, lang_target):
                 imported_from=df)
     e.save()
 
-    if not word_2_analysis[0][0]:
+    if not word_2_analysis or not word_2_analysis[0][0]:
         t = Translation(element=e,
                         text=word_2,
                         language=lang_source)

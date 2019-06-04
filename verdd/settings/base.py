@@ -128,7 +128,7 @@ FORCE_SCRIPT_NAME = BASE_URL.rstrip('/')
 STATIC_ROOT = 'static'
 STATIC_URL = '%s/static/' % FORCE_SCRIPT_NAME
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "../static"),
+    os.path.join(BASE_DIR, "../assets"),
 ]
 
 # Localization settings
@@ -167,7 +167,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_FORMS = {
     "login": "users.forms.CustomLoginForm",
-    'signup': 'allauth.account.forms.SignupForm',
+    'signup': 'users.forms.CustomSignupForm',
     'add_email': 'allauth.account.forms.AddEmailForm',
     'change_password': 'allauth.account.forms.ChangePasswordForm',
     'set_password': 'allauth.account.forms.SetPasswordForm',
@@ -175,7 +175,6 @@ ACCOUNT_FORMS = {
     'reset_password_from_key': 'allauth.account.forms.ResetPasswordKeyForm',
     'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
 }
-ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_LOGOUT_ON_GET = True
 # End Auth settings

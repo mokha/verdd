@@ -239,12 +239,12 @@ def process_row(row, df, lang_source, lang_target):
                             pos=pos,
                             contlex=c['contlex'] if 'contlex' in c else '',
                             inflexId=c['inflexid'] if 'inflexid' in c else '',
-                            language=lang_source)
+                            language=lang_target)
         else:
             t = Translation(element=e,
                             text=word_2,
                             pos=pos,
-                            language=lang_source)
+                            language=lang_target)
         t.save()
 
         # for each translation, add the source

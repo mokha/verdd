@@ -221,6 +221,10 @@ def process_row(row, df, lang_source, lang_target):
                         text=word_2,
                         language=lang_target)
         t.save()
+
+        # for each translation, add the source
+        s = Source(translation=t, name=row_dict['teâttkäivv'], type='book')
+        s.save()
         return
 
     word_2_analysis = set(map(lambda wa: wa[0], word_2_analysis))

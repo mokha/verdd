@@ -135,7 +135,7 @@ def mediawiki_query(word, lexeme):
     title, info = r1['query']['results'].popitem()
     info = info['printouts']
     pos = info['POS'][0]['fulltext']
-    contlexs = [i['fulltext'] for i in info['Contlex']]
+    contlex = [i['fulltext'] for i in info['Contlex']] # @ TODO: USE THE FIRST CONTELX HERE
 
     r2 = semAPI.parse(title)
     if "error" not in r2:
@@ -147,6 +147,8 @@ def mediawiki_query(word, lexeme):
                     t[len('<p><span style="display:none" class="json_data">'):],
                     lines)
         data = list(map(lambda t: json.loads(t), lines))
+        # @TODO: make sure that the translation is matched to Finnish word (for contlex and miniparadigm)
+        # @TODO: if varId exists, always use 1, else use first one
         for d in data:
             translations = d['translations']
             if 'fin' in translations:
@@ -157,16 +159,16 @@ def mediawiki_query(word, lexeme):
                 if lexeme not in dict(translations):
                     continue
 
-            try:
-                morph = html.unescape(d['morph']['lg']['stg'])
-                tree = etree.parse(StringIO(morph), parser=parser)
-                sts = tree.xpath("//st")
-                contlex = [{**st.attrib, 'text': st.text.strip()} for st in sts]
-            except:
-                pass
+            # try:
+            #     morph = html.unescape(d['morph']['lg']['stg'])
+            #     tree = etree.parse(StringIO(morph), parser=parser)
+            #     sts = tree.xpath("//st")
+            #     contlex = [{**st.attrib, 'text': st.text.strip()} for st in sts]
+            # except:
+            #     pass
 
             try:
-                variants = html.unescape(d['morph']['lg']['variants'])
+                variants = html.unescape(d['morph']['lg']['variants']) # @TODO: it should be the mini_paradigm tag
                 tree = etree.parse(StringIO(variants), parser=parser)
                 l_vars = tree.xpath("//l_var")
                 miniparam = [l_var.text for l_var in l_vars]

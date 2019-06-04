@@ -1,6 +1,7 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 from django.utils.text import slugify
+from django.urls import reverse
 
 
 class DataFile(models.Model):
@@ -30,7 +31,7 @@ class Element(models.Model):
         return slugify(self.lexeme) if self.lexeme else 'NA'
 
     def get_absolute_url(self):
-        return "/lexeme/%i-%s" % (self.id, self.slug())
+        return reverse('element-detail', kwargs={'pk': self.pk, 'slug': self.slug})
 
 
 class Stem(models.Model):
@@ -75,7 +76,7 @@ class Translation(models.Model):
         return slugify(self.element.lexeme + "-" + self.text) if self.text and self.element.lexeme else 'NA'
 
     def get_absolute_url(self):
-        return "/translation/%i-%s" % (self.id, self.slug())
+        return reverse('translation-detail', kwargs={'pk': self.pk, 'slug': self.slug})
 
 
 class Source(models.Model):
@@ -91,7 +92,8 @@ class Source(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return "/translation/%i-%s" % (self.translation.id, self.translation.slug())
+        return reverse('element-detail',
+                       kwargs={'pk': self.translation.element.pk, 'slug': self.translation.element.slug()})
 
 
 class MiniParadigm(models.Model):
@@ -104,10 +106,10 @@ class MiniParadigm(models.Model):
         return "%s: %s" % (self.msd, self.wordform)
 
     def get_absolute_url(self):
-        return "/translation/%i-%s" % (self.translation.id, self.translation.slug())
+        return reverse('element-detail',
+                       kwargs={'pk': self.translation.element.pk, 'slug': self.translation.element.slug()})
 
 
 class Affiliation(models.Model):
     translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
-    pageId = models.CharField(max_length=25)

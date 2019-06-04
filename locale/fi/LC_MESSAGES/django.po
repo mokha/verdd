@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-01 09:45+0000\n"
+"POT-Creation-Date: 2019-06-04 12:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,17 +18,272 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: templates/base.html:19 templates/base.html:36
+#: manageXML/forms.py:9 manageXML/forms.py:24
+#: manageXML/templates/element_data.html:3
+#: manageXML/templates/element_list.html:46
+msgid "Lexeme"
+msgstr ""
+
+#: manageXML/forms.py:10 manageXML/forms.py:45
+#: manageXML/templates/element_data.html:6
+#: manageXML/templates/element_list.html:47
+#: manageXML/templates/translation_data.html:6
+#: manageXML/templates/translation_data_list.html:9
+msgid "POS"
+msgstr ""
+
+#: manageXML/forms.py:11 manageXML/forms.py:50 manageXML/forms.py:88
+#: manageXML/templates/element_data.html:10
+#: manageXML/templates/element_list.html:50
+#: manageXML/templates/translation_data.html:12
+#: manageXML/templates/translation_detail.html:46
+msgid "Notes"
+msgstr ""
+
+#: manageXML/forms.py:12 manageXML/templates/element_data.html:8
+#: manageXML/templates/element_list.html:49 manageXML/views.py:60
+msgid "Processed"
+msgstr ""
+
+#: manageXML/forms.py:34
+#, python-format
+msgid "Translations (%s)"
+msgstr ""
+
+#: manageXML/forms.py:44
+msgid "Word"
+msgstr ""
+
+#: manageXML/forms.py:46
+msgid "Continuation Lexicon"
+msgstr ""
+
+#: manageXML/forms.py:47 manageXML/forms.py:85
+#: manageXML/templates/translation_data.html:9
+#: manageXML/templates/translation_detail.html:44
+msgid "Type"
+msgstr ""
+
+#: manageXML/forms.py:48 manageXML/templates/translation_data.html:11
+msgid "Lemma ID"
+msgstr ""
+
+#: manageXML/forms.py:49
+msgid "Inflex ID"
+msgstr ""
+
+#: manageXML/forms.py:64 manageXML/templates/translation_data.html:3
+msgid "Translation"
+msgstr ""
+
+#: manageXML/forms.py:86 manageXML/templates/translation_detail.html:43
+msgid "Name"
+msgstr ""
+
+#: manageXML/forms.py:87 manageXML/templates/element_list.html:90
+#: manageXML/templates/translation_detail.html:45
+msgid "Page"
+msgstr ""
+
+#: manageXML/forms.py:100
+msgid "Source"
+msgstr ""
+
+#: manageXML/forms.py:115 manageXML/forms.py:128 manageXML/forms.py:141
+#: manageXML/templates/translation_detail.html:17
+msgid "Word form"
+msgstr ""
+
+#: manageXML/forms.py:116 manageXML/forms.py:142
+msgid "Morphosyntactic description"
+msgstr ""
+
+#: manageXML/templates/element_data.html:5
+#: manageXML/templates/translation_data.html:5
+msgid "Language (ISO 639-2)"
+msgstr ""
+
+#: manageXML/templates/element_data.html:7
+#: manageXML/templates/translation_data.html:7
+msgid "Last edit"
+msgstr ""
+
+#: manageXML/templates/element_data.html:9
+msgid "True"
+msgstr ""
+
+#: manageXML/templates/element_data.html:9
+msgid "False"
+msgstr ""
+
+#: manageXML/templates/element_detail.html:7
+msgid "Translations:"
+msgstr ""
+
+#: manageXML/templates/element_list.html:9
+msgid "Filter"
+msgstr ""
+
+#: manageXML/templates/element_list.html:35
+msgid "Search"
+msgstr ""
+
+#: manageXML/templates/element_list.html:45
+#: manageXML/templates/translation_data_list.html:6
+#: manageXML/templates/translation_detail.html:15
+#: manageXML/templates/translation_detail.html:42
+msgid "ID"
+msgstr ""
+
+#: manageXML/templates/element_list.html:48
+msgid "Translations"
+msgstr ""
+
+#: manageXML/templates/element_list.html:51
+#: manageXML/templates/translation_data_list.html:12
+msgid "Actions"
+msgstr ""
+
+#: manageXML/templates/element_list.html:71
+#: manageXML/templates/translation_data_list.html:47
+msgid "view"
+msgstr ""
+
+#: manageXML/templates/element_list.html:73
+#: manageXML/templates/translation_data_list.html:26
+#: manageXML/templates/translation_data_list.html:35
+#: manageXML/templates/translation_data_list.html:51
+msgid "edit"
+msgstr ""
+
+#: manageXML/templates/element_list.html:84
+msgid "First"
+msgstr ""
+
+#: manageXML/templates/element_list.html:86
+msgid "Previous"
+msgstr ""
+
+#: manageXML/templates/element_list.html:90
+msgid "of"
+msgstr ""
+
+#: manageXML/templates/element_list.html:94
+msgid "Next"
+msgstr ""
+
+#: manageXML/templates/element_list.html:96
+msgid "Last"
+msgstr ""
+
+#: manageXML/templates/element_list.html:101
+msgid "Total"
+msgstr ""
+
+#: manageXML/templates/element_list.html:101
+msgid "Showing"
+msgstr ""
+
+#: manageXML/templates/translation_data.html:8
+msgid "Cont"
+msgstr ""
+
+#: manageXML/templates/translation_data.html:10
+msgid "Inflex Id"
+msgstr ""
+
+#: manageXML/templates/translation_data_list.html:7
+msgid "Text"
+msgstr ""
+
+#: manageXML/templates/translation_data_list.html:8
+msgid "Lang"
+msgstr ""
+
+#: manageXML/templates/translation_data_list.html:10
+#: manageXML/templates/translation_detail.html:35
+msgid "Sources"
+msgstr ""
+
+#: manageXML/templates/translation_data_list.html:11
+msgid "Mini Paradigm"
+msgstr ""
+
+#: manageXML/templates/translation_data_list.html:41
+msgid "add"
+msgstr ""
+
+#: manageXML/templates/translation_detail.html:8
+msgid "Mini Paradigms"
+msgstr ""
+
+#: manageXML/templates/translation_detail.html:16
+msgid "MSD"
+msgstr ""
+
+#: manageXML/views.py:54
+msgid "Yes"
+msgstr ""
+
+#: manageXML/views.py:55
+msgid "No"
+msgstr ""
+
+#: manageXML/views.py:61
+msgid "Range from"
+msgstr ""
+
+#: manageXML/views.py:62
+msgid "Range to"
+msgstr ""
+
+#: manageXML/views.py:99
+msgid "Homepage"
+msgstr ""
+
+#: manageXML/views.py:135
+msgid "Edit"
+msgstr ""
+
+#: manageXML/views.py:144
+msgid "Edit translation"
+msgstr ""
+
+#: manageXML/views.py:153
+msgid "Edit source"
+msgstr ""
+
+#: manageXML/views.py:163
+msgid "Edit mini paradigm"
+msgstr ""
+
+#: manageXML/views.py:181
+msgid "Add mini paradigm"
+msgstr ""
+
+#: templates/base.html:19
 msgid "Verdd"
 msgstr ""
 
-#: templates/base.html:41
+#: templates/base.html:36
+msgid ""
+"\n"
+"                        Verdd"
+msgstr ""
+
+#: templates/base.html:42
 msgid ""
 "\n"
 "                                Logout"
 msgstr ""
 
-#: templates/base.html:45
+#: templates/base.html:46
+msgid ""
+"\n"
+"                                Signup"
+msgstr ""
+
+#: templates/base.html:49
 msgid ""
 "Sign\n"
 "                                In"
@@ -42,10 +297,10 @@ msgstr ""
 msgid "Sign In"
 msgstr ""
 
-#: verdd/settings/base.py:144
+#: verdd/settings/base.py:147
 msgid "English"
 msgstr ""
 
-#: verdd/settings/base.py:145
+#: verdd/settings/base.py:148
 msgid "Finnish"
 msgstr ""

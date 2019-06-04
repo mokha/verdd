@@ -172,7 +172,7 @@ class MiniParadigmCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         context = super().get_context_data(**kwargs)
         # Pass the filterset to the template - it provides the form.
         context['translation'] = get_object_or_404(Translation,
-                                                      pk=self.kwargs['translation_id'])
+                                                   pk=self.kwargs['translation_id'])
         return context
 
     def get_title(self):

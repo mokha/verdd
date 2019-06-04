@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 
 register = template.Library()
 
@@ -30,3 +31,8 @@ def param_replace(context, **kwargs):
     for k in [k for k, v in d.items() if not v]:
         del d[k]
     return d.urlencode()
+
+
+@register.simple_tag
+def mediawiki_link(title):
+    return "%s%s" % (settings.WIKI_URL, title)

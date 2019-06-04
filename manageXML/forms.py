@@ -31,7 +31,7 @@ class ElementForm(forms.ModelForm):
             ),
             'notes',
             Div(
-                HTML("<h3>%s</h3>" % _("Translations (%s)") % "{{ form.instance.lexeme.translations|length }}"),
+                HTML("<h3>%s</h3>" % _("Translations (%s)") % "{{ form.instance.translation_set.all|length }}"),
                 HTML('{% include "translation_data_list.html" with translations=form.instance.translation_set.all %}'),
                 css_class=''
             ),
@@ -45,7 +45,7 @@ class TranslationForm(forms.ModelForm):
     pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
     contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
     type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
-    lemmaId = forms.ChoiceField(required=False, label=_('Lemma ID'))
+    lemmaId = forms.TypedChoiceField(required=False, label=_('Lemma ID'), empty_value=None)
     inflexId = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Inflex ID')}))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 

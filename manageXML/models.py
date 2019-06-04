@@ -31,7 +31,7 @@ class Element(models.Model):
         return slugify(self.lexeme) if self.lexeme else 'NA'
 
     def get_absolute_url(self):
-        return reverse('element-detail', kwargs={'pk': self.pk, 'slug': self.slug})
+        return reverse('element-detail', kwargs={'pk': self.pk})
 
 
 class Stem(models.Model):
@@ -76,7 +76,7 @@ class Translation(models.Model):
         return slugify(self.element.lexeme + "-" + self.text) if self.text and self.element.lexeme else 'NA'
 
     def get_absolute_url(self):
-        return reverse('translation-detail', kwargs={'pk': self.pk, 'slug': self.slug})
+        return reverse('translation-detail', kwargs={'pk': self.pk})
 
 
 class Source(models.Model):
@@ -93,7 +93,7 @@ class Source(models.Model):
 
     def get_absolute_url(self):
         return reverse('element-detail',
-                       kwargs={'pk': self.translation.element.pk, 'slug': self.translation.element.slug()})
+                       kwargs={'pk': self.translation.element.pk})
 
 
 class MiniParadigm(models.Model):
@@ -107,7 +107,7 @@ class MiniParadigm(models.Model):
 
     def get_absolute_url(self):
         return reverse('element-detail',
-                       kwargs={'pk': self.translation.element.pk, 'slug': self.translation.element.slug()})
+                       kwargs={'pk': self.translation.element.pk})
 
 
 class Affiliation(models.Model):

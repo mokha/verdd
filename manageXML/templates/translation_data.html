@@ -4,7 +4,7 @@
 <div id="translation-details">
     <p><b>{% trans "Language (ISO 639-2)" %}:</b> {{ object.language }}</p>
     <p><b>{% trans "POS" %}:</b> {{ object.pos }}</p>
-    <p><b>{% trans "Last edit" %}:</b> {{ object.history.last.history_date }}</p>
+    <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
     <p><b>{% trans "Cont" %}:</b> {{ object.contlex }}</p>
     <p><b>{% trans "Type" %}:</b> {{ object.type }}</p>
     <p><b>{% trans "Inflex Id" %}:</b> {{ object.inflexId }}</p>

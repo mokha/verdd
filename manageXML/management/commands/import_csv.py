@@ -124,24 +124,23 @@ def mediawiki_query(word, lexeme):
     '''
     # Contlex (can download XMLs and parse them later using https://github.com/mikahama/saame_testi/blob/master/download_sanat.py)
 
-    title, pageId, pos, translations, contlex, miniparam = (None,) * 6
+    title, pos, translations, contlex, miniparam = (None,) * 5
 
     r1 = semAPI.ask(query=(
         '[[Sms:%s]]' % word, '?Category', '?POS', '?Lang', '?Contlex')
     )
 
     if not r1['query']['results']:
-        return title, pageId, pos, translations, contlex, miniparam
+        return title, pos, translations, contlex, miniparam
 
     title, info = r1['query']['results'].popitem()
     info = info['printouts']
     pos = info['POS'][0]['fulltext']
-    contlex = [i['fulltext'] for i in info['Contlex']]  # @ TODO: USE THE FIRST CONTELX HERE
+    # contlex = [i['fulltext'] for i in info['Contlex']]  # using the first contlex
 
     r2 = semAPI.parse(title)
     if "error" not in r2:
         r2 = r2['parse']
-        pageId = r2['pageid']
 
         lines = ''.join(r2['text']['*'].split('\n'))  # combine everything
 
@@ -163,6 +162,8 @@ def mediawiki_query(word, lexeme):
                     if lexeme not in dict(translations):
                         continue
 
+                # Contlex is taken from semantic search now
+                # In case multiple existed, take varId=1. If not possible, take the first one
                 try:
                     morph = html.unescape(d['morph']['lg']['stg'])
                     tree = etree.parse(StringIO(morph), parser=parser)
@@ -172,18 +173,19 @@ def mediawiki_query(word, lexeme):
                     pass
 
                 try:
-                    variants = html.unescape(d['morph']['lg']['variants'])
-                    tree = etree.parse(StringIO(variants), parser=parser)
-                    l_vars = tree.xpath("//l_var")
-                    miniparam = [l_var.text for l_var in l_vars]
+                    mini_paradigm = html.unescape(
+                        d['morph']['lg']['mini_paradigm'])
+                    tree = etree.parse(StringIO(mini_paradigm), parser=parser)
+                    analysis = tree.findall("//analysis")
+                    miniparam = [(a.find('wordform').text, analysis.attrib['ms']) for a in analysis]
                 except:
                     pass
 
-                return title, pageId, pos, translations, contlex, miniparam
+                return title, pos, translations, contlex, miniparam
         except:
             pass
 
-    return title, pageId, pos, translations, contlex, miniparam
+    return title, pos, translations, contlex, miniparam
 
 
 def process_row(row, df, lang_source, lang_target):
@@ -202,14 +204,14 @@ def process_row(row, df, lang_source, lang_target):
 
     word_2_analysis = analyze(word_2, 'sms')
     mediawiki_data = mediawiki_query(word_2, word_1)
-    title, pageId, pos, translations, contlex, miniparam = mediawiki_data
+    title, pos, translations, contlex, miniparam = mediawiki_data
 
-    extra_notes = map(lambda v: ':'.join(v), row)  # convert the row into (k:v)
+    extra_notes = map(lambda v: ': '.join(v), row)  # convert the row into (k:v)
 
     # add the lexeme
     e = Element(lexeme=word_1,
                 pos=lexeme_pos,
-                language=lang_target,
+                language=lang_source,
                 notes="\n".join(extra_notes),
                 imported_from=df)
     e.save()
@@ -217,7 +219,7 @@ def process_row(row, df, lang_source, lang_target):
     if not word_2_analysis or not word_2_analysis[0][0]:
         t = Translation(element=e,
                         text=word_2,
-                        language=lang_source)
+                        language=lang_target)
         t.save()
         return
 
@@ -228,6 +230,7 @@ def process_row(row, df, lang_source, lang_target):
 
         # add its translation
         c = list(filter(lambda c: 'contlex' in c and c['contlex'].startswith(pos + '_'), contlex)) if contlex else []
+        c = list(filter(lambda _c: 'varid' not in _c or _c['varid'] != '1', c))
 
         if c:
             c = c[0]
@@ -250,13 +253,13 @@ def process_row(row, df, lang_source, lang_target):
 
         # add mini paradigms
         if miniparam:
-            for mp in miniparam:
-                m = MiniParadigm(translation=t, wordform=mp)
+            for wordform, mp in miniparam:
+                m = MiniParadigm(translation=t, wordform=wordform, mp=mp)
                 m.save()
 
         if title:
             # add affiliation
-            a = Affiliation(translation=t, title=title, pageId=pageId)
+            a = Affiliation(translation=t, title=title)
             a.save()
 
 

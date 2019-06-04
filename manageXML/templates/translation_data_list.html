@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load custom_tags %}
 <table class="table table-bordered">
     <thead>
     <tr>
@@ -9,6 +9,7 @@
         <th>{% trans "POS" %}</th>
         <th>{% trans "Sources" %}</th>
         <th>{% trans "Mini Paradigm" %}</th>
+        <th>{% trans "Affiliation" %}</th>
         <th>{% trans "Actions" %}</th>
     </tr>
     </thead>
@@ -22,7 +23,7 @@
             <td>
                 <ul>
                     {% for s in translation.source_set.all %}
-                        <li>{{ s.name }}{% if user.is_authenticated %}<a
+                        <li>{{ s.name }} {% if user.is_authenticated %}<a
                                 href="{% url 'source-edit' pk=s.pk %}">({% trans "edit" %})</a>{% endif %}
                         </li>
                     {% endfor %}
@@ -31,7 +32,7 @@
             <td>
                 <ul>
                     {% for m in translation.miniparadigm_set.all %}
-                        <li>{{ m.wordform }} {% if user.is_authenticated %}<a
+                        <li>{{ m.msd }}: {{ m.wordform }} {% if user.is_authenticated %}<a
                                 href="{% url 'mini-paradigm-edit' pk=m.pk %}">({% trans "edit" %})</a>{% endif %}
                         </li>
                     {% endfor %}
@@ -40,6 +41,15 @@
                     <a class="btn btn-outline-secondary btn-block"
                        href="{% url 'mini-paradigm-add' translation_id=translation.id %}">{% trans "add" %}</a>{% endif %}
                 </p>
+            </td>
+            <td>
+                {% with translation.affiliation_set.all as affiliations %}
+                    {% if affiliations %}
+                        {% for a in affiliations %}
+                            <a href="{% mediawiki_link a.title %}" target="_blank">{{ a.title }}</a>
+                        {% endfor %}
+                    {% else %}-{% endif %}
+                {% endwith %}
             </td>
             <td>
                 <ul>

@@ -121,9 +121,9 @@ USE_TZ = True
 
 
 # Application settings
-WIKI_URL = config('WIKI_URL')
-BASE_URL = config('BASE_URL')
-FORCE_SCRIPT_NAME = BASE_URL.rstrip('/')
+WIKI_URL = config('WIKI_URL').rstrip('/') + '/'
+BASE_URL = config('BASE_URL').rstrip('/')
+FORCE_SCRIPT_NAME = BASE_URL
 
 STATIC_ROOT = 'static'
 STATIC_URL = '%s/static/' % FORCE_SCRIPT_NAME

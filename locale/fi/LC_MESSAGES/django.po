@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-04 12:05+0000\n"
+"POT-Creation-Date: 2019-06-04 19:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgid "Lexeme"
 msgstr ""
 
 #: manageXML/forms.py:10 manageXML/forms.py:45
-#: manageXML/templates/element_data.html:6
+#: manageXML/templates/element_data.html:7
 #: manageXML/templates/element_list.html:47
 #: manageXML/templates/translation_data.html:6
 #: manageXML/templates/translation_data_list.html:9
@@ -33,14 +33,14 @@ msgid "POS"
 msgstr ""
 
 #: manageXML/forms.py:11 manageXML/forms.py:50 manageXML/forms.py:88
-#: manageXML/templates/element_data.html:10
+#: manageXML/templates/element_data.html:11
 #: manageXML/templates/element_list.html:50
 #: manageXML/templates/translation_data.html:12
 #: manageXML/templates/translation_detail.html:46
 msgid "Notes"
 msgstr ""
 
-#: manageXML/forms.py:12 manageXML/templates/element_data.html:8
+#: manageXML/forms.py:12 manageXML/templates/element_data.html:9
 #: manageXML/templates/element_list.html:49 manageXML/views.py:60
 msgid "Processed"
 msgstr ""
@@ -98,21 +98,29 @@ msgstr ""
 msgid "Morphosyntactic description"
 msgstr ""
 
-#: manageXML/templates/element_data.html:5
+#: manageXML/templates/element_data.html:4
+#: manageXML/templates/element_list.html:73
+#: manageXML/templates/translation_data_list.html:27
+#: manageXML/templates/translation_data_list.html:36
+#: manageXML/templates/translation_data_list.html:61
+msgid "edit"
+msgstr ""
+
+#: manageXML/templates/element_data.html:6
 #: manageXML/templates/translation_data.html:5
 msgid "Language (ISO 639-2)"
 msgstr ""
 
-#: manageXML/templates/element_data.html:7
+#: manageXML/templates/element_data.html:8
 #: manageXML/templates/translation_data.html:7
 msgid "Last edit"
 msgstr ""
 
-#: manageXML/templates/element_data.html:9
+#: manageXML/templates/element_data.html:10
 msgid "True"
 msgstr ""
 
-#: manageXML/templates/element_data.html:9
+#: manageXML/templates/element_data.html:10
 msgid "False"
 msgstr ""
 
@@ -140,20 +148,13 @@ msgid "Translations"
 msgstr ""
 
 #: manageXML/templates/element_list.html:51
-#: manageXML/templates/translation_data_list.html:12
+#: manageXML/templates/translation_data_list.html:13
 msgid "Actions"
 msgstr ""
 
 #: manageXML/templates/element_list.html:71
-#: manageXML/templates/translation_data_list.html:47
+#: manageXML/templates/translation_data_list.html:57
 msgid "view"
-msgstr ""
-
-#: manageXML/templates/element_list.html:73
-#: manageXML/templates/translation_data_list.html:26
-#: manageXML/templates/translation_data_list.html:35
-#: manageXML/templates/translation_data_list.html:51
-msgid "edit"
 msgstr ""
 
 #: manageXML/templates/element_list.html:84
@@ -209,7 +210,11 @@ msgstr ""
 msgid "Mini Paradigm"
 msgstr ""
 
-#: manageXML/templates/translation_data_list.html:41
+#: manageXML/templates/translation_data_list.html:12
+msgid "Affiliation"
+msgstr ""
+
+#: manageXML/templates/translation_data_list.html:42
 msgid "add"
 msgstr ""
 
@@ -261,6 +266,77 @@ msgstr ""
 msgid "Add mini paradigm"
 msgstr ""
 
+#: templates/allauth/account/email/password_reset_key_message.txt:1
+#, python-format
+msgid ""
+"Hello from %(site_name)s!\n"
+"\n"
+"You're receiving this e-mail because you or someone else has requested a "
+"password for your user account.\n"
+"It can be safely ignored if you did not request a password reset. Click the "
+"link below to reset your password."
+msgstr ""
+
+#: templates/allauth/account/email/password_reset_key_message.txt:8
+#, python-format
+msgid "In case you forgot, your username is %(username)s."
+msgstr ""
+
+#: templates/allauth/account/email/password_reset_key_message.txt:10
+#, python-format
+msgid ""
+"Thank you for using %(site_name)s!\n"
+"%(site_domain)s"
+msgstr ""
+
+#: templates/allauth/account/password_change.html:12
+#: templates/allauth/account/password_change.html:15
+#: templates/allauth/account/password_change.html:20
+#: templates/allauth/account/password_reset_from_key.html:12
+#: templates/allauth/account/password_reset_from_key.html:15
+#: templates/allauth/account/password_reset_from_key_done.html:12
+#: templates/allauth/account/password_reset_from_key_done.html:15
+msgid "Change Password"
+msgstr ""
+
+#: templates/allauth/account/password_reset.html:11
+#: templates/allauth/account/password_reset_done.html:12
+#: templates/allauth/account/password_reset_done.html:15
+msgid "Password Reset"
+msgstr ""
+
+#: templates/allauth/account/password_reset.html:17
+msgid "Reset My Password"
+msgstr ""
+
+#: templates/allauth/account/password_reset_done.html:21
+msgid ""
+"We have sent you an e-mail. Please contact us if you do not receive it "
+"within a few minutes."
+msgstr ""
+
+#: templates/allauth/account/password_reset_from_key.html:15
+msgid "Bad Token"
+msgstr ""
+
+#: templates/allauth/account/password_reset_from_key.html:19
+#, python-format
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please\n"
+"            request a <a href=\"%(passwd_reset_url)s\">new password reset</"
+"a>."
+msgstr ""
+
+#: templates/allauth/account/password_reset_from_key.html:26
+msgid "change password"
+msgstr ""
+
+#: templates/allauth/account/password_reset_from_key.html:29
+#: templates/allauth/account/password_reset_from_key_done.html:16
+msgid "Your password is now changed."
+msgstr ""
+
 #: templates/base.html:19
 msgid "Verdd"
 msgstr ""
@@ -289,12 +365,20 @@ msgid ""
 "                                In"
 msgstr ""
 
-#: users/forms.py:28
-msgid "Forgot Password?"
+#: users/forms.py:37
+msgid "Sign In"
 msgstr ""
 
-#: users/forms.py:36
-msgid "Sign In"
+#: users/forms.py:57 users/forms.py:58
+msgid "First name"
+msgstr ""
+
+#: users/forms.py:59 users/forms.py:60
+msgid "Last name"
+msgstr ""
+
+#: users/forms.py:79
+msgid "Signup"
 msgstr ""
 
 #: verdd/settings/base.py:147

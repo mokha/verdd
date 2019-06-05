@@ -15,6 +15,8 @@ import string
 from .models import *
 from .forms import *
 from django.shortcuts import get_object_or_404
+from uralicNLP import uralicApi
+from collections import defaultdict
 
 
 class TitleMixin:
@@ -107,9 +109,56 @@ class ElementDetailView(TitleMixin, DetailView):
         return self.object
 
 
-class TranslationDetailView(TitleMixin, DetailView):
+class MiniParadigmMixin:
+    language = 'sms'
+
+    MP_forms = {
+        'N': ['+N+Pl+Nom',
+              '+N+Sg+Ill',
+              '+N+Sg+Loc',
+              '+N+Pl+Gen'],
+        'Adj': ['+A+Attr',
+                '+A+Pl+Nom',
+                '+A+Sg+Ill',
+                '+A+Sg+Loc',
+                '+A+Pl+Gen'],
+        'V': ['+V+Ind+Prs+Sg3',
+              '+V+Ind+Prs+ConNeg',
+              '+V+Ind+Prs+Pl3',
+              '+V+Ind+Prt+Pl3']
+    }  # mini paradigms
+
+    lemma = None
+
+    def get_miniparadigm_forms(self):
+        return self.MP_forms
+
+    def get_language(self):
+        return self.language
+
+    def generate_forms(self, translation):
+        generated_forms = defaultdict(list)
+
+        MP_forms = self.get_miniparadigm_forms()
+        if translation.pos in MP_forms:
+            for f in MP_forms[translation.pos]:
+                results = uralicApi.generate(translation.text + f, self.get_language())
+                for r in results:
+                    generated_forms[f].append(r[0].split('@')[0])
+        generated_forms.default_factory = None
+
+        return generated_forms
+
+
+class TranslationDetailView(TitleMixin, MiniParadigmMixin, DetailView):
     model = Translation
     template_name = 'translation_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TranslationDetailView, self).get_context_data(**kwargs)
+        translation = self.object
+        context['generated_miniparadigms'] = self.generate_forms(translation)
+        return context
 
     def get_title(self):
         return "%s (%s)" % (self.object.text, self.object.element.lexeme)
@@ -135,7 +184,7 @@ class ElementEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return "%s: %s" % (_("Edit"), self.object.lexeme)
 
 
-class TranslationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class TranslationEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView):
     template_name = 'translation_edit.html'
     model = Translation
     form_class = TranslationForm
@@ -153,26 +202,34 @@ class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return "%s: %s (%s)" % (_("Edit source"), self.object.translation.text, self.object.translation.element.lexeme)
 
 
-class MiniParadigmEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class MiniParadigmEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView):
     template_name = 'mini_paradigm_edit.html'
     model = MiniParadigm
     form_class = MiniParadigmForm
+
+    def get_context_data(self, **kwargs):
+        context = super(MiniParadigmEditView, self).get_context_data(**kwargs)
+        translation = self.object.translation
+        context['generated_miniparadigms'] = self.generate_forms(translation)
+        return context
 
     def get_title(self):
         return "%s: %s (%s)" % (
             _("Edit mini paradigm"), self.object.translation.text, self.object.translation.element.lexeme)
 
 
-class MiniParadigmCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, CreateView):
     template_name = 'mini_paradigm_add.html'
     model = MiniParadigm
     form_class = MiniParadigmCreateForm
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super(MiniParadigmCreateView, self).get_context_data(**kwargs)
         # Pass the filterset to the template - it provides the form.
-        context['translation'] = get_object_or_404(Translation,
-                                                   pk=self.kwargs['translation_id'])
+        translation = get_object_or_404(Translation,
+                                        pk=self.kwargs['translation_id'])
+        context['translation'] = translation
+        context['generated_miniparadigms'] = self.generate_forms(translation)
         return context
 
     def get_title(self):

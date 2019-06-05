@@ -25,4 +25,5 @@ When running the above commands in development, pass the following parameters to
 `--settings verdd.settings.development`
 
 
-sudo ln -s FULLPATH/verdd/conf/verdd.service /etc/systemd/system/
+sudo ln -s FULLPATH/verdd/verdd.service /etc/systemd/system/
+sudo ln -s FULLPATH/verdd/verdd.ini /etc/uwsgi/apps-available/

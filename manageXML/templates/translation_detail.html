@@ -29,6 +29,31 @@
                     </tbody>
                 </table>
             </div>
+        {% elif generated_miniparadigms %}
+            <div id="miniparadigm-details">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>{% trans "ID" %}</th>
+                        <th>{% trans "MSD" %}</th>
+                        <th>{% trans "Word form" %}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for msd, wordforms in generated_miniparadigms.items %}
+                        {% for wordform in wordforms %}
+                            <tr>
+                                {% if forloop.first %}
+                                    <td rowspan="{{ wordforms|length }}">-</td>
+                                {% endif %}
+                                <td>{{ msd }}</td>
+                                <td>{{ wordform }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% endif %}
     {% endwith %}
 

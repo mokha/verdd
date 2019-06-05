@@ -72,8 +72,8 @@ class ElementFilter(django_filters.FilterSet):
 
     def filter_range(self, queryset, name, value):
         # transform datetime into timestamp
-        range_from = self.data['range_from']  # get key
-        range_to = self.data['range_to']  # get key
+        range_from = self.data['range_from'] if 'range_from' in self.data else None  # get key
+        range_to = self.data['range_to'] if 'range_to' in self.data else None  # get key
 
         range_from = int(range_from) if range_from else 0
         range_to = int(range_to) if range_to else len(ElementFilter.ALPHABETS_CHOICES) - 1

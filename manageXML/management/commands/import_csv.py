@@ -177,7 +177,7 @@ def mediawiki_query(word, lexeme):
                         d['morph']['lg']['mini_paradigm'])
                     tree = etree.parse(StringIO(mini_paradigm), parser=parser)
                     analysis = tree.findall("//analysis")
-                    miniparam = [(a.find('wordform').text, analysis.attrib['ms']) for a in analysis]
+                    miniparam = [(a.find('wordform').text, a.attrib['ms']) for a in analysis]
                 except:
                     pass
 
@@ -257,8 +257,8 @@ def process_row(row, df, lang_source, lang_target):
 
         # add mini paradigms
         if miniparam:
-            for wordform, mp in miniparam:
-                m = MiniParadigm(translation=t, wordform=wordform, mp=mp)
+            for wordform, msd in miniparam:
+                m = MiniParadigm(translation=t, wordform=wordform, msd=msd)
                 m.save()
 
         if title:

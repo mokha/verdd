@@ -2,6 +2,7 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 from django.utils.text import slugify
 from django.urls import reverse
+from .common import Rhyme
 
 
 class DataFile(models.Model):
@@ -16,6 +17,10 @@ class DataFile(models.Model):
 
 class Element(models.Model):
     lexeme = models.CharField(max_length=250)
+    assonance = models.CharField(max_length=250)
+    assonance_rev = models.CharField(max_length=250)
+    consonance = models.CharField(max_length=250)
+    consonance_rev = models.CharField(max_length=250)
     language = models.CharField(max_length=3)
     pos = models.CharField(max_length=25)
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)
@@ -32,6 +37,25 @@ class Element(models.Model):
 
     def get_absolute_url(self):
         return reverse('element-detail', kwargs={'pk': self.pk})
+
+    def get_assonance(self):
+        return Rhyme.assonance(self.lexeme)
+
+    def get_assonance_rev(self):
+        return Rhyme.assonance_rev(self.lexeme)
+
+    def get_consonance(self):
+        return Rhyme.consonance(self.lexeme)
+
+    def get_consonance_rev(self):
+        return Rhyme.consonance_rev(self.lexeme)
+
+    def save(self, *args, **kwargs):
+        self.assonance = self.get_assonance()
+        self.assonance_rev = self.get_assonance_rev()
+        self.consonance = self.get_consonance()
+        self.consonance_rev = self.get_consonance_rev()
+        return super(Element, self).save(*args, **kwargs)
 
 
 class Stem(models.Model):

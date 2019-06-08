@@ -3,7 +3,8 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.template.loader import get_template
 import datetime
-from django_filters import DateFromToRangeFilter, DateFilter, CharFilter, NumberFilter, ModelChoiceFilter, ChoiceFilter
+from django_filters import DateFromToRangeFilter, DateFilter, CharFilter, NumberFilter, ModelChoiceFilter, ChoiceFilter, \
+    OrderingFilter
 from django_filters.widgets import RangeWidget
 import django_filters
 from django.views.generic.list import ListView
@@ -17,6 +18,7 @@ from .forms import *
 from django.shortcuts import get_object_or_404
 from uralicNLP import uralicApi
 from collections import defaultdict
+import csv
 
 
 class TitleMixin:
@@ -58,10 +60,37 @@ class ElementFilter(django_filters.FilterSet):
     )
 
     ALPHABETS_CHOICES = list(enumerate(string.ascii_uppercase + 'ÄÅÖ'))
+    ORDER_BY_FIELDS = {
+        'pos': 'pos',
+        'lexeme': 'lexeme',
+        'consonance': 'consonance',
+        'consonance_rev': 'revConsonance',
+        'assonance': 'assonance',
+        'assonance_rev': 'revAssonance',
+    }
 
+    pos = ChoiceFilter(choices=set([(p['pos'], p['pos']) for p in Element.objects.all().values('pos')]), label=_('POS'))
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
     range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
     range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range to'), method='filter_range')
+    order_by = OrderingFilter(
+        choices=(
+            ('lexeme', _('Lexeme')),
+            ('-lexeme', '%s (%s)' % (_('Lexeme'), _('descending'))),
+            ('pos', _('POS')),
+            ('-pos', '%s (%s)' % (_('POS'), _('descending'))),
+            ('consonance', _('Consonance')),
+            ('-consonance', '%s (%s)' % (_('Consonance'), _('descending'))),
+            ('revConsonance', _('revConsonance')),
+            ('-revConsonance', '%s (%s)' % (_('revConsonance'), _('descending'))),
+            ('assonance', _('Assonance')),
+            ('-assonance', '%s (%s)' % (_('Assonance'), _('descending'))),
+            ('revAssonance', _('RevAssonance')),
+            ('-revAssonance', '%s (%s)' % (_('RevAssonance'), _('descending'))),
+        ),
+        fields=ORDER_BY_FIELDS,
+        label=_("Order by")
+    )
 
     class Meta:
         model = Element
@@ -97,8 +126,48 @@ class ElementView(FilteredListView):
     model = Element
     template_name = 'element_list.html'
     paginate_by = 50
-    ordering = ['lexeme']  # -id
     title = _("Homepage")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_by = self.request.GET.get('order_by', None)
+        order_by = order_by[1:] if order_by and order_by.startswith('-') else order_by
+        order_by_options = dict([[v, k] for k, v in self.filterset_class.ORDER_BY_FIELDS.items()])
+        if order_by and order_by not in ['pos', 'lexeme'] and order_by in order_by_options:
+            context['order_by'] = order_by_options[order_by]
+        return context
+
+
+class ElementExportView(ElementView):
+    filterset_class = ElementFilter
+    model = Element
+
+    def render_to_response(self, context, **response_kwargs):
+        filename = "{}-export.csv".format(datetime.datetime.now().replace(microsecond=0).isoformat())
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+
+        writer = csv.writer(response)
+        header = [_('ID'), _('Lexeme'), _('POS'), _('Translations'), _('Processed'), ]
+        if 'order_by' in context:
+            header += [_('Ordered By')]
+        writer.writerow(header)
+
+        for obj in self.object_list:
+            for translation in obj.translation_set.all():
+                row = [
+                    obj.id,
+                    obj.lexeme,
+                    obj.pos,
+                    "%s (%s)" % (translation.text, translation.pos),
+                    obj.checked,
+                ]
+                if 'order_by' in context:
+                    row += [getattr(obj, context['order_by'])]
+                writer.writerow(row)
+
+        return response
 
 
 class ElementDetailView(TitleMixin, DetailView):

@@ -1,5 +1,6 @@
 from django import template
 from django.conf import settings
+import re
 
 register = template.Library()
 
@@ -36,3 +37,18 @@ def param_replace(context, **kwargs):
 @register.simple_tag
 def mediawiki_link(title):
     return "%s%s" % (settings.WIKI_URL, title)
+
+
+numeric_test = re.compile("^\d+$")
+
+
+@register.filter(name='getattr')
+def getattrfilter(value, arg):
+    if hasattr(value, str(arg)):
+        return getattr(value, arg)
+    elif hasattr(value, 'has_key') and value.has_key(arg):
+        return value[arg]
+    elif numeric_test.match(str(arg)) and len(value) > int(arg):
+        return value[int(arg)]
+    else:
+        return settings.TEMPLATE_STRING_IF_INVALID

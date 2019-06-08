@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.ElementView.as_view(), name='index'),
     re_path(r'^lexeme/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.ElementDetailView.as_view(),
             name='element-detail'),
+    path('download', views.ElementExportView.as_view(), name='download-csv'),
     re_path(r'^lexeme/edit/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.ElementEditView.as_view(),
             name='element-edit'),
     re_path(r'^translation/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.TranslationDetailView.as_view(),

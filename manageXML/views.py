@@ -69,6 +69,7 @@ class ElementFilter(django_filters.FilterSet):
         'assonance_rev': 'revAssonance',
     }
 
+    lexeme = CharFilter(label=_('Lexeme'))
     pos = ChoiceFilter(choices=set([(p['pos'], p['pos']) for p in Element.objects.all().values('pos')]), label=_('POS'))
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
     range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
@@ -94,7 +95,13 @@ class ElementFilter(django_filters.FilterSet):
 
     class Meta:
         model = Element
-        fields = ['lexeme', 'pos', 'checked', 'range_from', 'range_to']
+        fields = {
+            'lexeme': ['exact'],
+            'pos': ['exact'],
+            'checked': ['exact'],
+            'range_from': ['exact'],
+            'range_to': ['exact']
+        }
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()

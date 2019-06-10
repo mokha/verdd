@@ -189,19 +189,19 @@ class MiniParadigmMixin:
     language = 'sms'
 
     MP_forms = {
-        'N': ['+N+Pl+Nom',
-              '+N+Sg+Ill',
-              '+N+Sg+Loc',
-              '+N+Pl+Gen'],
-        'Adj': ['+A+Attr',
-                '+A+Pl+Nom',
-                '+A+Sg+Ill',
-                '+A+Sg+Loc',
-                '+A+Pl+Gen'],
-        'V': ['+V+Ind+Prs+Sg3',
-              '+V+Ind+Prs+ConNeg',
-              '+V+Ind+Prs+Pl3',
-              '+V+Ind+Prt+Pl3']
+        'N': ['N+Pl+Nom',
+              'N+Sg+Ill',
+              'N+Sg+Loc',
+              'N+Pl+Gen'],
+        'Adj': ['A+Attr',
+                'A+Pl+Nom',
+                'A+Sg+Ill',
+                'A+Sg+Loc',
+                'A+Pl+Gen'],
+        'V': ['V+Ind+Prs+Sg3',
+              'V+Ind+Prs+ConNeg',
+              'V+Ind+Prs+Pl3',
+              'V+Ind+Prt+Pl3']
     }  # mini paradigms
 
     lemma = None
@@ -218,7 +218,7 @@ class MiniParadigmMixin:
         MP_forms = self.get_miniparadigm_forms()
         if translation.pos in MP_forms:
             for f in MP_forms[translation.pos]:
-                results = uralicApi.generate(translation.text + f, self.get_language())
+                results = uralicApi.generate(translation.text + '+' + f, self.get_language())
                 for r in results:
                     generated_forms[f].append(r[0].split('@')[0])
         generated_forms.default_factory = None
@@ -259,6 +259,10 @@ class ElementEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     def get_title(self):
         return "%s: %s" % (_("Edit"), self.object.lexeme)
 
+    def form_valid(self, form):
+        form.save()
+        return super(ElementEditView, self).form_valid(form)
+
 
 class TranslationEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView):
     template_name = 'translation_edit.html'
@@ -267,6 +271,10 @@ class TranslationEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, Upd
 
     def get_title(self):
         return "%s: %s (%s)" % (_("Edit translation"), self.object.text, self.object.element.lexeme)
+
+    def form_valid(self, form):
+        form.save()
+        return super(TranslationEditView, self).form_valid(form)
 
 
 class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):

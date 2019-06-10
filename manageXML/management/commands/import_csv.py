@@ -177,7 +177,7 @@ def mediawiki_query(word, lexeme):
                         d['morph']['lg']['mini_paradigm'])
                     tree = etree.parse(StringIO(mini_paradigm), parser=parser)
                     analysis = tree.findall("//analysis")
-                    miniparam = [(a.find('wordform').text, a.attrib['ms']) for a in analysis]
+                    miniparam = [(a.find('wordform').text, a.attrib['ms'].replace('.', '+')) for a in analysis]
                 except:
                     pass
 

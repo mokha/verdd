@@ -40,12 +40,17 @@ class ElementForm(forms.ModelForm):
         )
 
 
+class LemmaIdChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s (%s)" % (obj.text, obj.pos)
+
+
 class TranslationForm(forms.ModelForm):
     lexeme = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Word')}))
     pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
     contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
     type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
-    lemmaId = forms.TypedChoiceField(required=False, label=_('Lemma ID'), empty_value=None)
+    lemmaId = LemmaIdChoiceField(queryset=Translation.objects.all(), required=False, label=_('Lemma ID'))
     inflexId = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Inflex ID')}))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
@@ -129,8 +134,8 @@ class MiniParadigmForm(forms.ModelForm):
                 css_class=''
             ),
             Row(
-                Column('wordform', css_class='form-group col-md-7 mb-0'),
                 Column('msd', css_class='form-group col-md-5 mb-0'),
+                Column('wordform', css_class='form-group col-md-7 mb-0'),
                 css_class='form-row'
             ),
             Submit('submit', 'Save')
@@ -151,8 +156,8 @@ class MiniParadigmCreateForm(forms.ModelForm):
         self.helper.layout = Layout(
 
             Row(
-                Column('wordform', css_class='form-group col-md-7 mb-0'),
                 Column('msd', css_class='form-group col-md-5 mb-0'),
+                Column('wordform', css_class='form-group col-md-7 mb-0'),
                 css_class='form-row'
             ),
             Submit('submit', 'Save')

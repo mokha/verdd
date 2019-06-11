@@ -9,8 +9,7 @@
         <th>{% trans "Type" %}</th>
         <th>{% trans "Sources" %}</th>
         <th>{% trans "Notes" %}</th>
-        {% if user.is_authenticated %}
-            <th>{% trans "Actions" %}</th>{% endif %}
+        <th>{% trans "Actions" %}</th>
     </tr>
     </thead>
     <tbody>
@@ -25,7 +24,8 @@
                     {% if sources %}
                         <ul>
                             {% for s in sources %}
-                                <li>{{ s }} (<a href="{% url 'source-detail' pk=object.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/
+                                <li>{{ s }} (<a href="{% url 'source-detail' pk=object.pk %}">{% trans "view" %}</a>
+                                    {% if user.is_authenticated %}/
                                         <a href="{% url 'source-edit' pk=object.pk %}">{% trans "edit" %}</a>
                                     {% endif %})
                                 </li>
@@ -35,18 +35,19 @@
                 {% endwith %}
             </td>
             <td>{{ object.notes|linebreaksbr }}</td>
-            {% if user.is_authenticated %}
-                <td>
-                    <ul>
-                        <li>
-                            <a href="{% url 'relation-detail' pk=object.pk %}">{% trans "view" %}</a>
-                        </li>
+            <td>
+                <ul>
+                    <li>
+                        <a href="{% url 'relation-detail' pk=object.pk %}">{% trans "view" %}</a>
+                    </li>
+                    {% if user.is_authenticated %}
                         <li>
                             <a href="{% url 'relation-edit' pk=object.pk %}">{% trans "edit" %}</a>
                         </li>
-                    </ul>
-                </td>
-            {% endif %}
+
+                    {% endif %}
+                </ul>
+            </td>
         </tr>
     {% endfor %}
     </tbody>

@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<h2>{% trans "Relation" %}:</h2>
+<div id="translation-details">
+    <p><b>{% trans "Language (ISO 639-2)" %}:</b> {{ object.language }}</p>
+    <p><b>{% trans "Type" %}:</b> {{ object.type_str }}</p>
+    <p><b>{% trans "Processed" %}:</b> {% if object.checked %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</p>
+    <p><b>{% trans "Notes" %}:</b> {{ object.notes|linebreaksbr }}</p>
+    <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
+</div>

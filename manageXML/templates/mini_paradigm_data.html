@@ -1,0 +1,63 @@
+{% load i18n %}
+{% with object.miniparadigm_set.all as miniparadigms %}
+    {% if miniparadigms %}
+        <div id="miniparadigm-details">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "MSD" %}</th>
+                    <th>{% trans "Word form" %}</th>
+                    {% if user.is_authenticated %}
+                        <th>{% trans "Actions" %}</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for m in miniparadigms %}
+                    <tr>
+                        <td>{{ m.id }}</td>
+                        <td>{{ m.msd }}</td>
+                        <td>{{ m.wordform }}</td>
+                        {% if user.is_authenticated %}
+                            <td>
+                                <ul>
+                                    <li>
+                                        <a href="{% url 'mini-paradigm-edit' pk=m.pk %}">{% trans "edit" %}</a>
+                                    </li>
+                                </ul>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elif generated_miniparadigms %}
+        <div id="miniparadigm-details">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "MSD" %}</th>
+                    <th>{% trans "Word form" %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for msd, wordforms in generated_miniparadigms.items %}
+                    {% for wordform in wordforms %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ wordforms|length }}">-</td>
+                            {% endif %}
+                            <td>{{ msd }}</td>
+                            <td>{{ wordform }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endwith %}

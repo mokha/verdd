@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<h2>{% trans "Source" %}: {{ object.name }}</h2>
+
+<div id="source-details">
+    <p><b>{% trans "Type" %}:</b> {{ object.type }}</p>
+    <p><b>{% trans "Page" %}:</b> {{ object.page }}</p>
+    <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
+    <p><b>{% trans "Notes" %}:</b> {{ object.notes|linebreaksbr }}</p>
+</div>

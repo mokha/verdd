@@ -3,4 +3,6 @@
 {% load custom_tags %}
 
 {% block main_content %}
+    {% include 'relation_detail_content.html' with object=object.relation %}
+    {% include 'source_data.html' with object=object %}
 {% endblock %}

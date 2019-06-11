@@ -5,7 +5,9 @@
 {% load widget_tweaks %}
 
 {% block main_content %}
-    {% include 'element_data.html' with object=form.instance.translation.element %}
-    {% include 'translation_data.html' with object=form.instance.translation %}
+    {% include 'lexeme_data.html' with object=object.lexeme %}
+    <h2>{% trans "Existing Mini Paradigms" %}:</h2>
+    {% include 'mini_paradigm_data.html' with object=object.lexeme %}
+
     {% crispy form %}
 {% endblock %}

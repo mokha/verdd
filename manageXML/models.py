@@ -1,8 +1,10 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
+from django.db.models import Q
 from django.utils.text import slugify
 from django.urls import reverse
 from .common import Rhyme
+from django.utils.translation import gettext as _
 
 
 class DataFile(models.Model):
@@ -15,18 +17,36 @@ class DataFile(models.Model):
         return "%s (%d)" % (self.name, self.id)
 
 
-class Element(models.Model):
+class Lexeme(models.Model):
+    class Meta:
+        unique_together = ('lexeme', 'pos', 'homoId', 'language',)
+
+    INFLEX_TYPE_OPTIONS = (
+        (1, _('1')),
+        (2, _('2')),
+        (3, _('3')),
+        (4, _('4')),
+        (99, _('X'))
+    )
+
     lexeme = models.CharField(max_length=250)
-    assonance = models.CharField(max_length=250)
-    assonance_rev = models.CharField(max_length=250)
-    consonance = models.CharField(max_length=250)
-    consonance_rev = models.CharField(max_length=250)
+    homoId = models.IntegerField(default=0)
+    assonance = models.CharField(max_length=250, blank=True)
+    assonance_rev = models.CharField(max_length=250, blank=True)
+    consonance = models.CharField(max_length=250, blank=True)
+    consonance_rev = models.CharField(max_length=250, blank=True)
     language = models.CharField(max_length=3)
     pos = models.CharField(max_length=25)
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)
-    notes = models.CharField(max_length=250)
+    notes = models.CharField(max_length=250, blank=True)
     added_date = models.DateTimeField('date published', auto_now_add=True)
-    checked = models.BooleanField(default=False)
+    contlex = models.CharField(max_length=250, blank=True)
+    type = models.CharField(max_length=25, blank=True)
+    lemmaId = models.ForeignKey('self', related_name='lemmaId_set', null=True, blank=True, on_delete=models.CASCADE)
+    inflexId = models.CharField(max_length=25, blank=True)
+    inflexType = models.IntegerField(choices=INFLEX_TYPE_OPTIONS,
+                                     blank=True, null=True, default=None)
+    deleted = models.BooleanField(default=False)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -36,7 +56,7 @@ class Element(models.Model):
         return slugify(self.lexeme) if self.lexeme else 'NA'
 
     def get_absolute_url(self):
-        return reverse('element-detail', kwargs={'pk': self.pk})
+        return reverse('lexeme-detail', kwargs={'pk': self.pk})
 
     def get_assonance(self):
         return Rhyme.assonance(self.lexeme)
@@ -50,78 +70,77 @@ class Element(models.Model):
     def get_consonance_rev(self):
         return Rhyme.consonance_rev(self.lexeme)
 
+    def get_relations(self):
+        return Relation.objects.filter(Q(lexeme_from=self) | Q(lexeme_to=self))
+
+    def inflexType_str(self):
+        choices = dict(self.INFLEX_TYPE_OPTIONS)
+        return choices[self.inflexType] if self.inflexType in choices else ''
+
     def save(self, *args, **kwargs):
         self.assonance = self.get_assonance()
         self.assonance_rev = self.get_assonance_rev()
         self.consonance = self.get_consonance()
         self.consonance_rev = self.get_consonance_rev()
-        return super(Element, self).save(*args, **kwargs)
+        return super(Lexeme, self).save(*args, **kwargs)
 
 
-class Stem(models.Model):
-    element = models.ForeignKey(Element, on_delete=models.CASCADE)
-    contlex = models.CharField(max_length=250)
-    text = models.CharField(max_length=250)
-    inflexId = models.CharField(max_length=25, blank=True)
+class Relation(models.Model):
+    class Meta:
+        unique_together = ('lexeme_from', 'lexeme_to', 'type')
+
+    TYPE_OPTIONS = (
+        (0, _('Translation')),
+        (1, _('Etymology')),
+        (2, _('Compound')),
+        (3, _('Derivation')),
+        (99, _('Other'))
+    )
+
+    lexeme_from = models.ForeignKey(Lexeme, related_name='lexeme_from_lexeme_set', on_delete=models.CASCADE)
+    lexeme_to = models.ForeignKey(Lexeme, related_name='lexeme_to_lexeme_set', on_delete=models.CASCADE)
+    type = models.IntegerField(choices=TYPE_OPTIONS,
+                               default=0)
+    notes = models.CharField(max_length=250, blank=True)
+    checked = models.BooleanField(default=False)
     added_date = models.DateTimeField('date published', auto_now_add=True)
-
-    def __str__(self):
-        return self.text
-
-
-class Etymon(models.Model):
-    element = models.ForeignKey(Element, on_delete=models.CASCADE)
-    text = models.CharField(max_length=250)
-    language = models.CharField(max_length=3)
-    added_date = models.DateTimeField('date published', auto_now_add=True)
+    deleted = models.BooleanField(default=False)
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.text
+        return "%s - %s" % (self.lexeme_from.lexeme, self.lexeme_to.lexeme)
 
-
-class Translation(models.Model):
-    element = models.ForeignKey(Element, on_delete=models.CASCADE)
-    text = models.CharField(max_length=250)
-    language = models.CharField(max_length=3)
-    pos = models.CharField(max_length=25)
-    contlex = models.CharField(max_length=250)
-    type = models.CharField(max_length=25)
-    lemmaId = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
-    inflexId = models.CharField(max_length=25, blank=True)
-    notes = models.CharField(max_length=250)
-    added_date = models.DateTimeField('date published', auto_now_add=True)
-    history = HistoricalRecords()
-
-    def __str__(self):
-        return self.text
-
-    def slug(self):
-        return slugify(self.element.lexeme + "-" + self.text) if self.text and self.element.lexeme else 'NA'
+    def type_str(self):
+        choices = dict(self.TYPE_OPTIONS)
+        return choices[self.type] if self.type in choices else ''
 
     def get_absolute_url(self):
-        return reverse('translation-detail', kwargs={'pk': self.pk})
+        return reverse('relation-detail',
+                       kwargs={'pk': self.pk})
 
 
 class Source(models.Model):
-    translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('relation', 'name')
+
+    relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
     name = models.CharField(max_length=250)
     page = models.CharField(max_length=25, blank=True)
     type = models.CharField(max_length=25)
-    notes = models.CharField(max_length=250)
+    notes = models.CharField(max_length=250, blank=True)
     added_date = models.DateTimeField('date published', auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.name
+        return "(%s) %s" % (self.type, self.name)
 
     def get_absolute_url(self):
-        return reverse('element-detail',
-                       kwargs={'pk': self.translation.element.pk})
+        return reverse('relation-detail',
+                       kwargs={'pk': self.relation.pk})
 
 
 class MiniParadigm(models.Model):
-    translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
+    lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     msd = models.CharField(max_length=25)
     wordform = models.CharField(max_length=250)
     history = HistoricalRecords()
@@ -130,10 +149,22 @@ class MiniParadigm(models.Model):
         return "%s: %s" % (self.msd, self.wordform)
 
     def get_absolute_url(self):
-        return reverse('element-detail',
-                       kwargs={'pk': self.translation.element.pk})
+        return reverse('lexeme-detail',
+                       kwargs={'pk': self.lexeme.pk})
 
 
 class Affiliation(models.Model):
-    translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('lexeme', 'title')
+
+    lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
+
+
+class Examples(models.Model):
+    class Meta:
+        unique_together = ('lexeme', 'text')
+
+    lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
+    text = models.CharField(max_length=250)
+    history = HistoricalRecords()

@@ -1,0 +1,27 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>{% trans "From" %}</th>
+            <th>{% trans "To" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                {% include 'lexeme_data.html' with object=form.instance.lexeme_from %}
+            </td>
+            <td>
+                {% include 'lexeme_data.html' with object=form.instance.lexeme_to %}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    {% crispy form %}
+{% endblock %}

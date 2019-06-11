@@ -1,0 +1,28 @@
+{% load i18n %}
+{% load custom_tags %}
+<h1>{% trans "Lexeme" %}: {{ object.lexeme }} (<a
+        href="{% url 'lexeme-detail' pk=object.pk slug=object.slug %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a
+            href="{% url 'lexeme-edit' pk=object.pk slug=object.slug %}">{% trans "edit" %}</a>{% endif %})</h1>
+<div id="lexeme-details">
+    <p><b>{% trans "Language (ISO 639-2)" %}:</b> {{ object.language }}</p>
+    <p><b>{% trans "POS" %}:</b> {{ object.pos }}</p>
+    <p><b>{% trans "Cont" %}:</b> {{ object.contlex }}</p>
+    <p><b>{% trans "Type" %}:</b> {{ object.type }}</p>
+    <p><b>{% trans "Inflex Id" %}:</b> {{ object.inflexId }}</p>
+    <p><b>{% trans "Inflex Type" %}:</b> {{ object.inflexType_str }}</p>
+    <p><b>{% trans "Lemma ID" %}:</b> {{ object.lemmaId }}</p>
+    <div>
+        <b>{% trans "Affiliations" %}:</b>
+        {% with object.affiliation_set.all as affiliations %}
+            {% if affiliations %}
+                <ul>
+                    {% for affiliation in affiliations %}
+                        <a href="{% mediawiki_link affiliation.title %}">{{ affiliation.title }}</a>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+    <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
+    <p><b>{% trans "Notes" %}:</b> {{ object.notes|linebreaksbr }}</p>
+</div>

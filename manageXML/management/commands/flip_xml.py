@@ -1,39 +1,7 @@
-import xml.etree.ElementTree as ET
-import io, os, glob
-from collections import defaultdict
+import os, glob
 from xml.dom import minidom
 from django.core.management.base import BaseCommand, CommandError
-
-new_xml = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
-pos_files = defaultdict(list)
-
-
-def parseXML(filename, lang='fin'):
-    with io.open(filename, 'r', encoding='utf-8') as fp:
-        tree = ET.parse(fp)
-        root = tree.getroot()
-        namespaces = {'xml': 'http://www.w3.org/XML/1998/namespace'}
-        for e in root.findall('e'):
-            for l in e.find('lg').findall('l'):
-                if not l.text:
-                    continue
-                context = e.find('lg/stg/st')
-                tg = e.find('mg/tg[@xml:lang="' + lang + '"]', namespaces)
-                if not tg:
-                    continue
-                for t in tg.findall('t'):
-                    if not t.text:
-                        continue
-
-                    context_text = context.attrib[
-                        'Contlex'] if context is not None and 'Contlex' in context.attrib else l.attrib[
-                                                                                                   'pos'] + '_'
-                    new_xml[t.text]['tg'][l.text] = {**l.attrib, 'Contlex': context_text, }
-                    new_xml[t.text]['attributes'] = t.attrib
-
-                    POS_pred = t.attrib['pos'] if 'pos' in t.attrib and t.attrib['pos'] else l.attrib['pos']
-                    POS_pred = POS_pred if ':' not in POS_pred else 'MWE'
-                    pos_files[POS_pred].append(t.text)
+from ._private import *
 
 
 def createXML(xml_dir, lang, namespace):
@@ -83,7 +51,7 @@ def createXML(xml_dir, lang, namespace):
 
 class Command(BaseCommand):
     '''
-    Example: python manage.py flip_xml ./saame/XML/ -t sms -s fin -n finsms -o ./saame/flippedXML/
+    Example: python manage.py flip_xml -d ./saame/XML/ -t sms -s fin -n finsms -o ./saame/flippedXML/
     '''
 
     help = 'This command flips the content of a all XML documents in a directory.'

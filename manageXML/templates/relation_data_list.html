@@ -1,0 +1,53 @@
+{% load i18n %}
+{% load custom_tags %}
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>{% trans "ID" %}</th>
+        <th>{% trans "From" %}</th>
+        <th>{% trans "To" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Sources" %}</th>
+        <th>{% trans "Notes" %}</th>
+        {% if user.is_authenticated %}
+            <th>{% trans "Actions" %}</th>{% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for object in relations %}
+        <tr>
+            <td>{{ object.id }}</td>
+            <td>{{ object.lexeme_from.lexeme }}</td>
+            <td>{{ object.lexeme_to.lexeme }}</td>
+            <td>{{ object.type_str }}</td>
+            <td>
+                {% with object.source_set.all as sources %}
+                    {% if sources %}
+                        <ul>
+                            {% for s in sources %}
+                                <li>{{ s }} (<a href="{% url 'source-detail' pk=object.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/
+                                        <a href="{% url 'source-edit' pk=object.pk %}">{% trans "edit" %}</a>
+                                    {% endif %})
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td>{{ object.notes|linebreaksbr }}</td>
+            {% if user.is_authenticated %}
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{% url 'relation-detail' pk=object.pk %}">{% trans "view" %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'relation-edit' pk=object.pk %}">{% trans "edit" %}</a>
+                        </li>
+                    </ul>
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

@@ -5,18 +5,28 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML
 
 
-class ElementForm(forms.ModelForm):
+class LexmeChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s (%s)" % (obj.lexeme, obj.pos)
+
+
+class LexemeForm(forms.ModelForm):
     lexeme = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Lexeme')}))
     pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
+    contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
+    type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
+    lemmaId = LexmeChoiceField(queryset=Lexeme.objects.all(), required=False, label=_('Lemma ID'))
+    inflexId = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Inflex ID')}))
+    inflexType = forms.ChoiceField(choices=(('', ''),) + Lexeme.INFLEX_TYPE_OPTIONS, required=False,
+                                   label=_('Inflex Type'))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
-    checked = forms.BooleanField(required=False, label=_('Processed'))
 
     class Meta:
-        model = Element
-        fields = ['lexeme', 'pos', 'notes', 'checked']
+        model = Lexeme
+        fields = ['lexeme', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes']
 
     def __init__(self, *args, **kwargs):
-        super(ElementForm, self).__init__(*args, **kwargs)
+        super(LexemeForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -29,59 +39,41 @@ class ElementForm(forms.ModelForm):
                 Column('pos', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
-            'notes',
-            Div(
-                HTML("<h3>%s</h3>" % _("Translations (%s)") % "{{ form.instance.translation_set.all|length }}"),
-                HTML('{% include "translation_data_list.html" with translations=form.instance.translation_set.all %}'),
-                css_class=''
-            ),
-            'checked',
-            Submit('submit', 'Save')
-        )
-
-
-class LemmaIdChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "%s (%s)" % (obj.text, obj.pos)
-
-
-class TranslationForm(forms.ModelForm):
-    lexeme = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Word')}))
-    pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
-    contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
-    type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
-    lemmaId = LemmaIdChoiceField(queryset=Translation.objects.all(), required=False, label=_('Lemma ID'))
-    inflexId = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Inflex ID')}))
-    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
-
-    class Meta:
-        model = Translation
-        fields = ['text', 'pos', 'contlex', 'type', 'lemmaId', 'inflexId', 'notes']
-
-    def __init__(self, *args, **kwargs):
-        super(TranslationForm, self).__init__(*args, **kwargs)
-        self.fields['lemmaId'].queryset = Translation.objects.filter(element=self.instance.element)
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(
-                HTML(
-                    "<h3>%s: %s</h3>" % (_("Translation"), "{{ form.instance.text }}")),
-                css_class=''
-            ),
-            Row(
-                Column('text', css_class='form-group col-md-6 mb-0'),
-                Column('pos', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
-            ),
             Row(
                 Column('contlex', css_class='form-group col-md-6 mb-0'),
                 Column('type', css_class='form-group col-md-3 mb-0'),
                 Column('inflexId', css_class='form-group col-md-3 mb-0'),
                 css_class='form-row'
             ),
-            'lemmaId',
+            Row(
+                Column('inflexType', css_class='form-group col-md-6 mb-0'),
+                Column('lemmaId', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
             'notes',
+            Submit('submit', 'Save')
+        )
+
+    def clean(self):
+        self.cleaned_data = super(LexemeForm, self).clean()
+        if self.cleaned_data['inflexType'] == '': self.cleaned_data['inflexType'] = None
+        return self.cleaned_data
+
+
+class RelationForm(forms.ModelForm):
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Processed'))
+
+    class Meta:
+        model = Relation
+        fields = ['notes', 'checked']
+
+    def __init__(self, *args, **kwargs):
+        super(RelationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'notes',
+            'checked',
             Submit('submit', 'Save')
         )
 
@@ -130,7 +122,7 @@ class MiniParadigmForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 HTML(
-                    "<h3>%s: %s</h3>" % (_("Word form"), "{{ form.instance.wordform }}")),
+                    "<h2>%s: (%s)</h2>" % (_("Edit Mini Paradigm"), "{{ form.instance }}")),
                 css_class=''
             ),
             Row(

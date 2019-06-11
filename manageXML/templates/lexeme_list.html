@@ -13,12 +13,12 @@
                     {% render_field filterset.form.lexeme class="form-control" %}
                 </div>
                 <div class="form-group col-sm-4 col-md-3">
-                    {{ filterset.form.pos.label_tag }}
-                    {% render_field filterset.form.pos class="form-control" %}
+                    {{ filterset.form.language.label_tag }}
+                    {% render_field filterset.form.language class="form-control" %}
                 </div>
                 <div class="form-group col-sm-4 col-md-3">
-                    {{ filterset.form.checked.label_tag }}
-                    {% render_field filterset.form.checked class="form-control" %}
+                    {{ filterset.form.pos.label_tag }}
+                    {% render_field filterset.form.pos class="form-control" %}
                 </div>
             </div>
             <div class="row">
@@ -49,8 +49,7 @@
             <th>{% trans "ID" %}</th>
             <th>{% trans "Lexeme" %}</th>
             <th>{% trans "POS" %}</th>
-            <th>{% trans "Translations" %}</th>
-            <th>{% trans "Processed" %}</th>
+            <th>{% trans "Language" %}</th>
             {% if order_by %}
                 <th>{% trans "Ordered By" %}</th>
             {% endif %}
@@ -64,23 +63,16 @@
                 <td>{{ obj.id }}</td>
                 <td>{{ obj.lexeme }}</td>
                 <td>{{ obj.pos }}</td>
-                <td>
-                    <ul>
-                        {% for t in obj.translation_set.all %}
-                            <li>{{ t.text }}{% if t.pos %} ({{ t.pos }}){% endif %}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
-                <td>{% if obj.checked %}✓{% else %}✗{% endif %}</td>
+                <td>{{ obj.language }}</td>
                 {% if order_by %}
                     <td>{{ obj|getattr:order_by }}</td>
                 {% endif %}
                 <td>{{ obj.notes|linebreaksbr }}</td>
                 <td>
                     <ul>
-                        <li><a href="{% url 'element-detail' pk=obj.pk slug=obj.slug %}">{% trans "view" %}</a></li>
+                        <li><a href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}">{% trans "view" %}</a></li>
                         {% if user.is_authenticated %}
-                            <li><a href="{% url 'element-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
+                            <li><a href="{% url 'lexeme-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
                         {% endif %}
                     </ul>
                 </td>
@@ -107,6 +99,5 @@
         <p></p>
     {% endif %}
     <p><b>{% trans "Total" %}:</b> {{ page_obj.paginator.count }} {% if is_paginated %}({% trans "Showing" %}:
-        {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %} <a class="btn btn-sm btn-outline-secondary" href="{% url 'download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
-                            {% blocktrans %}Download{% endblocktrans %}</a></p>
+        {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %}</p>
 {% endblock %}

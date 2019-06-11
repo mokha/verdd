@@ -1,0 +1,7 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+
+{% block main_content %}
+    {% include 'relation_detail_content.html' with object=object %}
+{% endblock %}

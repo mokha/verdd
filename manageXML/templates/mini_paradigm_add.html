@@ -5,7 +5,6 @@
 {% load widget_tweaks %}
 
 {% block main_content %}
-    {% include 'element_data.html' with object=translation.element %}
-    {% include 'translation_data.html' with object=translation %}
+    {% include 'lexeme_data.html' with object=lexeme %}
     {% crispy form %}
 {% endblock %}

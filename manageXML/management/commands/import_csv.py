@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand, CommandError
-from manageXML.models import *
 import io, csv, os, glob, re
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -8,8 +7,8 @@ from wiki.semantic_api import SemanticAPI
 import json, html, re
 from lxml import etree
 from io import StringIO
+from ._private import *
 
-semAPI = SemanticAPI()
 parser = etree.HTMLParser()
 
 new_xml = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
@@ -126,17 +125,9 @@ def mediawiki_query(word, lexeme):
 
     title, pos, translations, contlex, miniparam = (None,) * 5
 
-    r1 = semAPI.ask(query=(
-        '[[Sms:%s]]' % word, '?Category', '?POS', '?Lang', '?Contlex')
-    )
-
-    if not r1['query']['results']:
+    title, info, pos, contlex = query_semantic_search(word, 'sms')
+    if not title:
         return title, pos, translations, contlex, miniparam
-
-    title, info = r1['query']['results'].popitem()
-    info = info['printouts']
-    pos = info['POS'][0]['fulltext']
-    # contlex = [i['fulltext'] for i in info['Contlex']]  # using the first contlex
 
     r2 = semAPI.parse(title)
     if "error" not in r2:
@@ -197,7 +188,10 @@ def process_row(row, df, lang_source, lang_target):
         return
 
     word_1 = match_para.sub('', word_1).strip()  # remove any additional information
+    word_1 = word_1 if word_1 else row[0][1]  # in case the result is an empty string
+
     word_2 = match_para.sub('', word_2).strip()  # remove any additional information
+    word_2 = word_2 if word_2 else row[1][1]  # in case the result is an empty string
 
     word_1_analysis = analyze(word_1, 'fin')
     lexeme_pos = word_1_analysis[0][0] if word_1_analysis[0][0] else ''
@@ -207,28 +201,25 @@ def process_row(row, df, lang_source, lang_target):
     title, pos, translations, contlex, miniparam = mediawiki_data
 
     extra_notes = map(lambda v: ': '.join(v), row)  # convert the row into (k:v)
+    notes = "\n".join(extra_notes)
 
     # add the lexeme
-    e = Element(lexeme=word_1,
-                pos=lexeme_pos,
-                language=lang_source,
-                notes="\n".join(extra_notes),
-                imported_from=df)
-    e.save()
+    w1 = create_lexeme(lexeme=word_1,
+                       pos=lexeme_pos,
+                       language=lang_source,
+                       imported_from=df)  # insert first word
+
+    w2 = create_lexeme(lexeme=word_2,
+                       pos='',
+                       language=lang_target,
+                       imported_from=df)  # insert second word
+
+    r = create_relation(w1, w2, notes, row_dict['teâttkäivv'])  # create relation
 
     if not word_2_analysis or not word_2_analysis[0][0]:
-        t = Translation(element=e,
-                        text=word_2,
-                        language=lang_target)
-        t.save()
-
-        # for each translation, add the source
-        s = Source(translation=t, name=row_dict['teâttkäivv'], type='book')
-        s.save()
         return
 
-    word_2_analysis = set(map(lambda wa: wa[0], word_2_analysis))
-
+    word_2_analysis = set(map(lambda wa: wa[0], word_2_analysis))  # we have some analysis
     for analysis in word_2_analysis:
         pos = analysis
 
@@ -238,33 +229,21 @@ def process_row(row, df, lang_source, lang_target):
 
         if c:
             c = c[0]
-            t = Translation(element=e,
-                            text=word_2,
-                            pos=pos,
-                            contlex=c['contlex'] if 'contlex' in c else '',
-                            inflexId=c['inflexid'] if 'inflexid' in c else '',
-                            language=lang_target)
-        else:
-            t = Translation(element=e,
-                            text=word_2,
-                            pos=pos,
-                            language=lang_target)
-        t.save()
-
-        # for each translation, add the source
-        s = Source(translation=t, name=row_dict['teâttkäivv'], type='book')
-        s.save()
+            if 'contlex' in c:
+                w2.contlex = c['contlex']
+            if 'inflexid' in c:
+                w2.inflexId = c['inflexid']
+            w2.save()
 
         # add mini paradigms
         if miniparam:
             for wordform, msd in miniparam:
-                m = MiniParadigm(translation=t, wordform=wordform, msd=msd)
+                m = MiniParadigm(lexeme=w2, wordform=wordform, msd=msd)
                 m.save()
 
         if title:
             # add affiliation
-            a = Affiliation(translation=t, title=title)
-            a.save()
+            a, created = Affiliation.objects.get_or_create(lexeme=w2, title=title)
 
 
 class Command(BaseCommand):

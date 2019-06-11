@@ -13,7 +13,6 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext as _
 import string
-from .models import *
 from .forms import *
 from django.shortcuts import get_object_or_404
 from uralicNLP import uralicApi
@@ -53,7 +52,7 @@ class FilteredListView(TitleMixin, ListView):
         return context
 
 
-class ElementFilter(django_filters.FilterSet):
+class LexemeFilter(django_filters.FilterSet):
     STATUS_CHOICES = (
         (True, _('Yes')),
         (False, _('No')),
@@ -70,7 +69,8 @@ class ElementFilter(django_filters.FilterSet):
     }
 
     lexeme = CharFilter(label=_('Lexeme'))
-    pos = ChoiceFilter(choices=set([(p['pos'], p['pos']) for p in Element.objects.all().values('pos')]), label=_('POS'))
+    language = ChoiceFilter(label=_('Language'))
+    pos = ChoiceFilter(label=_('POS'))
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
     range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
     range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range to'), method='filter_range')
@@ -94,19 +94,17 @@ class ElementFilter(django_filters.FilterSet):
     )
 
     class Meta:
-        model = Element
-        fields = {
-            'lexeme': ['exact'],
-            'pos': ['exact'],
-            'checked': ['exact'],
-            'range_from': ['exact'],
-            'range_to': ['exact']
-        }
+        model = Lexeme
+        fields = ['lexeme', 'language', 'pos', 'checked', 'range_from', 'range_to']
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
         data.setdefault('order', '+lexeme')
         super().__init__(data, *args, **kwargs)
+
+        self.form.fields['language'].choices = set(
+            [(p['language'], p['language']) for p in Lexeme.objects.all().values('language')])
+        self.form.fields['pos'].choices = set([(p['pos'], p['pos']) for p in Lexeme.objects.all().values('pos')])
 
     def filter_range(self, queryset, name, value):
         # transform datetime into timestamp
@@ -114,7 +112,7 @@ class ElementFilter(django_filters.FilterSet):
         range_to = self.data['range_to'] if 'range_to' in self.data else None  # get key
 
         range_from = int(range_from) if range_from else 0
-        range_to = int(range_to) if range_to else len(ElementFilter.ALPHABETS_CHOICES) - 1
+        range_to = int(range_to) if range_to else len(LexemeFilter.ALPHABETS_CHOICES) - 1
 
         if range_from > range_to:
             return queryset.none()
@@ -122,16 +120,16 @@ class ElementFilter(django_filters.FilterSet):
         filters = models.Q()
         for i in range(range_from, range_to + 1):
             filters |= models.Q(
-                lexeme__istartswith=ElementFilter.ALPHABETS_CHOICES[i][1],
+                lexeme__istartswith=LexemeFilter.ALPHABETS_CHOICES[i][1],
             )
 
         return queryset.filter(filters)
 
 
-class ElementView(FilteredListView):
-    filterset_class = ElementFilter
-    model = Element
-    template_name = 'element_list.html'
+class LexemeView(FilteredListView):
+    filterset_class = LexemeFilter
+    model = Lexeme
+    template_name = 'lexeme_list.html'
     paginate_by = 50
     title = _("Homepage")
 
@@ -145,9 +143,9 @@ class ElementView(FilteredListView):
         return context
 
 
-class ElementExportView(ElementView):
-    filterset_class = ElementFilter
-    model = Element
+class LexemeExportView(LexemeView):
+    filterset_class = LexemeFilter
+    model = Lexeme
 
     def render_to_response(self, context, **response_kwargs):
         filename = "{}-export.csv".format(datetime.datetime.now().replace(microsecond=0).isoformat())
@@ -177,17 +175,7 @@ class ElementExportView(ElementView):
         return response
 
 
-class ElementDetailView(TitleMixin, DetailView):
-    model = Element
-    template_name = 'element_detail.html'
-
-    def get_title(self):
-        return self.object
-
-
 class MiniParadigmMixin:
-    language = 'sms'
-
     MP_forms = {
         'N': ['N+Pl+Nom',
               'N+Sg+Ill',
@@ -209,16 +197,13 @@ class MiniParadigmMixin:
     def get_miniparadigm_forms(self):
         return self.MP_forms
 
-    def get_language(self):
-        return self.language
-
-    def generate_forms(self, translation):
+    def generate_forms(self, lexeme):
         generated_forms = defaultdict(list)
 
         MP_forms = self.get_miniparadigm_forms()
-        if translation.pos in MP_forms:
-            for f in MP_forms[translation.pos]:
-                results = uralicApi.generate(translation.text + '+' + f, self.get_language())
+        if lexeme.pos in MP_forms:
+            for f in MP_forms[lexeme.pos]:
+                results = uralicApi.generate(lexeme.lexeme + '+' + f, lexeme.language)
                 for r in results:
                     generated_forms[f].append(r[0].split('@')[0])
         generated_forms.default_factory = None
@@ -226,55 +211,60 @@ class MiniParadigmMixin:
         return generated_forms
 
 
-class TranslationDetailView(TitleMixin, MiniParadigmMixin, DetailView):
-    model = Translation
-    template_name = 'translation_detail.html'
+class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
+    model = Lexeme
+    template_name = 'lexeme_detail.html'
 
     def get_context_data(self, **kwargs):
-        context = super(TranslationDetailView, self).get_context_data(**kwargs)
-        translation = self.object
-        context['generated_miniparadigms'] = self.generate_forms(translation)
+        context = super(LexemeDetailView, self).get_context_data(**kwargs)
+        context['generated_miniparadigms'] = self.generate_forms(self.object)
         return context
 
     def get_title(self):
-        return "%s (%s)" % (self.object.text, self.object.element.lexeme)
+        return self.object
 
 
-#
-# class SourceDetailView(DetailView):
-#     model = Source
-#     template_name = 'source_detail.html'
-#
-#
-# class MiniParadigmDetailView(DetailView):
-#     model = MiniParadigm
-#     template_name = 'mini_paradigm_detail.html'
-
-
-class ElementEditView(LoginRequiredMixin, TitleMixin, UpdateView):
-    template_name = 'element_edit.html'
-    model = Element
-    form_class = ElementForm
+class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'lexeme_edit.html'
+    model = Lexeme
+    form_class = LexemeForm
 
     def get_title(self):
         return "%s: %s" % (_("Edit"), self.object.lexeme)
 
     def form_valid(self, form):
         form.save()
-        return super(ElementEditView, self).form_valid(form)
+        return super(LexemeEditView, self).form_valid(form)
 
 
-class TranslationEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView):
-    template_name = 'translation_edit.html'
-    model = Translation
-    form_class = TranslationForm
+class RelationDetailView(TitleMixin, DetailView):
+    model = Relation
+    template_name = 'relation_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationDetailView, self).get_context_data(**kwargs)
+        return context
 
     def get_title(self):
-        return "%s: %s (%s)" % (_("Edit translation"), self.object.text, self.object.element.lexeme)
+        return "%s (%s)" % (self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
+
+
+class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'relation_edit.html'
+    model = Relation
+    form_class = RelationForm
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Relation"), self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
 
     def form_valid(self, form):
         form.save()
-        return super(TranslationEditView, self).form_valid(form)
+        return super(RelationEditView, self).form_valid(form)
+
+
+class SourceDetailView(DetailView):
+    model = Source
+    template_name = 'source_detail.html'
 
 
 class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
@@ -283,7 +273,7 @@ class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     form_class = SourceForm
 
     def get_title(self):
-        return "%s: %s (%s)" % (_("Edit source"), self.object.translation.text, self.object.translation.element.lexeme)
+        return "%s: %s" % (_("Edit source"), self.object.relation,)
 
 
 class MiniParadigmEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView):
@@ -291,15 +281,9 @@ class MiniParadigmEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, Up
     model = MiniParadigm
     form_class = MiniParadigmForm
 
-    def get_context_data(self, **kwargs):
-        context = super(MiniParadigmEditView, self).get_context_data(**kwargs)
-        translation = self.object.translation
-        context['generated_miniparadigms'] = self.generate_forms(translation)
-        return context
-
     def get_title(self):
-        return "%s: %s (%s)" % (
-            _("Edit mini paradigm"), self.object.translation.text, self.object.translation.element.lexeme)
+        return "%s: %s" % (
+            _("Edit mini paradigm"), self.object.lexeme.lexeme)
 
 
 class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, CreateView):
@@ -310,18 +294,17 @@ class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, 
     def get_context_data(self, **kwargs):
         context = super(MiniParadigmCreateView, self).get_context_data(**kwargs)
         # Pass the filterset to the template - it provides the form.
-        translation = get_object_or_404(Translation,
-                                        pk=self.kwargs['translation_id'])
-        context['translation'] = translation
-        context['generated_miniparadigms'] = self.generate_forms(translation)
+        lexeme = get_object_or_404(Lexeme,
+                                   pk=self.kwargs['lexeme_id'])
+        context['lexeme'] = lexeme
         return context
 
     def get_title(self):
-        translation = Translation.objects.get(pk=self.kwargs['translation_id'])
-        return "%s: %s (%s)" % (
-            _("Add mini paradigm"), translation.text, translation.element.lexeme)
+        lexeme = Lexeme.objects.get(pk=self.kwargs['lexeme_id'])
+        return "%s: %s" % (
+            _("Add mini paradigm"), lexeme.lexeme)
 
     def form_valid(self, form):
-        form.instance.translation = get_object_or_404(Translation,
-                                                      pk=self.kwargs['translation_id'])
+        form.instance.lexeme = get_object_or_404(Lexeme,
+                                                 pk=self.kwargs['lexeme_id'])
         return super().form_valid(form)

@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.utils.text import slugify
 from django.urls import reverse
 from .common import Rhyme
-from django.utils.translation import gettext as _
+from .constants import *
 
 
 class DataFile(models.Model):
@@ -21,14 +21,6 @@ class Lexeme(models.Model):
     class Meta:
         unique_together = ('lexeme', 'pos', 'homoId', 'language',)
 
-    INFLEX_TYPE_OPTIONS = (
-        (1, _('1')),
-        (2, _('2')),
-        (3, _('3')),
-        (4, _('4')),
-        (99, _('X'))
-    )
-
     lexeme = models.CharField(max_length=250)
     homoId = models.IntegerField(default=0)
     assonance = models.CharField(max_length=250, blank=True)
@@ -42,7 +34,7 @@ class Lexeme(models.Model):
     added_date = models.DateTimeField('date published', auto_now_add=True)
     contlex = models.CharField(max_length=250, blank=True)
     type = models.CharField(max_length=25, blank=True)
-    lemmaId = models.ForeignKey('self', related_name='lemmaId_set', null=True, blank=True, on_delete=models.CASCADE)
+    lemmaId = models.CharField(max_length=250, blank=True, default='')
     inflexId = models.CharField(max_length=25, blank=True)
     inflexType = models.IntegerField(choices=INFLEX_TYPE_OPTIONS,
                                      blank=True, null=True, default=None)
@@ -74,14 +66,22 @@ class Lexeme(models.Model):
         return Relation.objects.filter(Q(lexeme_from=self) | Q(lexeme_to=self))
 
     def inflexType_str(self):
-        choices = dict(self.INFLEX_TYPE_OPTIONS)
-        return choices[self.inflexType] if self.inflexType in choices else ''
+        return INFLEX_TYPE_OPTIONS_DICT[self.inflexType] if self.inflexType in INFLEX_TYPE_OPTIONS_DICT else ''
 
     def save(self, *args, **kwargs):
+        # store rhyming features
         self.assonance = self.get_assonance()
         self.assonance_rev = self.get_assonance_rev()
         self.consonance = self.get_consonance()
         self.consonance_rev = self.get_consonance_rev()
+
+        # automatically get the inflexType
+        if (not self.inflexType or self.inflexType == 0) and self.contlex:
+            for inflexType, inflexType_list in INFLEX_TYPE_MAPPINGS.items():
+                if self.contlex in inflexType_list:
+                    self.inflexType = inflexType
+                    break
+
         return super(Lexeme, self).save(*args, **kwargs)
 
 
@@ -89,17 +89,9 @@ class Relation(models.Model):
     class Meta:
         unique_together = ('lexeme_from', 'lexeme_to', 'type')
 
-    TYPE_OPTIONS = (
-        (0, _('Translation')),
-        (1, _('Etymology')),
-        (2, _('Compound')),
-        (3, _('Derivation')),
-        (99, _('Other'))
-    )
-
     lexeme_from = models.ForeignKey(Lexeme, related_name='lexeme_from_lexeme_set', on_delete=models.CASCADE)
     lexeme_to = models.ForeignKey(Lexeme, related_name='lexeme_to_lexeme_set', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_OPTIONS,
+    type = models.IntegerField(choices=RELATION_TYPE_OPTIONS,
                                default=0)
     notes = models.CharField(max_length=250, blank=True)
     checked = models.BooleanField(default=False)
@@ -111,8 +103,7 @@ class Relation(models.Model):
         return "%s - %s" % (self.lexeme_from.lexeme, self.lexeme_to.lexeme)
 
     def type_str(self):
-        choices = dict(self.TYPE_OPTIONS)
-        return choices[self.type] if self.type in choices else ''
+        return RELATION_TYPE_OPTIONS_DICT[self.type] if self.type in RELATION_TYPE_OPTIONS_DICT else ''
 
     def get_absolute_url(self):
         return reverse('relation-detail',

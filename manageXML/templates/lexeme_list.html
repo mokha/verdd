@@ -20,6 +20,10 @@
                     {{ filterset.form.pos.label_tag }}
                     {% render_field filterset.form.pos class="form-control" %}
                 </div>
+                <div class="form-group col-sm-4 col-md-3">
+                    {{ filterset.form.inflexType.label_tag }}
+                    {% render_field filterset.form.inflexType class="form-control" %}
+                </div>
             </div>
             <div class="row">
                 <div class="form-group col-sm-4 col-md-3">
@@ -31,6 +35,10 @@
                     {% render_field filterset.form.range_to class="form-control" %}
                 </div>
                 <div class="form-group col-sm-4 col-md-3">
+                    {{ filterset.form.contlex.label_tag }}
+                    {% render_field filterset.form.contlex class="form-control" %}
+                </div>
+                <div class="form-group col-sm-4 col-md-3">
                     {{ filterset.form.order_by.label_tag }}
                     {% render_field filterset.form.order_by class="form-control" %}
                 </div>
@@ -38,6 +46,8 @@
             <button type="submit" class="btn btn-primary">
                 <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
             </button>
+            <a class="btn btn-outline-secondary float-right" href="{% url 'download-csv' %}">
+                {% blocktrans %}Download{% endblocktrans %}</a>
         </div>
     </form>
 
@@ -49,6 +59,8 @@
             <th>{% trans "ID" %}</th>
             <th>{% trans "Lexeme" %}</th>
             <th>{% trans "POS" %}</th>
+            <th>{% trans "Contlex" %}</th>
+            <th>{% trans "Inflex Type" %}</th>
             <th>{% trans "Language" %}</th>
             {% if order_by %}
                 <th>{% trans "Ordered By" %}</th>
@@ -63,6 +75,8 @@
                 <td>{{ obj.id }}</td>
                 <td>{{ obj.lexeme }}</td>
                 <td>{{ obj.pos }}</td>
+                <td>{{ obj.contlex }}</td>
+                <td>{{ obj.inflexType_str }}</td>
                 <td>{{ obj.language }}</td>
                 {% if order_by %}
                     <td>{{ obj|getattr:order_by }}</td>

@@ -3,6 +3,7 @@ from django import forms
 from django.utils.translation import gettext as _
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML
+from .constants import *
 
 
 class LexmeChoiceField(forms.ModelChoiceField):
@@ -15,9 +16,9 @@ class LexemeForm(forms.ModelForm):
     pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
     contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
     type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
-    lemmaId = LexmeChoiceField(queryset=Lexeme.objects.all(), required=False, label=_('Lemma ID'))
+    lemmaId = forms.CharField(required=False, label=_('Lemma ID'))
     inflexId = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Inflex ID')}))
-    inflexType = forms.ChoiceField(choices=(('', ''),) + Lexeme.INFLEX_TYPE_OPTIONS, required=False,
+    inflexType = forms.ChoiceField(choices=(('', ''),) + INFLEX_TYPE_OPTIONS, required=False,
                                    label=_('Inflex Type'))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 

@@ -125,7 +125,7 @@ def mediawiki_query(word, lexeme):
 
     title, pos, translations, contlex, miniparam = (None,) * 5
 
-    title, info, pos, contlex = query_semantic_search(word, 'sms')
+    title, info, pos, contlex_ignored = query_semantic_search(word, 'sms')
     if not title:
         return title, pos, translations, contlex, miniparam
 
@@ -181,47 +181,53 @@ def mediawiki_query(word, lexeme):
 
 def process_row(row, df, lang_source, lang_target):
     row_dict = dict(row)
-    word_1 = row[0][1]  # first word
-    word_2 = row[1][1]  # second word
+    word_1 = fix_encoding(row[0][1])  # first word
+    word_2 = fix_encoding(row[1][1])  # second word
 
     if not word_1.strip() or not word_2.strip():
         return
 
-    word_1 = match_para.sub('', word_1).strip()  # remove any additional information
-    word_1 = word_1 if word_1 else row[0][1]  # in case the result is an empty string
+    word_1_stripped = match_para.sub('', word_1).strip()  # remove any additional information
+    word_1 = word_1_stripped if word_1_stripped else word_1  # in case the result is an empty string
 
-    word_2 = match_para.sub('', word_2).strip()  # remove any additional information
-    word_2 = word_2 if word_2 else row[1][1]  # in case the result is an empty string
+    word_1_stripped = match_para.sub('', word_2).strip()  # remove any additional information
+    word_2 = word_1_stripped if word_1_stripped else word_2  # in case the result is an empty string
 
     word_1_analysis = analyze(word_1, 'fin')
-    lexeme_pos = word_1_analysis[0][0] if word_1_analysis[0][0] else ''
+    word_1_analysis = list(filter(lambda _a: _a[0] and 'Hom' not in _a[0], word_1_analysis))
+    word_1_analysis = set(map(lambda wa: wa[0], word_1_analysis))
+    if not word_1_analysis:
+        word_1_analysis = ['']
+    lexemes_1 = [create_lexeme(lexeme=word_1,
+                               pos=pos,
+                               language=lang_source,
+                               imported_from=df) for pos in word_1_analysis]
 
     word_2_analysis = analyze(word_2, 'sms')
+    word_2_analysis = list(filter(lambda _a: _a[0] and 'Hom' not in _a[0], word_2_analysis))
+    word_2_analysis = set(map(lambda wa: wa[0], word_2_analysis))
+    if not word_2_analysis:
+        word_2_analysis = ['']
+    lexemes_2 = [create_lexeme(lexeme=word_2,
+                               pos=pos,
+                               language=lang_target,
+                               imported_from=df) for pos in word_2_analysis]  # insert second word
+
     mediawiki_data = mediawiki_query(word_2, word_1)
     title, pos, translations, contlex, miniparam = mediawiki_data
 
     extra_notes = map(lambda v: ': '.join(v), row)  # convert the row into (k:v)
     notes = "\n".join(extra_notes)
+    if title:
+        for w2 in lexemes_2:
+            a, created = Affiliation.objects.get_or_create(lexeme=w2, title=title)
 
-    # add the lexeme
-    w1 = create_lexeme(lexeme=word_1,
-                       pos=lexeme_pos,
-                       language=lang_source,
-                       imported_from=df)  # insert first word
+    for w1 in lexemes_1:
+        for w2 in lexemes_2:
+            r = create_relation(w1, w2, notes, row_dict['teâttkäivv'])  # create relation
 
-    w2 = create_lexeme(lexeme=word_2,
-                       pos='',
-                       language=lang_target,
-                       imported_from=df)  # insert second word
-
-    r = create_relation(w1, w2, notes, row_dict['teâttkäivv'])  # create relation
-
-    if not word_2_analysis or not word_2_analysis[0][0]:
-        return
-
-    word_2_analysis = set(map(lambda wa: wa[0], word_2_analysis))  # we have some analysis
-    for analysis in word_2_analysis:
-        pos = analysis
+    for w2 in lexemes_2:
+        pos = w2.pos
 
         # add its translation
         c = list(filter(lambda c: 'contlex' in c and c['contlex'].startswith(pos + '_'), contlex)) if contlex else []
@@ -238,12 +244,9 @@ def process_row(row, df, lang_source, lang_target):
         # add mini paradigms
         if miniparam:
             for wordform, msd in miniparam:
-                m = MiniParadigm(lexeme=w2, wordform=wordform, msd=msd)
-                m.save()
-
-        if title:
-            # add affiliation
-            a, created = Affiliation.objects.get_or_create(lexeme=w2, title=title)
+                if wordform != '=':
+                    m = MiniParadigm(lexeme=w2, wordform=wordform, msd=w2.pos + '+' + msd.replace('_', '+'))
+                    m.save()
 
 
 class Command(BaseCommand):

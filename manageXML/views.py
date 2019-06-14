@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404
 from uralicNLP import uralicApi
 from collections import defaultdict
 import csv
+from .constants import INFLEX_TYPE_OPTIONS
 
 
 class TitleMixin:
@@ -68,10 +69,11 @@ class LexemeFilter(django_filters.FilterSet):
         'assonance_rev': 'revAssonance',
     }
 
-    lexeme = CharFilter(label=_('Lexeme'))
+    lexeme = CharFilter(label=_('Lexeme'), lookup_expr='iexact')
     language = ChoiceFilter(label=_('Language'))
     pos = ChoiceFilter(label=_('POS'))
-    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
+    inflexType = ChoiceFilter(choices=INFLEX_TYPE_OPTIONS, label=_('Inflex Type'))
+    contlex = CharFilter(label=_('Contlex'), lookup_expr='icontains')
     range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
     range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range to'), method='filter_range')
     order_by = OrderingFilter(
@@ -80,6 +82,10 @@ class LexemeFilter(django_filters.FilterSet):
             ('-lexeme', '%s (%s)' % (_('Lexeme'), _('descending'))),
             ('pos', _('POS')),
             ('-pos', '%s (%s)' % (_('POS'), _('descending'))),
+            ('contlex', _('ContLex')),
+            ('-contlex', '%s (%s)' % (_('ContLex'), _('descending'))),
+            ('inflexType', _('inflexType')),
+            ('-inflexType', '%s (%s)' % (_('inflexType'), _('descending'))),
             ('consonance', _('Consonance')),
             ('-consonance', '%s (%s)' % (_('Consonance'), _('descending'))),
             ('revConsonance', _('revConsonance')),
@@ -95,7 +101,7 @@ class LexemeFilter(django_filters.FilterSet):
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'language', 'pos', 'checked', 'range_from', 'range_to']
+        fields = ['lexeme', 'language', 'pos', 'contlex', 'inflexType', 'range_from', 'range_to']
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
@@ -154,23 +160,23 @@ class LexemeExportView(LexemeView):
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
 
         writer = csv.writer(response)
-        header = [_('ID'), _('Lexeme'), _('POS'), _('Translations'), _('Processed'), ]
+        header = [_('ID'), _('Language'), _('Lexeme'), _('POS'), _('Contlex'), _('Inflex Type'), ]
         if 'order_by' in context:
             header += [_('Ordered By')]
         writer.writerow(header)
 
         for obj in self.object_list:
-            for translation in obj.translation_set.all():
-                row = [
-                    obj.id,
-                    obj.lexeme,
-                    obj.pos,
-                    "%s (%s)" % (translation.text, translation.pos),
-                    obj.checked,
-                ]
-                if 'order_by' in context:
-                    row += [getattr(obj, context['order_by'])]
-                writer.writerow(row)
+            row = [
+                obj.id,
+                obj.language,
+                obj.lexeme,
+                obj.pos,
+                obj.contlex,
+                obj.inflexType_str()
+            ]
+            if 'order_by' in context:
+                row += [getattr(obj, context['order_by'])]
+            writer.writerow(row)
 
         return response
 

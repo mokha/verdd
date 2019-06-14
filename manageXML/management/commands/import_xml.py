@@ -32,10 +32,14 @@ class Command(BaseCommand):
         for lexeme_1, data_1 in new_xml.items():
             a = data_1['attributes']
             tg = data_1['tg']
+            homoId = 0
+            if 'hid' in a:
+                homoId = int(a['hid'].replace('Hom', '')) - 1
 
             w1 = create_lexeme(lexeme=lexeme_1,
                                pos=a['pos'] if 'pos' in a else '',
                                type=a['type'] if 'type' in a else '',
+                               homoId=homoId,
                                language=lang_source)
 
             title, info, pos, contlex_ignored = query_semantic_search(lexeme_1, lang_source)
@@ -43,10 +47,16 @@ class Command(BaseCommand):
                 a = Affiliation.objects.get_or_create(lexeme=w1, title=title)
 
             for lexeme_2, data_2 in tg.items():
+
+                homoId = 0
+                if 'hid' in data_2:
+                    homoId = int(data_2['hid'].replace('Hom', '')) - 1
+
                 w2 = create_lexeme(lexeme=lexeme_2,
                                    pos=data_2['pos'] if 'pos' in a else '',
                                    type=data_2['type'] if 'type' in a else '',
                                    contlex=data_2['Contlex'] if 'Contlex' in a else '',
+                                   homoId=homoId,
                                    language=lang_target)
 
                 title, info, pos, contlex_ignored = query_semantic_search(lexeme_2, lang_target)

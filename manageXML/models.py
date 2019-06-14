@@ -81,6 +81,7 @@ class Lexeme(models.Model):
                 if self.contlex in inflexType_list:
                     self.inflexType = inflexType
                     break
+            self.inflexType = INFLEX_TYPE_X
 
         return super(Lexeme, self).save(*args, **kwargs)
 

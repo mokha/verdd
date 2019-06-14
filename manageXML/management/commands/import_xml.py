@@ -53,9 +53,9 @@ class Command(BaseCommand):
                     homoId = int(data_2['hid'].replace('Hom', '')) - 1
 
                 w2 = create_lexeme(lexeme=lexeme_2,
-                                   pos=data_2['pos'] if 'pos' in a else '',
-                                   type=data_2['type'] if 'type' in a else '',
-                                   contlex=data_2['Contlex'] if 'Contlex' in a else '',
+                                   pos=data_2['pos'] if 'pos' in data_2 else '',
+                                   type=data_2['type'] if 'type' in data_2 else '',
+                                   contlex=data_2['Contlex'] if 'Contlex' in data_2 else '',
                                    homoId=homoId,
                                    language=lang_target)
 

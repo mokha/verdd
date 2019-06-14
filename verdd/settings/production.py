@@ -13,3 +13,8 @@ DATABASES = {
         'PORT': config('DB_PORT'),
     }
 }
+
+if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+    DATABASES['default']['OPTIONS']: {
+        'init_command': 'SET character_set_connection=utf8,collation_connection=utf8_unicode_ci,default_storage_engine=INNODB',
+    }

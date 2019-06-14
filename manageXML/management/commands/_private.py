@@ -15,7 +15,7 @@ def query_semantic_search(lexeme, lang):
         '[[%s:%s]]' % (lang.capitalize(), lexeme), '?Category', '?POS', '?Lang', '?Contlex')
     )
 
-    if not r1['query']['results']:
+    if 'query' not in r1 or 'results' not in r1['query'] or not r1['query']['results']:
         return (None,) * 4
 
     title, info = r1['query']['results'].popitem()

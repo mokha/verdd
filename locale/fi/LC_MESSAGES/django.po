@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-04 19:10+0000\n"
+"POT-Creation-Date: 2019-06-14 16:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,251 +18,351 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: manageXML/forms.py:9 manageXML/forms.py:24
-#: manageXML/templates/element_data.html:3
-#: manageXML/templates/element_list.html:46
-msgid "Lexeme"
+#: manageXML/constants.py:5
+msgid "1"
 msgstr ""
 
-#: manageXML/forms.py:10 manageXML/forms.py:45
-#: manageXML/templates/element_data.html:7
-#: manageXML/templates/element_list.html:47
-#: manageXML/templates/translation_data.html:6
-#: manageXML/templates/translation_data_list.html:9
-msgid "POS"
+#: manageXML/constants.py:6
+msgid "2"
 msgstr ""
 
-#: manageXML/forms.py:11 manageXML/forms.py:50 manageXML/forms.py:88
-#: manageXML/templates/element_data.html:11
-#: manageXML/templates/element_list.html:50
-#: manageXML/templates/translation_data.html:12
-#: manageXML/templates/translation_detail.html:46
-msgid "Notes"
+#: manageXML/constants.py:7
+msgid "3"
 msgstr ""
 
-#: manageXML/forms.py:12 manageXML/templates/element_data.html:9
-#: manageXML/templates/element_list.html:49 manageXML/views.py:60
-msgid "Processed"
+#: manageXML/constants.py:8
+msgid "4"
 msgstr ""
 
-#: manageXML/forms.py:34
-#, python-format
-msgid "Translations (%s)"
+#: manageXML/constants.py:9
+msgid "5"
 msgstr ""
 
-#: manageXML/forms.py:44
-msgid "Word"
+#: manageXML/constants.py:10
+msgid "X"
 msgstr ""
 
-#: manageXML/forms.py:46
-msgid "Continuation Lexicon"
-msgstr ""
-
-#: manageXML/forms.py:47 manageXML/forms.py:85
-#: manageXML/templates/translation_data.html:9
-#: manageXML/templates/translation_detail.html:44
-msgid "Type"
-msgstr ""
-
-#: manageXML/forms.py:48 manageXML/templates/translation_data.html:11
-msgid "Lemma ID"
-msgstr ""
-
-#: manageXML/forms.py:49
-msgid "Inflex ID"
-msgstr ""
-
-#: manageXML/forms.py:64 manageXML/templates/translation_data.html:3
+#: manageXML/constants.py:15
 msgid "Translation"
 msgstr ""
 
-#: manageXML/forms.py:86 manageXML/templates/translation_detail.html:43
+#: manageXML/constants.py:16
+msgid "Etymology"
+msgstr ""
+
+#: manageXML/constants.py:17
+msgid "Compound"
+msgstr ""
+
+#: manageXML/constants.py:18
+msgid "Derivation"
+msgstr ""
+
+#: manageXML/constants.py:19
+msgid "Other"
+msgstr ""
+
+#: manageXML/forms.py:15 manageXML/forms.py:35
+#: manageXML/templates/lexeme_data.html:3
+#: manageXML/templates/lexeme_list.html:60 manageXML/views.py:72
+#: manageXML/views.py:81 manageXML/views.py:82 manageXML/views.py:163
+msgid "Lexeme"
+msgstr ""
+
+#: manageXML/forms.py:16 manageXML/templates/lexeme_data.html:8
+#: manageXML/templates/lexeme_list.html:61 manageXML/views.py:74
+#: manageXML/views.py:83 manageXML/views.py:84 manageXML/views.py:163
+msgid "POS"
+msgstr ""
+
+#: manageXML/forms.py:17
+msgid "Continuation Lexicon"
+msgstr ""
+
+#: manageXML/forms.py:18 manageXML/forms.py:83
+#: manageXML/templates/lexeme_data.html:10
+#: manageXML/templates/relation_data.html:6
+#: manageXML/templates/relation_data_list.html:9
+#: manageXML/templates/source_data.html:6
+msgid "Type"
+msgstr ""
+
+#: manageXML/forms.py:19 manageXML/templates/lexeme_data.html:13
+msgid "Lemma ID"
+msgstr ""
+
+#: manageXML/forms.py:20
+msgid "Inflex ID"
+msgstr ""
+
+#: manageXML/forms.py:22 manageXML/templates/lexeme_data.html:12
+#: manageXML/templates/lexeme_list.html:63 manageXML/views.py:75
+#: manageXML/views.py:163
+msgid "Inflex Type"
+msgstr ""
+
+#: manageXML/forms.py:23 manageXML/forms.py:65 manageXML/forms.py:86
+#: manageXML/templates/lexeme_data.html:27
+#: manageXML/templates/lexeme_list.html:68
+#: manageXML/templates/relation_data.html:8
+#: manageXML/templates/relation_data_list.html:11
+#: manageXML/templates/source_data.html:9
+msgid "Notes"
+msgstr ""
+
+#: manageXML/forms.py:66 manageXML/templates/relation_data.html:7
+msgid "Processed"
+msgstr ""
+
+#: manageXML/forms.py:84
 msgid "Name"
 msgstr ""
 
-#: manageXML/forms.py:87 manageXML/templates/element_list.html:90
-#: manageXML/templates/translation_detail.html:45
+#: manageXML/forms.py:85 manageXML/templates/lexeme_list.html:105
+#: manageXML/templates/source_data.html:7
 msgid "Page"
 msgstr ""
 
-#: manageXML/forms.py:100
+#: manageXML/forms.py:98 manageXML/templates/source_data.html:3
 msgid "Source"
 msgstr ""
 
-#: manageXML/forms.py:115 manageXML/forms.py:128 manageXML/forms.py:141
-#: manageXML/templates/translation_detail.html:17
+#: manageXML/forms.py:113 manageXML/forms.py:139
+#: manageXML/templates/mini_paradigm_data.html:10
+#: manageXML/templates/mini_paradigm_data.html:44
 msgid "Word form"
 msgstr ""
 
-#: manageXML/forms.py:116 manageXML/forms.py:142
+#: manageXML/forms.py:114 manageXML/forms.py:140
 msgid "Morphosyntactic description"
 msgstr ""
 
-#: manageXML/templates/element_data.html:4
-#: manageXML/templates/element_list.html:73
-#: manageXML/templates/translation_data_list.html:27
-#: manageXML/templates/translation_data_list.html:36
-#: manageXML/templates/translation_data_list.html:61
-msgid "edit"
+#: manageXML/forms.py:126
+msgid "Edit Mini Paradigm"
 msgstr ""
 
-#: manageXML/templates/element_data.html:6
-#: manageXML/templates/translation_data.html:5
-msgid "Language (ISO 639-2)"
-msgstr ""
-
-#: manageXML/templates/element_data.html:8
-#: manageXML/templates/translation_data.html:7
-msgid "Last edit"
-msgstr ""
-
-#: manageXML/templates/element_data.html:10
-msgid "True"
-msgstr ""
-
-#: manageXML/templates/element_data.html:10
-msgid "False"
-msgstr ""
-
-#: manageXML/templates/element_detail.html:7
-msgid "Translations:"
-msgstr ""
-
-#: manageXML/templates/element_list.html:9
-msgid "Filter"
-msgstr ""
-
-#: manageXML/templates/element_list.html:35
-msgid "Search"
-msgstr ""
-
-#: manageXML/templates/element_list.html:45
-#: manageXML/templates/translation_data_list.html:6
-#: manageXML/templates/translation_detail.html:15
-#: manageXML/templates/translation_detail.html:42
-msgid "ID"
-msgstr ""
-
-#: manageXML/templates/element_list.html:48
-msgid "Translations"
-msgstr ""
-
-#: manageXML/templates/element_list.html:51
-#: manageXML/templates/translation_data_list.html:13
-msgid "Actions"
-msgstr ""
-
-#: manageXML/templates/element_list.html:71
-#: manageXML/templates/translation_data_list.html:57
+#: manageXML/templates/lexeme_data.html:4
+#: manageXML/templates/lexeme_list.html:87
+#: manageXML/templates/relation_data_list.html:27
+#: manageXML/templates/relation_data_list.html:38
 msgid "view"
 msgstr ""
 
-#: manageXML/templates/element_list.html:84
-msgid "First"
+#: manageXML/templates/lexeme_data.html:5
+#: manageXML/templates/lexeme_list.html:89
+#: manageXML/templates/mini_paradigm_data.html:27
+#: manageXML/templates/relation_data_list.html:27
+#: manageXML/templates/relation_data_list.html:42
+msgid "edit"
 msgstr ""
 
-#: manageXML/templates/element_list.html:86
-msgid "Previous"
+#: manageXML/templates/lexeme_data.html:7
+#: manageXML/templates/relation_data.html:5
+msgid "Language (ISO 639-2)"
 msgstr ""
 
-#: manageXML/templates/element_list.html:90
-msgid "of"
-msgstr ""
-
-#: manageXML/templates/element_list.html:94
-msgid "Next"
-msgstr ""
-
-#: manageXML/templates/element_list.html:96
-msgid "Last"
-msgstr ""
-
-#: manageXML/templates/element_list.html:101
-msgid "Total"
-msgstr ""
-
-#: manageXML/templates/element_list.html:101
-msgid "Showing"
-msgstr ""
-
-#: manageXML/templates/translation_data.html:8
+#: manageXML/templates/lexeme_data.html:9
 msgid "Cont"
 msgstr ""
 
-#: manageXML/templates/translation_data.html:10
+#: manageXML/templates/lexeme_data.html:11
 msgid "Inflex Id"
 msgstr ""
 
-#: manageXML/templates/translation_data_list.html:7
-msgid "Text"
+#: manageXML/templates/lexeme_data.html:15
+msgid "Affiliations"
 msgstr ""
 
-#: manageXML/templates/translation_data_list.html:8
-msgid "Lang"
+#: manageXML/templates/lexeme_data.html:26
+#: manageXML/templates/relation_data.html:9
+#: manageXML/templates/source_data.html:8
+msgid "Last edit"
 msgstr ""
 
-#: manageXML/templates/translation_data_list.html:10
-#: manageXML/templates/translation_detail.html:35
-msgid "Sources"
-msgstr ""
-
-#: manageXML/templates/translation_data_list.html:11
-msgid "Mini Paradigm"
-msgstr ""
-
-#: manageXML/templates/translation_data_list.html:12
-msgid "Affiliation"
-msgstr ""
-
-#: manageXML/templates/translation_data_list.html:42
-msgid "add"
-msgstr ""
-
-#: manageXML/templates/translation_detail.html:8
+#: manageXML/templates/lexeme_detail.html:7
 msgid "Mini Paradigms"
 msgstr ""
 
-#: manageXML/templates/translation_detail.html:16
+#: manageXML/templates/lexeme_detail.html:7
+msgid "add"
+msgstr ""
+
+#: manageXML/templates/lexeme_detail.html:11
+msgid "Relations:"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:9
+msgid "Filter"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:47
+msgid "Search"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:50
+msgid "Download"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:59
+#: manageXML/templates/mini_paradigm_data.html:8
+#: manageXML/templates/mini_paradigm_data.html:42
+#: manageXML/templates/relation_data_list.html:6 manageXML/views.py:163
+msgid "ID"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:62 manageXML/views.py:76
+#: manageXML/views.py:163
+msgid "Contlex"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:64 manageXML/views.py:73
+#: manageXML/views.py:163
+msgid "Language"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:66 manageXML/views.py:165
+msgid "Ordered By"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:69
+#: manageXML/templates/mini_paradigm_data.html:12
+#: manageXML/templates/relation_data_list.html:12
+msgid "Actions"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:99
+msgid "First"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:101
+msgid "Previous"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:105
+msgid "of"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:109
+msgid "Next"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:111
+msgid "Last"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:115
+msgid "Total"
+msgstr ""
+
+#: manageXML/templates/lexeme_list.html:115
+msgid "Showing"
+msgstr ""
+
+#: manageXML/templates/mini_paradigm_add.html:9
+#: manageXML/templates/mini_paradigm_edit.html:9
+msgid "Existing Mini Paradigms"
+msgstr ""
+
+#: manageXML/templates/mini_paradigm_add.html:11
+msgid "Add Mini Paradigms"
+msgstr ""
+
+#: manageXML/templates/mini_paradigm_data.html:9
+#: manageXML/templates/mini_paradigm_data.html:43
 msgid "MSD"
 msgstr ""
 
-#: manageXML/views.py:54
+#: manageXML/templates/relation_data.html:3
+msgid "Relation"
+msgstr ""
+
+#: manageXML/templates/relation_data.html:7 manageXML/views.py:58
 msgid "Yes"
 msgstr ""
 
-#: manageXML/views.py:55
+#: manageXML/templates/relation_data.html:7 manageXML/views.py:59
 msgid "No"
 msgstr ""
 
-#: manageXML/views.py:61
+#: manageXML/templates/relation_data_list.html:7
+#: manageXML/templates/relation_detail_content.html:7
+#: manageXML/templates/relation_edit.html:11
+msgid "From"
+msgstr ""
+
+#: manageXML/templates/relation_data_list.html:8
+#: manageXML/templates/relation_detail_content.html:8
+#: manageXML/templates/relation_edit.html:12
+msgid "To"
+msgstr ""
+
+#: manageXML/templates/relation_data_list.html:10
+msgid "Sources"
+msgstr ""
+
+#: manageXML/views.py:77
 msgid "Range from"
 msgstr ""
 
-#: manageXML/views.py:62
+#: manageXML/views.py:78
 msgid "Range to"
 msgstr ""
 
+#: manageXML/views.py:82 manageXML/views.py:84 manageXML/views.py:86
+#: manageXML/views.py:88 manageXML/views.py:90 manageXML/views.py:92
+#: manageXML/views.py:94 manageXML/views.py:96
+msgid "descending"
+msgstr ""
+
+#: manageXML/views.py:85 manageXML/views.py:86
+msgid "ContLex"
+msgstr ""
+
+#: manageXML/views.py:87 manageXML/views.py:88
+msgid "inflexType"
+msgstr ""
+
+#: manageXML/views.py:89 manageXML/views.py:90
+msgid "Consonance"
+msgstr ""
+
+#: manageXML/views.py:91 manageXML/views.py:92
+msgid "revConsonance"
+msgstr ""
+
+#: manageXML/views.py:93 manageXML/views.py:94
+msgid "Assonance"
+msgstr ""
+
+#: manageXML/views.py:95 manageXML/views.py:96
+msgid "RevAssonance"
+msgstr ""
+
 #: manageXML/views.py:99
+msgid "Order by"
+msgstr ""
+
+#: manageXML/views.py:140
 msgid "Homepage"
 msgstr ""
 
-#: manageXML/views.py:135
+#: manageXML/views.py:239
 msgid "Edit"
 msgstr ""
 
-#: manageXML/views.py:144
-msgid "Edit translation"
+#: manageXML/views.py:264
+msgid "Edit Relation"
 msgstr ""
 
-#: manageXML/views.py:153
+#: manageXML/views.py:282
 msgid "Edit source"
 msgstr ""
 
-#: manageXML/views.py:163
+#: manageXML/views.py:292
 msgid "Edit mini paradigm"
 msgstr ""
 
-#: manageXML/views.py:181
+#: manageXML/views.py:311
 msgid "Add mini paradigm"
 msgstr ""
 

@@ -38,7 +38,7 @@ class Command(BaseCommand):
                                type=a['type'] if 'type' in a else '',
                                language=lang_source)
 
-            title, info, pos, contlex = query_semantic_search(lexeme_1, lang_source)
+            title, info, pos, contlex_ignored = query_semantic_search(lexeme_1, lang_source)
             if title:
                 a = Affiliation.objects.get_or_create(lexeme=w1, title=title)
 
@@ -49,10 +49,10 @@ class Command(BaseCommand):
                                    contlex=data_2['Contlex'] if 'Contlex' in a else '',
                                    language=lang_target)
 
-                title, info, pos, contlex = query_semantic_search(lexeme_2, lang_target)
+                title, info, pos, contlex_ignored = query_semantic_search(lexeme_2, lang_target)
                 if title:
                     a = Affiliation.objects.get_or_create(lexeme=w2, title=title)
 
-                r = create_relation(w1, w2, 'sms2X', '')  # create relation
+                r = create_relation(w1, w2, '', 'sms2X')  # create relation
 
         self.stdout.write(self.style.SUCCESS('Successfully flipped the files.'))

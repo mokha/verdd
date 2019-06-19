@@ -197,7 +197,7 @@ def process_row(row, df, lang_source, lang_target):
     word_1_analysis = list(filter(lambda _a: _a[0] and 'Hom' not in _a[0], word_1_analysis))
     word_1_analysis = set(map(lambda wa: wa[0], word_1_analysis))
     if not word_1_analysis:
-        word_1_analysis = ['']
+        word_1_analysis = ['']  # @TODO: if it was a homonym, ignore this...
     lexemes_1 = [create_lexeme(lexeme=word_1,
                                pos=pos,
                                language=lang_source,

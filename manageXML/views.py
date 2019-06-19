@@ -150,8 +150,6 @@ class LexemeView(FilteredListView):
 
 
 class LexemeExportView(LexemeView):
-    filterset_class = LexemeFilter
-    model = Lexeme
 
     def render_to_response(self, context, **response_kwargs):
         filename = "{}-export.csv".format(datetime.datetime.now().replace(microsecond=0).isoformat())

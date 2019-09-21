@@ -38,6 +38,8 @@ class Lexeme(models.Model):
     inflexId = models.CharField(max_length=25, blank=True)
     inflexType = models.IntegerField(choices=INFLEX_TYPE_OPTIONS,
                                      blank=True, null=True, default=None)
+    checked = models.BooleanField(default=False)
+
     deleted = models.BooleanField(default=False)
     history = HistoricalRecords()
 

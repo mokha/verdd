@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 16:08+0000\n"
+"POT-Creation-Date: 2019-09-21 21:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,13 +65,13 @@ msgstr ""
 #: manageXML/forms.py:15 manageXML/forms.py:35
 #: manageXML/templates/lexeme_data.html:3
 #: manageXML/templates/lexeme_list.html:60 manageXML/views.py:72
-#: manageXML/views.py:81 manageXML/views.py:82 manageXML/views.py:163
+#: manageXML/views.py:81 manageXML/views.py:82 manageXML/views.py:161
 msgid "Lexeme"
 msgstr ""
 
 #: manageXML/forms.py:16 manageXML/templates/lexeme_data.html:8
 #: manageXML/templates/lexeme_list.html:61 manageXML/views.py:74
-#: manageXML/views.py:83 manageXML/views.py:84 manageXML/views.py:163
+#: manageXML/views.py:83 manageXML/views.py:84 manageXML/views.py:161
 msgid "POS"
 msgstr ""
 
@@ -97,7 +97,7 @@ msgstr ""
 
 #: manageXML/forms.py:22 manageXML/templates/lexeme_data.html:12
 #: manageXML/templates/lexeme_list.html:63 manageXML/views.py:75
-#: manageXML/views.py:163
+#: manageXML/views.py:161
 msgid "Inflex Type"
 msgstr ""
 
@@ -206,21 +206,21 @@ msgstr ""
 #: manageXML/templates/lexeme_list.html:59
 #: manageXML/templates/mini_paradigm_data.html:8
 #: manageXML/templates/mini_paradigm_data.html:42
-#: manageXML/templates/relation_data_list.html:6 manageXML/views.py:163
+#: manageXML/templates/relation_data_list.html:6 manageXML/views.py:161
 msgid "ID"
 msgstr ""
 
 #: manageXML/templates/lexeme_list.html:62 manageXML/views.py:76
-#: manageXML/views.py:163
+#: manageXML/views.py:161
 msgid "Contlex"
 msgstr ""
 
 #: manageXML/templates/lexeme_list.html:64 manageXML/views.py:73
-#: manageXML/views.py:163
+#: manageXML/views.py:161
 msgid "Language"
 msgstr ""
 
-#: manageXML/templates/lexeme_list.html:66 manageXML/views.py:165
+#: manageXML/templates/lexeme_list.html:66 manageXML/views.py:163
 msgid "Ordered By"
 msgstr ""
 
@@ -346,23 +346,23 @@ msgstr ""
 msgid "Homepage"
 msgstr ""
 
-#: manageXML/views.py:239
+#: manageXML/views.py:237
 msgid "Edit"
 msgstr ""
 
-#: manageXML/views.py:264
+#: manageXML/views.py:262
 msgid "Edit Relation"
 msgstr ""
 
-#: manageXML/views.py:282
+#: manageXML/views.py:280
 msgid "Edit source"
 msgstr ""
 
-#: manageXML/views.py:292
+#: manageXML/views.py:290
 msgid "Edit mini paradigm"
 msgstr ""
 
-#: manageXML/views.py:311
+#: manageXML/views.py:309
 msgid "Add mini paradigm"
 msgstr ""
 

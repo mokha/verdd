@@ -21,10 +21,11 @@ class LexemeForm(forms.ModelForm):
     inflexType = forms.ChoiceField(choices=(('', ''),) + INFLEX_TYPE_OPTIONS, required=False,
                                    label=_('Inflex Type'))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Processed'))
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes']
+        fields = ['lexeme', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked']
 
     def __init__(self, *args, **kwargs):
         super(LexemeForm, self).__init__(*args, **kwargs)
@@ -52,6 +53,7 @@ class LexemeForm(forms.ModelForm):
                 css_class='form-row'
             ),
             'notes',
+            'checked',
             Submit('submit', 'Save')
         )
 

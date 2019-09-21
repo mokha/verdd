@@ -4,6 +4,7 @@
         href="{% url 'lexeme-detail' pk=object.pk slug=object.slug %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a
             href="{% url 'lexeme-edit' pk=object.pk slug=object.slug %}">{% trans "edit" %}</a>{% endif %})</h1>
 <div id="lexeme-details">
+    <p><b>{% trans "ID" %}:</b> {{ object.id }}</p>
     <p><b>{% trans "Language (ISO 639-2)" %}:</b> {{ object.language }}</p>
     <p><b>{% trans "POS" %}:</b> {{ object.pos }}</p>
     <p><b>{% trans "Cont" %}:</b> {{ object.contlex }}</p>

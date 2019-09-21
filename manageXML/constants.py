@@ -7,6 +7,11 @@ INFLEX_TYPE_OPTIONS = (
     (3, _('3')),
     (4, _('4')),
     (5, _('5')),
+    (6, _('6')),
+    (7, _('7')),
+    (8, _('8')),
+    (9, _('9')),
+    (10, _('10')),
     (INFLEX_TYPE_X, _('X'))
 )
 INFLEX_TYPE_OPTIONS_DICT = dict(INFLEX_TYPE_OPTIONS)

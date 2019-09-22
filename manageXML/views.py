@@ -76,6 +76,7 @@ class LexemeFilter(django_filters.FilterSet):
     contlex = CharFilter(label=_('Contlex'), lookup_expr='icontains')
     range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
     range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range to'), method='filter_range')
+    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
     order_by = OrderingFilter(
         choices=(
             ('lexeme', _('Lexeme')),

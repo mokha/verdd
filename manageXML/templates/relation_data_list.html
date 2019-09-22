@@ -35,7 +35,7 @@
             <td>
                 <ul>
                     <li>
-                        <a href="{% url 'relation-detail' pk=object.pk %}">{% trans "view" %}</a>
+                        <a href="{% url 'relation-detail' pk=object.pk %}?{% query_transform request %}">{% trans "view" %}</a>
                     </li>
                     {% if user.is_authenticated %}
                         <li>

@@ -1,0 +1,9 @@
+{% load i18n %}
+{% load custom_tags %}
+
+<div class="card card-body bg-light">
+    <ul class="nav ">{% for obj in object_list %}
+        <li {% if obj.checked %}class="text-success"{% endif %}><a href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request %}">{{ obj.id }} - {{ obj.lexeme }}</a></li>
+    {% endfor %}
+    </ul>
+</div>

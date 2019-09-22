@@ -26,41 +26,45 @@
 </head>
 <body>
 {% block body %}
-    <div class="container">
-        <header class="header py-3">
-            <div class="row flex-nowrap justify-content-between align-items-center">
-                <div class="col-4 pt-1">
-                    {% user_display user %}
+    {% block navigation %}
+        <div class="container">
+            <header class="header py-3">
+                <div class="row flex-nowrap justify-content-between align-items-center">
+                    <div class="col-4 pt-1">
+                        {% user_display user %}
+                    </div>
+                    <div class="col-4 text-center">
+                        <a class="header-logo text-dark" href="{% url 'index' %}">{% blocktrans %}
+                            Verdd{% endblocktrans %}</a>
+                    </div>
+                    <div class="col-4 d-flex justify-content-end align-items-center">
+                        {% if user.is_authenticated %}
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'account_logout' %}"
+                               class="nav-link">
+                                {% blocktrans %}
+                                    Logout{% endblocktrans %}</a>
+                        {% else %}
+                            <a class="btn btn-sm btn-outline-secondary nav-link" href="{% url 'account_signup' %}">
+                                {% blocktrans %}
+                                    Signup{% endblocktrans %}</a>
+                            <a class="btn btn-sm btn-outline-primary nav-link ml-1" href="{% url 'account_login' %}">
+                                {% blocktrans %}Sign
+                                    In{% endblocktrans %}</a>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="col-4 text-center">
-                    <a class="header-logo text-dark" href="{% url 'index' %}">{% blocktrans %}
-                        Verdd{% endblocktrans %}</a>
-                </div>
-                <div class="col-4 d-flex justify-content-end align-items-center">
-                    {% if user.is_authenticated %}
-                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'account_logout' %}" class="nav-link">
-                            {% blocktrans %}
-                                Logout{% endblocktrans %}</a>
-                    {% else %}
-                        <a class="btn btn-sm btn-outline-secondary nav-link" href="{% url 'account_signup' %}">
-                            {% blocktrans %}
-                                Signup{% endblocktrans %}</a>
-                        <a class="btn btn-sm btn-outline-primary nav-link ml-1" href="{% url 'account_login' %}">
-                            {% blocktrans %}Sign
-                                In{% endblocktrans %}</a>
-                    {% endif %}
-                </div>
-            </div>
-        </header>
-    </div>
-
-    <main role="main" class="container">
-        <div class="container-content">
-            {% block main_content %}
-            {% endblock %}
+            </header>
         </div>
+    {% endblock %}
 
-    </main><!-- /.container -->
+    {% block main_container %}
+        <main role="main" class="container">
+            <div class="container-content">
+                {% block main_content %}
+                {% endblock %}
+            </div>
+        </main><!-- /.container -->
+    {% endblock %}
 {% endblock %}
 {% block js %}
     <!-- Optional JavaScript -->

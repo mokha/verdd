@@ -151,7 +151,6 @@ class LexemeView(FilteredListView):
 
 
 class LexemeExportView(LexemeView):
-
     def render_to_response(self, context, **response_kwargs):
         filename = "{}-export.csv".format(datetime.datetime.now().replace(microsecond=0).isoformat())
 
@@ -178,6 +177,11 @@ class LexemeExportView(LexemeView):
             writer.writerow(row)
 
         return response
+
+
+class HistoryExportView:
+    def nothing(self):
+        Lexeme.history.all()
 
 
 class MiniParadigmMixin:
@@ -220,9 +224,22 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
     model = Lexeme
     template_name = 'lexeme_detail.html'
 
+    def get_around_objects(self, request, object, n=5):
+        filter = LexemeFilter(request.GET, queryset=Lexeme.objects.all())
+        qs = filter.qs
+
+        next_objects = qs.filter(id__gt=object.id).order_by('id')[:n]
+        prev_objects = qs.filter(id__lt=object.id).order_by('-id')[:n][::-1]
+
+        return prev_objects, next_objects
+
     def get_context_data(self, **kwargs):
         context = super(LexemeDetailView, self).get_context_data(**kwargs)
         context['generated_miniparadigms'] = self.generate_forms(self.object)
+
+        context['prev_objects'], context['next_objects'] = self.get_around_objects(request=self.request,
+                                                                                   object=self.object,
+                                                                                   n=25)
         return context
 
     def get_title(self):

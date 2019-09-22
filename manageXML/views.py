@@ -287,7 +287,6 @@ class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
                 if title:
                     a, created = Affiliation.objects.get_or_create(lexeme=form.instance, title=title)
 
-        form.save()
         return super(LexemeEditView, self).form_valid(form)
 
 
@@ -312,7 +311,6 @@ class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return "%s: %s (%s)" % (_("Edit Relation"), self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
 
     def form_valid(self, form):
-        form.save()
         return super(RelationEditView, self).form_valid(form)
 
 

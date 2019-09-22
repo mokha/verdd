@@ -19,7 +19,7 @@ from uralicNLP import uralicApi
 from collections import defaultdict
 import csv
 from .constants import INFLEX_TYPE_OPTIONS
-
+from wiki.semantic_api import SemanticAPI
 
 class TitleMixin:
     title = None
@@ -255,6 +255,29 @@ class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return "%s: %s" % (_("Edit"), self.object.lexeme)
 
     def form_valid(self, form):
+        initial = form.initial
+        clean = form.cleaned_data
+
+        old_lexeme = initial.get('lexeme').strip()
+        new_lexeme = clean.get('lexeme').strip()
+
+        if new_lexeme != old_lexeme: # they are different lexemes
+            # delete existing affiliations
+            form.instance.affiliation_set.all().delete()
+
+            # check if new affiliation exists
+            semAPI = SemanticAPI()
+            r1 = semAPI.ask(query=(
+                '[[%s:%s]]' % (form.instance.language.capitalize(), new_lexeme), '?Category', '?POS', '?Lang', '?Contlex')
+            )
+
+            if 'query' in r1 and 'results' in r1['query'] and r1['query']['results']:
+                title, info = r1['query']['results'].popitem()
+
+                # link it
+                if title:
+                    a, created = Affiliation.objects.get_or_create(lexeme=form.instance, title=title)
+
         form.save()
         return super(LexemeEditView, self).form_valid(form)
 

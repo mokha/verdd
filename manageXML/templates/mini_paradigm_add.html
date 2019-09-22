@@ -7,7 +7,7 @@
 {% block main_content %}
     {% include 'lexeme_data.html' with object=lexeme %}
     <h2>{% trans "Existing Mini Paradigms" %}:</h2>
-    {% include 'mini_paradigm_data.html' with object=object.lexeme %}
+    {% include 'mini_paradigm_data.html' with object=lexeme %}
     <h2>{% trans "Add Mini Paradigms" %}:</h2>
     {% crispy form %}
 {% endblock %}

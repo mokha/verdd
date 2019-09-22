@@ -21,6 +21,7 @@ import csv
 from .constants import INFLEX_TYPE_OPTIONS
 from wiki.semantic_api import SemanticAPI
 
+
 class TitleMixin:
     title = None
 
@@ -206,17 +207,24 @@ class MiniParadigmMixin:
     def get_miniparadigm_forms(self):
         return self.MP_forms
 
+    @staticmethod
+    def existing_forms(lexeme):
+        MP_forms = lexeme.miniparadigm_set.all()
+        return {form.msd: form.wordform for form in MP_forms}
+
     def generate_forms(self, lexeme):
         generated_forms = defaultdict(list)
-
         MP_forms = self.get_miniparadigm_forms()
+        existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
         if lexeme.pos in MP_forms:
             for f in MP_forms[lexeme.pos]:
+                if f in existing_MP_forms: # if overridden by the user
+                    continue # ignore it
+
                 results = uralicApi.generate(lexeme.lexeme + '+' + f, lexeme.language)
                 for r in results:
                     generated_forms[f].append(r[0].split('@')[0])
         generated_forms.default_factory = None
-
         return generated_forms
 
 
@@ -261,14 +269,15 @@ class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         old_lexeme = initial.get('lexeme').strip()
         new_lexeme = clean.get('lexeme').strip()
 
-        if new_lexeme != old_lexeme: # they are different lexemes
+        if new_lexeme != old_lexeme:  # they are different lexemes
             # delete existing affiliations
             form.instance.affiliation_set.all().delete()
 
             # check if new affiliation exists
             semAPI = SemanticAPI()
             r1 = semAPI.ask(query=(
-                '[[%s:%s]]' % (form.instance.language.capitalize(), new_lexeme), '?Category', '?POS', '?Lang', '?Contlex')
+                '[[%s:%s]]' % (form.instance.language.capitalize(), new_lexeme), '?Category', '?POS', '?Lang',
+                '?Contlex')
             )
 
             if 'query' in r1 and 'results' in r1['query'] and r1['query']['results']:
@@ -326,6 +335,15 @@ class MiniParadigmEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, Up
     model = MiniParadigm
     form_class = MiniParadigmForm
 
+    def get_context_data(self, **kwargs):
+        context = super(MiniParadigmEditView, self).get_context_data(**kwargs)
+        # Pass the filterset to the template - it provides the form.
+        lexeme = get_object_or_404(Lexeme,
+                                   pk=self.object.lexeme.id)
+        context['lexeme'] = lexeme
+        context['generated_miniparadigms'] = self.generate_forms(lexeme)
+        return context
+
     def get_title(self):
         return "%s: %s" % (
             _("Edit mini paradigm"), self.object.lexeme.lexeme)
@@ -336,12 +354,14 @@ class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, 
     model = MiniParadigm
     form_class = MiniParadigmCreateForm
 
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(MiniParadigmCreateView, self).get_context_data(**kwargs)
-        # Pass the filterset to the template - it provides the form.
-        lexeme = get_object_or_404(Lexeme,
-                                   pk=self.kwargs['lexeme_id'])
-        context['lexeme'] = lexeme
+        context['lexeme'] = self.lexeme
+        context['generated_miniparadigms'] = self.generate_forms(self.lexeme)
         return context
 
     def get_title(self):
@@ -350,6 +370,5 @@ class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, 
             _("Add mini paradigm"), lexeme.lexeme)
 
     def form_valid(self, form):
-        form.instance.lexeme = get_object_or_404(Lexeme,
-                                                 pk=self.kwargs['lexeme_id'])
+        form.instance.lexeme = self.lexeme
         return super().form_valid(form)

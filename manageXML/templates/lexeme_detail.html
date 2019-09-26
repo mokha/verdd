@@ -5,11 +5,11 @@
 {% block main_content %}
     <div class="row sticky-sidebar-container d-none d-xl-block">
         <div class="col">
-            <div class="sticky-sidebar" style="left: -275px;">
+            <div class="sticky-sidebar" style="left: -140px;">
                 <h3>{% trans "Previous Lexemes" %}</h3>
                 {% include 'lexeme_short_list.html' with object_list=prev_objects %}
             </div>
-            <div class="sticky-sidebar" style="right: -275px;">
+            <div class="sticky-sidebar" style="right: -140px;">
                 <h3>{% trans "Next Lexemes" %}</h3>
                 {% include 'lexeme_short_list.html' with object_list=next_objects %}
             </div>

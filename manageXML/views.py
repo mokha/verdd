@@ -218,8 +218,8 @@ class MiniParadigmMixin:
         existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
         if lexeme.pos in MP_forms:
             for f in MP_forms[lexeme.pos]:
-                if f in existing_MP_forms: # if overridden by the user
-                    continue # ignore it
+                if f in existing_MP_forms:  # if overridden by the user
+                    continue  # ignore it
 
                 results = uralicApi.generate(lexeme.lexeme + '+' + f, lexeme.language)
                 for r in results:
@@ -234,10 +234,13 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
 
     def get_around_objects(self, request, object, n=5):
         filter = LexemeFilter(request.GET, queryset=Lexeme.objects.all())
-        qs = filter.qs
+        qs_list = list(filter.qs)
 
-        next_objects = qs.filter(id__gt=object.id).order_by('id')[:n]
-        prev_objects = qs.filter(id__lt=object.id).order_by('-id')[:n][::-1]
+        lexeme_position = qs_list.index(object)
+        next_objects = qs_list[lexeme_position + 1:lexeme_position + 1 + n]
+
+        prev_objects_len = max(0, lexeme_position - n)
+        prev_objects = qs_list[prev_objects_len:lexeme_position]
 
         return prev_objects, next_objects
 

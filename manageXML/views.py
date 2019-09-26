@@ -70,7 +70,7 @@ class LexemeFilter(django_filters.FilterSet):
         'assonance_rev': 'revAssonance',
     }
 
-    lexeme = CharFilter(label=_('Lexeme'), lookup_expr='iexact')
+    lexeme = CharFilter(label=_('Lexeme'), lookup_expr='regex')
     language = ChoiceFilter(label=_('Language'))
     pos = ChoiceFilter(label=_('POS'))
     inflexType = ChoiceFilter(choices=INFLEX_TYPE_OPTIONS, label=_('Inflex Type'))

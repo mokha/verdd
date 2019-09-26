@@ -24,7 +24,7 @@
                     {% if sources %}
                         <ul>
                             {% for s in sources %}
-                                <li>{{ s }} (<a href="{% url 'source-detail' pk=object.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'source-edit' pk=object.pk %}">{% trans "edit" %}</a>{% endif %})
+                                <li>{{ s }} (<a href="{% url 'source-detail' pk=s.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'source-edit' pk=s.pk %}">{% trans "edit" %}</a>{% endif %})
                                 </li>
                             {% endfor %}
                         </ul>

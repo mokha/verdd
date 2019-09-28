@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.template.loader import get_template
 import datetime
 from django_filters import DateFromToRangeFilter, DateFilter, CharFilter, NumberFilter, ModelChoiceFilter, ChoiceFilter, \
-    OrderingFilter
+    OrderingFilter, LookupChoiceFilter
 from django_filters.widgets import RangeWidget
 import django_filters
 from django.views.generic.list import ListView
@@ -70,7 +70,21 @@ class LexemeFilter(django_filters.FilterSet):
         'assonance_rev': 'revAssonance',
     }
 
-    lexeme = CharFilter(label=_('Lexeme'), lookup_expr='regex')
+    lookup_choices = [
+        ('exact', _('Exact')),
+        ('iexact', _('iExact')),
+        ('contains', _('Contains')),
+        ('icontains', _('iContains')),
+        ('startswith', _('Starts with')),
+        ('istartswith', _('iStarts with')),
+        ('endswith', _('Ends with')),
+        ('iendswith', _('iEnds with')),
+        ('regex', _('Regex')),
+        ('iregex', _('iRegex')),
+    ]
+
+    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_('Lexeme'), empty_label=None,
+                                lookup_choices=lookup_choices)
     language = ChoiceFilter(label=_('Language'))
     pos = ChoiceFilter(label=_('POS'))
     inflexType = ChoiceFilter(choices=INFLEX_TYPE_OPTIONS, label=_('Inflex Type'))
@@ -78,6 +92,8 @@ class LexemeFilter(django_filters.FilterSet):
     range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
     range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range to'), method='filter_range')
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
+    source = CharFilter(label=_('Source'), method='source_filter')
+
     order_by = OrderingFilter(
         choices=(
             ('lexeme', _('Lexeme')),
@@ -103,7 +119,7 @@ class LexemeFilter(django_filters.FilterSet):
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'language', 'pos', 'contlex', 'inflexType', 'range_from', 'range_to']
+        fields = ['lexeme', 'language', 'pos', 'contlex', 'inflexType', 'range_from', 'range_to', 'source']
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
@@ -131,6 +147,16 @@ class LexemeFilter(django_filters.FilterSet):
                 lexeme__istartswith=LexemeFilter.ALPHABETS_CHOICES[i][1],
             )
 
+        return queryset.filter(filters)
+
+    def source_filter(self, queryset, name, value):
+        source = self.data['source'] if 'source' in self.data else None  # get key
+
+        filters = models.Q()
+        if source:
+            relations_with_source = Relation.objects.filter(source__name__icontains=source)
+            filters = Q(lexeme_from_lexeme_set__in=relations_with_source) | Q(
+                lexeme_to_lexeme_set__in=relations_with_source)
         return queryset.filter(filters)
 
 

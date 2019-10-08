@@ -6,7 +6,7 @@
         {% for obj in object_list %}
             <li>
                 <p class="d-block">
-                    <a {% if obj.checked %}class="text-success"{% endif %} href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request %}">{{ obj.lexeme }}</a>
+                    <a {% if obj.checked %}class="text-success"{% endif %} href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{{ obj.lexeme }}</a>
                 </p>
             </li>
         {% endfor %}

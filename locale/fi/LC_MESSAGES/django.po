@@ -3,368 +3,435 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-21 21:08+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2019-10-08 07:21+0000\n"
+"PO-Revision-Date: 2019-10-08 13:44+0300\n"
+"Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2.4\n"
 
 #: manageXML/constants.py:5
 msgid "1"
-msgstr ""
+msgstr "1"
 
 #: manageXML/constants.py:6
 msgid "2"
-msgstr ""
+msgstr "2"
 
 #: manageXML/constants.py:7
 msgid "3"
-msgstr ""
+msgstr "3"
 
 #: manageXML/constants.py:8
 msgid "4"
-msgstr ""
+msgstr "4"
 
 #: manageXML/constants.py:9
 msgid "5"
-msgstr ""
+msgstr "5"
 
 #: manageXML/constants.py:10
-msgid "X"
-msgstr ""
+msgid "6"
+msgstr "6"
+
+#: manageXML/constants.py:11
+msgid "7"
+msgstr "7"
+
+#: manageXML/constants.py:12
+msgid "8"
+msgstr "8"
+
+#: manageXML/constants.py:13
+msgid "9"
+msgstr "9"
+
+#: manageXML/constants.py:14
+msgid "10"
+msgstr "10"
 
 #: manageXML/constants.py:15
+msgid "X"
+msgstr "X"
+
+#: manageXML/constants.py:20
 msgid "Translation"
-msgstr ""
+msgstr "Käännös"
 
-#: manageXML/constants.py:16
+#: manageXML/constants.py:21
 msgid "Etymology"
-msgstr ""
+msgstr "Etymologia"
 
-#: manageXML/constants.py:17
+#: manageXML/constants.py:22
 msgid "Compound"
-msgstr ""
+msgstr "Yhdyssana"
 
-#: manageXML/constants.py:18
+#: manageXML/constants.py:23
 msgid "Derivation"
-msgstr ""
+msgstr "Johdos"
 
-#: manageXML/constants.py:19
+#: manageXML/constants.py:24
 msgid "Other"
-msgstr ""
+msgstr "Muu"
 
-#: manageXML/forms.py:15 manageXML/forms.py:35
+#: manageXML/forms.py:15 manageXML/forms.py:36
 #: manageXML/templates/lexeme_data.html:3
-#: manageXML/templates/lexeme_list.html:60 manageXML/views.py:72
-#: manageXML/views.py:81 manageXML/views.py:82 manageXML/views.py:161
+#: manageXML/templates/lexeme_list.html:78 manageXML/views.py:86
+#: manageXML/views.py:99 manageXML/views.py:100 manageXML/views.py:188
 msgid "Lexeme"
-msgstr ""
+msgstr "Lekseemi"
 
 #: manageXML/forms.py:16 manageXML/templates/lexeme_data.html:8
-#: manageXML/templates/lexeme_list.html:61 manageXML/views.py:74
-#: manageXML/views.py:83 manageXML/views.py:84 manageXML/views.py:161
+#: manageXML/templates/lexeme_list.html:79 manageXML/views.py:89
+#: manageXML/views.py:101 manageXML/views.py:102 manageXML/views.py:188
 msgid "POS"
-msgstr ""
+msgstr "Sanaluokka"
 
 #: manageXML/forms.py:17
 msgid "Continuation Lexicon"
-msgstr ""
+msgstr "Jatkoleksikko"
 
-#: manageXML/forms.py:18 manageXML/forms.py:83
+#: manageXML/forms.py:18 manageXML/forms.py:85
 #: manageXML/templates/lexeme_data.html:10
 #: manageXML/templates/relation_data.html:6
 #: manageXML/templates/relation_data_list.html:9
 #: manageXML/templates/source_data.html:6
 msgid "Type"
-msgstr ""
+msgstr "Tyyppi"
 
 #: manageXML/forms.py:19 manageXML/templates/lexeme_data.html:13
 msgid "Lemma ID"
-msgstr ""
+msgstr "Lemman ID"
 
 #: manageXML/forms.py:20
 msgid "Inflex ID"
-msgstr ""
+msgstr "Taivutus ID"
 
 #: manageXML/forms.py:22 manageXML/templates/lexeme_data.html:12
-#: manageXML/templates/lexeme_list.html:63 manageXML/views.py:75
-#: manageXML/views.py:161
+#: manageXML/templates/lexeme_list.html:81 manageXML/views.py:90
+#: manageXML/views.py:188
 msgid "Inflex Type"
-msgstr ""
+msgstr "Taivutustyyppi"
 
-#: manageXML/forms.py:23 manageXML/forms.py:65 manageXML/forms.py:86
+#: manageXML/forms.py:23 manageXML/forms.py:67 manageXML/forms.py:88
 #: manageXML/templates/lexeme_data.html:27
-#: manageXML/templates/lexeme_list.html:68
+#: manageXML/templates/lexeme_list.html:86
 #: manageXML/templates/relation_data.html:8
 #: manageXML/templates/relation_data_list.html:11
 #: manageXML/templates/source_data.html:9
 msgid "Notes"
-msgstr ""
+msgstr "Muistiinpanoja"
 
-#: manageXML/forms.py:66 manageXML/templates/relation_data.html:7
+#: manageXML/forms.py:24 manageXML/forms.py:68
+#: manageXML/templates/relation_data.html:7 manageXML/views.py:94
 msgid "Processed"
-msgstr ""
+msgstr "Käsitelty"
 
-#: manageXML/forms.py:84
+#: manageXML/forms.py:86
 msgid "Name"
-msgstr ""
+msgstr "Nimi"
 
-#: manageXML/forms.py:85 manageXML/templates/lexeme_list.html:105
+#: manageXML/forms.py:87 manageXML/templates/lexeme_list.html:123
 #: manageXML/templates/source_data.html:7
 msgid "Page"
-msgstr ""
+msgstr "Sivu"
 
-#: manageXML/forms.py:98 manageXML/templates/source_data.html:3
+#: manageXML/forms.py:100 manageXML/templates/source_data.html:3
+#: manageXML/views.py:95
 msgid "Source"
-msgstr ""
+msgstr "Lähde"
 
-#: manageXML/forms.py:113 manageXML/forms.py:139
+#: manageXML/forms.py:115 manageXML/forms.py:141
 #: manageXML/templates/mini_paradigm_data.html:10
-#: manageXML/templates/mini_paradigm_data.html:44
 msgid "Word form"
-msgstr ""
+msgstr "Sanamuoto"
 
-#: manageXML/forms.py:114 manageXML/forms.py:140
+#: manageXML/forms.py:116 manageXML/forms.py:142
 msgid "Morphosyntactic description"
-msgstr ""
+msgstr "Morfosyntaktinen kuvaus"
 
-#: manageXML/forms.py:126
+#: manageXML/forms.py:128
 msgid "Edit Mini Paradigm"
-msgstr ""
+msgstr "Muokkaa miniparadigmaa"
 
 #: manageXML/templates/lexeme_data.html:4
-#: manageXML/templates/lexeme_list.html:87
+#: manageXML/templates/lexeme_list.html:105
 #: manageXML/templates/relation_data_list.html:27
 #: manageXML/templates/relation_data_list.html:38
 msgid "view"
-msgstr ""
+msgstr "näytä"
 
-#: manageXML/templates/lexeme_data.html:5
-#: manageXML/templates/lexeme_list.html:89
-#: manageXML/templates/mini_paradigm_data.html:27
+#: manageXML/templates/lexeme_data.html:4
+#: manageXML/templates/lexeme_list.html:107
+#: manageXML/templates/mini_paradigm_data.html:19
 #: manageXML/templates/relation_data_list.html:27
 #: manageXML/templates/relation_data_list.html:42
 msgid "edit"
-msgstr ""
+msgstr "muokkaa"
+
+#: manageXML/templates/lexeme_data.html:6
+#: manageXML/templates/lexeme_list.html:77
+#: manageXML/templates/mini_paradigm_data.html:8
+#: manageXML/templates/relation_data_list.html:6 manageXML/views.py:188
+msgid "ID"
+msgstr "ID"
 
 #: manageXML/templates/lexeme_data.html:7
 #: manageXML/templates/relation_data.html:5
 msgid "Language (ISO 639-2)"
-msgstr ""
+msgstr "Kieli (ISO 639-2)"
 
 #: manageXML/templates/lexeme_data.html:9
 msgid "Cont"
-msgstr ""
+msgstr "Jatkoleksikko"
 
 #: manageXML/templates/lexeme_data.html:11
 msgid "Inflex Id"
-msgstr ""
+msgstr "Taivutus ID"
 
 #: manageXML/templates/lexeme_data.html:15
 msgid "Affiliations"
-msgstr ""
+msgstr "Sana muualla"
 
 #: manageXML/templates/lexeme_data.html:26
 #: manageXML/templates/relation_data.html:9
 #: manageXML/templates/source_data.html:8
 msgid "Last edit"
-msgstr ""
+msgstr "Viimeisin muokkaus"
 
-#: manageXML/templates/lexeme_detail.html:7
+#: manageXML/templates/lexeme_detail.html:9
+msgid "Previous Lexemes"
+msgstr "Edeltävät lekseemit"
+
+#: manageXML/templates/lexeme_detail.html:13
+msgid "Next Lexemes"
+msgstr "Seuraavat lekseemit"
+
+#: manageXML/templates/lexeme_detail.html:21
 msgid "Mini Paradigms"
-msgstr ""
+msgstr "Miniparadigmat"
 
-#: manageXML/templates/lexeme_detail.html:7
+#: manageXML/templates/lexeme_detail.html:21
 msgid "add"
-msgstr ""
+msgstr "lisää"
 
-#: manageXML/templates/lexeme_detail.html:11
+#: manageXML/templates/lexeme_detail.html:25
 msgid "Relations:"
-msgstr ""
+msgstr "Relaatiot:"
 
-#: manageXML/templates/lexeme_list.html:9
+#: manageXML/templates/lexeme_list.html:10
 msgid "Filter"
-msgstr ""
+msgstr "Suodata"
 
-#: manageXML/templates/lexeme_list.html:47
+#: manageXML/templates/lexeme_list.html:65
 msgid "Search"
-msgstr ""
+msgstr "Etsi"
 
-#: manageXML/templates/lexeme_list.html:50
+#: manageXML/templates/lexeme_list.html:68
 msgid "Download"
-msgstr ""
+msgstr "Lataa"
 
-#: manageXML/templates/lexeme_list.html:59
-#: manageXML/templates/mini_paradigm_data.html:8
-#: manageXML/templates/mini_paradigm_data.html:42
-#: manageXML/templates/relation_data_list.html:6 manageXML/views.py:161
-msgid "ID"
-msgstr ""
-
-#: manageXML/templates/lexeme_list.html:62 manageXML/views.py:76
-#: manageXML/views.py:161
+#: manageXML/templates/lexeme_list.html:80 manageXML/views.py:91
+#: manageXML/views.py:188
 msgid "Contlex"
-msgstr ""
+msgstr "Jatkoleksikko"
 
-#: manageXML/templates/lexeme_list.html:64 manageXML/views.py:73
-#: manageXML/views.py:161
+#: manageXML/templates/lexeme_list.html:82 manageXML/views.py:88
+#: manageXML/views.py:188
 msgid "Language"
-msgstr ""
+msgstr "Kieli"
 
-#: manageXML/templates/lexeme_list.html:66 manageXML/views.py:163
+#: manageXML/templates/lexeme_list.html:84 manageXML/views.py:190
 msgid "Ordered By"
-msgstr ""
+msgstr "Järejestys"
 
-#: manageXML/templates/lexeme_list.html:69
-#: manageXML/templates/mini_paradigm_data.html:12
+#: manageXML/templates/lexeme_list.html:87
 #: manageXML/templates/relation_data_list.html:12
 msgid "Actions"
-msgstr ""
+msgstr "Toiminnot"
 
-#: manageXML/templates/lexeme_list.html:99
+#: manageXML/templates/lexeme_list.html:117
 msgid "First"
-msgstr ""
+msgstr "Ensimmäinen"
 
-#: manageXML/templates/lexeme_list.html:101
+#: manageXML/templates/lexeme_list.html:119
 msgid "Previous"
-msgstr ""
+msgstr "Edellinen"
 
-#: manageXML/templates/lexeme_list.html:105
+#: manageXML/templates/lexeme_list.html:123
 msgid "of"
-msgstr ""
+msgstr "/"
 
-#: manageXML/templates/lexeme_list.html:109
+#: manageXML/templates/lexeme_list.html:127
 msgid "Next"
-msgstr ""
+msgstr "Seuraava"
 
-#: manageXML/templates/lexeme_list.html:111
+#: manageXML/templates/lexeme_list.html:129
 msgid "Last"
-msgstr ""
+msgstr "Viimeinen"
 
-#: manageXML/templates/lexeme_list.html:115
+#: manageXML/templates/lexeme_list.html:133
 msgid "Total"
-msgstr ""
+msgstr "Yhteensä"
 
-#: manageXML/templates/lexeme_list.html:115
+#: manageXML/templates/lexeme_list.html:133
 msgid "Showing"
-msgstr ""
+msgstr "Näytetään"
 
 #: manageXML/templates/mini_paradigm_add.html:9
 #: manageXML/templates/mini_paradigm_edit.html:9
 msgid "Existing Mini Paradigms"
-msgstr ""
+msgstr "Olemassa olevat miniparadigmat"
 
 #: manageXML/templates/mini_paradigm_add.html:11
 msgid "Add Mini Paradigms"
-msgstr ""
+msgstr "Lisää miniparadigma"
 
 #: manageXML/templates/mini_paradigm_data.html:9
-#: manageXML/templates/mini_paradigm_data.html:43
 msgid "MSD"
-msgstr ""
+msgstr "Morfosyntaktinen kuvaus"
 
 #: manageXML/templates/relation_data.html:3
 msgid "Relation"
-msgstr ""
-
-#: manageXML/templates/relation_data.html:7 manageXML/views.py:58
-msgid "Yes"
-msgstr ""
+msgstr "Relaatio"
 
 #: manageXML/templates/relation_data.html:7 manageXML/views.py:59
+msgid "Yes"
+msgstr "Kyllä"
+
+#: manageXML/templates/relation_data.html:7 manageXML/views.py:60
 msgid "No"
-msgstr ""
+msgstr "Ei"
 
 #: manageXML/templates/relation_data_list.html:7
 #: manageXML/templates/relation_detail_content.html:7
 #: manageXML/templates/relation_edit.html:11
 msgid "From"
-msgstr ""
+msgstr "Alkaen"
 
 #: manageXML/templates/relation_data_list.html:8
 #: manageXML/templates/relation_detail_content.html:8
 #: manageXML/templates/relation_edit.html:12
 msgid "To"
-msgstr ""
+msgstr "Päättyen"
 
 #: manageXML/templates/relation_data_list.html:10
 msgid "Sources"
-msgstr ""
+msgstr "Lähteet"
+
+#: manageXML/views.py:74
+msgid "Exact"
+msgstr "Täysi vastaavuus"
+
+#: manageXML/views.py:75
+msgid "iExact"
+msgstr "Täysi vastaavuus (kirjainkokoriippumaton)"
+
+#: manageXML/views.py:76
+msgid "Contains"
+msgstr "Sisältää"
 
 #: manageXML/views.py:77
-msgid "Range from"
-msgstr ""
+msgid "iContains"
+msgstr "Sisältää (kirjainkokoriippumaton)"
 
 #: manageXML/views.py:78
+msgid "Starts with"
+msgstr "Alkaa"
+
+#: manageXML/views.py:79
+msgid "iStarts with"
+msgstr "Alkaa (kirjainkokoriippumaton)"
+
+#: manageXML/views.py:80
+msgid "Ends with"
+msgstr "Päättyy"
+
+#: manageXML/views.py:81
+msgid "iEnds with"
+msgstr "Päättyy (kirjainkokoriippumaton)"
+
+#: manageXML/views.py:82
+msgid "Regex"
+msgstr "Säännöllinen lauseke"
+
+#: manageXML/views.py:83
+msgid "iRegex"
+msgstr "Säännöllinen lauseke (kirjainkokoriippumaton)"
+
+#: manageXML/views.py:92
+msgid "Range from"
+msgstr "Alkaen kirjaimesta"
+
+#: manageXML/views.py:93
 msgid "Range to"
-msgstr ""
+msgstr "Päättyen kirjaimeen"
 
-#: manageXML/views.py:82 manageXML/views.py:84 manageXML/views.py:86
-#: manageXML/views.py:88 manageXML/views.py:90 manageXML/views.py:92
-#: manageXML/views.py:94 manageXML/views.py:96
+#: manageXML/views.py:100 manageXML/views.py:102 manageXML/views.py:104
+#: manageXML/views.py:106 manageXML/views.py:108 manageXML/views.py:110
+#: manageXML/views.py:112 manageXML/views.py:114
 msgid "descending"
-msgstr ""
+msgstr "laskeva"
 
-#: manageXML/views.py:85 manageXML/views.py:86
+#: manageXML/views.py:103 manageXML/views.py:104
 msgid "ContLex"
-msgstr ""
+msgstr "Jatkoleksikko"
 
-#: manageXML/views.py:87 manageXML/views.py:88
+#: manageXML/views.py:105 manageXML/views.py:106
 msgid "inflexType"
-msgstr ""
+msgstr "Taivutustyyppi"
 
-#: manageXML/views.py:89 manageXML/views.py:90
+#: manageXML/views.py:107 manageXML/views.py:108
 msgid "Consonance"
-msgstr ""
+msgstr "Konsonanssi"
 
-#: manageXML/views.py:91 manageXML/views.py:92
+#: manageXML/views.py:109 manageXML/views.py:110
 msgid "revConsonance"
-msgstr ""
+msgstr "Konsonanssi (käänteinen)"
 
-#: manageXML/views.py:93 manageXML/views.py:94
+#: manageXML/views.py:111 manageXML/views.py:112
 msgid "Assonance"
-msgstr ""
+msgstr "Assonanssi"
 
-#: manageXML/views.py:95 manageXML/views.py:96
+#: manageXML/views.py:113 manageXML/views.py:114
 msgid "RevAssonance"
-msgstr ""
+msgstr "Assonanssi (käänteinen)"
 
-#: manageXML/views.py:99
+#: manageXML/views.py:117
 msgid "Order by"
-msgstr ""
+msgstr "Järjestys"
 
-#: manageXML/views.py:140
+#: manageXML/views.py:168
 msgid "Homepage"
-msgstr ""
+msgstr "Kotisivu"
 
-#: manageXML/views.py:237
+#: manageXML/views.py:292
 msgid "Edit"
-msgstr ""
+msgstr "Muokkaa"
 
-#: manageXML/views.py:262
+#: manageXML/views.py:340
 msgid "Edit Relation"
-msgstr ""
+msgstr "Muokkaa relaatiota"
 
-#: manageXML/views.py:280
+#: manageXML/views.py:357
 msgid "Edit source"
-msgstr ""
+msgstr "Muokkaa lähdettä"
 
-#: manageXML/views.py:290
+#: manageXML/views.py:376
 msgid "Edit mini paradigm"
-msgstr ""
+msgstr "Muokkaa miniparadigmaa"
 
-#: manageXML/views.py:309
+#: manageXML/views.py:397
 msgid "Add mini paradigm"
-msgstr ""
+msgstr "Lisää miniparadigma"
 
 #: templates/allauth/account/email/password_reset_key_message.txt:1
 #, python-format
@@ -376,11 +443,16 @@ msgid ""
 "It can be safely ignored if you did not request a password reset. Click the "
 "link below to reset your password."
 msgstr ""
+"Tervehdys sivustolta %(site_name)s!\n"
+"\n"
+"Saat viestin, koska joku on pyytänyt salasanaa sivulle.\n"
+"Jos et pyytänyt salasanaa, voit poistaa tämän viestin.\n"
+"Palauta salasana linkistä:"
 
 #: templates/allauth/account/email/password_reset_key_message.txt:8
 #, python-format
 msgid "In case you forgot, your username is %(username)s."
-msgstr ""
+msgstr "Käyttäjätunnuksesi on %(username)s."
 
 #: templates/allauth/account/email/password_reset_key_message.txt:10
 #, python-format
@@ -388,6 +460,8 @@ msgid ""
 "Thank you for using %(site_name)s!\n"
 "%(site_domain)s"
 msgstr ""
+"Kiitos, että käytät %(site_name)s-sivustoa!\n"
+"%(site_domain)s"
 
 #: templates/allauth/account/password_change.html:12
 #: templates/allauth/account/password_change.html:15
@@ -397,27 +471,27 @@ msgstr ""
 #: templates/allauth/account/password_reset_from_key_done.html:12
 #: templates/allauth/account/password_reset_from_key_done.html:15
 msgid "Change Password"
-msgstr ""
+msgstr "Vaihda salasana"
 
 #: templates/allauth/account/password_reset.html:11
 #: templates/allauth/account/password_reset_done.html:12
 #: templates/allauth/account/password_reset_done.html:15
 msgid "Password Reset"
-msgstr ""
+msgstr "Palauta salasana"
 
 #: templates/allauth/account/password_reset.html:17
 msgid "Reset My Password"
-msgstr ""
+msgstr "Palauta salasana"
 
 #: templates/allauth/account/password_reset_done.html:21
 msgid ""
 "We have sent you an e-mail. Please contact us if you do not receive it "
 "within a few minutes."
-msgstr ""
+msgstr "Lähetimme sinulle sähköpostia"
 
 #: templates/allauth/account/password_reset_from_key.html:15
 msgid "Bad Token"
-msgstr ""
+msgstr "Virheellinen tokeni"
 
 #: templates/allauth/account/password_reset_from_key.html:19
 #, python-format
@@ -427,64 +501,50 @@ msgid ""
 "            request a <a href=\"%(passwd_reset_url)s\">new password reset</"
 "a>."
 msgstr ""
+"Linkki on vanhentunut\n"
+"            pyydä <a href=\"%(passwd_reset_url)s\">uusi salasana</a>."
 
 #: templates/allauth/account/password_reset_from_key.html:26
 msgid "change password"
-msgstr ""
+msgstr "vaihda salasana"
 
 #: templates/allauth/account/password_reset_from_key.html:29
 #: templates/allauth/account/password_reset_from_key_done.html:16
 msgid "Your password is now changed."
-msgstr ""
+msgstr "Salasanasi on vaihdettu"
 
-#: templates/base.html:19
+#: templates/base.html:19 templates/base.html:37
 msgid "Verdd"
-msgstr ""
+msgstr "Veʹrdd"
 
-#: templates/base.html:36
-msgid ""
-"\n"
-"                        Verdd"
-msgstr ""
-
-#: templates/base.html:42
-msgid ""
-"\n"
-"                                Logout"
-msgstr ""
+#: templates/base.html:34
+msgid "Back"
+msgstr "Takaisin"
 
 #: templates/base.html:46
-msgid ""
-"\n"
-"                                Signup"
-msgstr ""
+msgid "Logout"
+msgstr "Kirjaudu ulos"
 
-#: templates/base.html:49
-msgid ""
-"Sign\n"
-"                                In"
-msgstr ""
+#: templates/base.html:49 users/forms.py:79
+msgid "Signup"
+msgstr "Luo tunnus"
 
-#: users/forms.py:37
+#: templates/base.html:51 users/forms.py:37
 msgid "Sign In"
-msgstr ""
+msgstr "Kirjaudu sisään"
 
 #: users/forms.py:57 users/forms.py:58
 msgid "First name"
-msgstr ""
+msgstr "Etunimi"
 
 #: users/forms.py:59 users/forms.py:60
 msgid "Last name"
-msgstr ""
-
-#: users/forms.py:79
-msgid "Signup"
-msgstr ""
+msgstr "Sukunimi"
 
 #: verdd/settings/base.py:147
 msgid "English"
-msgstr ""
+msgstr "Englanti"
 
 #: verdd/settings/base.py:148
 msgid "Finnish"
-msgstr ""
+msgstr "Suomi"

@@ -15,11 +15,13 @@ from django.utils.translation import gettext as _
 import string
 from .forms import *
 from django.shortcuts import get_object_or_404
-from uralicNLP import uralicApi
 from collections import defaultdict
 import csv
 from .constants import INFLEX_TYPE_OPTIONS
 from wiki.semantic_api import SemanticAPI
+from manageXML.inflector import Inflector
+
+_inflector = Inflector()
 
 
 class TitleMixin:
@@ -212,44 +214,22 @@ class HistoryExportView:
 
 
 class MiniParadigmMixin:
-    MP_forms = {
-        'N': ['N+Pl+Nom',
-              'N+Sg+Ill',
-              'N+Sg+Loc',
-              'N+Pl+Gen'],
-        'Adj': ['A+Attr',
-                'A+Pl+Nom',
-                'A+Sg+Ill',
-                'A+Sg+Loc',
-                'A+Pl+Gen'],
-        'V': ['V+Ind+Prs+Sg3',
-              'V+Ind+Prs+ConNeg',
-              'V+Ind+Prs+Pl3',
-              'V+Ind+Prt+Pl3']
-    }  # mini paradigms
-
-    lemma = None
-
-    def get_miniparadigm_forms(self):
-        return self.MP_forms
-
     @staticmethod
     def existing_forms(lexeme):
         MP_forms = lexeme.miniparadigm_set.all()
         return {form.msd: form.wordform for form in MP_forms}
 
     def generate_forms(self, lexeme):
-        generated_forms = defaultdict(list)
-        MP_forms = self.get_miniparadigm_forms()
         existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
-        if lexeme.pos in MP_forms:
-            for f in MP_forms[lexeme.pos]:
-                if f in existing_MP_forms:  # if overridden by the user
-                    continue  # ignore it
+        MP_forms = _inflector.generate(lexeme.language, lexeme.lexeme, lexeme.pos)
 
-                results = uralicApi.generate(lexeme.lexeme + '+' + f, lexeme.language)
-                for r in results:
-                    generated_forms[f].append(r[0].split('@')[0])
+        generated_forms = defaultdict(list)
+        for f, r in MP_forms.items():
+            if f in existing_MP_forms:  # if overridden by the user
+                continue  # ignore it
+
+            for _r in r:
+                generated_forms[f].append(_r[0])
         generated_forms.default_factory = None
         return generated_forms
 
@@ -262,11 +242,16 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
         filter = LexemeFilter(request.GET, queryset=Lexeme.objects.all())
         qs_list = list(filter.qs)
 
-        lexeme_position = qs_list.index(object)
-        next_objects = qs_list[lexeme_position + 1:lexeme_position + 1 + n]
+        next_objects, prev_objects = [], []
 
-        prev_objects_len = max(0, lexeme_position - n)
-        prev_objects = qs_list[prev_objects_len:lexeme_position]
+        try:
+            lexeme_position = qs_list.index(object)
+            next_objects = qs_list[lexeme_position + 1:lexeme_position + 1 + n]
+
+            prev_objects_len = max(0, lexeme_position - n)
+            prev_objects = qs_list[prev_objects_len:lexeme_position]
+        except:
+            pass
 
         return prev_objects, next_objects
 
@@ -274,8 +259,12 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
         context = super(LexemeDetailView, self).get_context_data(**kwargs)
         context['generated_miniparadigms'] = self.generate_forms(self.object)
 
+        last_lexeme = self.request.GET.get('lastlexeme', None)  # is last lexeme passed?
+        last_lexeme = Lexeme.objects.get(
+            pk=last_lexeme) if last_lexeme else self.object  # if not, use the current object
+
         context['prev_objects'], context['next_objects'] = self.get_around_objects(request=self.request,
-                                                                                   object=self.object,
+                                                                                   object=last_lexeme,
                                                                                    n=25)
         return context
 

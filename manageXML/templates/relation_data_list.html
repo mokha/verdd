@@ -14,7 +14,7 @@
     </thead>
     <tbody>
     {% for object in relations %}
-        <tr>
+        <tr {% if object.checked %}class="table-success"{% endif %}>
             <td>{{ object.id }}</td>
             <td>{{ object.lexeme_from.lexeme }}</td>
             <td>{{ object.lexeme_to.lexeme }}</td>

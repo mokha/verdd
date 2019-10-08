@@ -106,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = config('LANG', default='en-us')
 
 TIME_ZONE = 'UTC'
 
@@ -181,3 +181,17 @@ ACCOUNT_LOGOUT_ON_GET = True
 
 # For templating
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# use Transducers
+TRANSDUCERS_PATH = config('TRANSDUCERS_PATH')
+
+if not TRANSDUCERS_PATH:
+    TRANSDUCERS_PATH = None
+else:
+    TRANSDUCERS_PATH = TRANSDUCERS_PATH.rstrip('/') + '/'
+
+if not TRANSDUCERS_PATH.startswith('/'):  # convert a relative path to an absolute one
+    TRANSDUCERS_PATH = os.path.join(BASE_DIR, '../%s' % TRANSDUCERS_PATH)
+
+if not os.path.isdir(TRANSDUCERS_PATH):
+    raise Exception("Cannot access the transducer models.")

@@ -803,3 +803,8 @@ NMN_INFLEX_TYPES = {
 }
 
 INFLEX_TYPE_MAPPINGS = {key: value + NMN_INFLEX_TYPES[key] for key, value in V_INFLEX_TYPES.items()}
+
+AFFILIATION_TYPES = (
+    (None, _('-')),
+    (1, _('Recommendation')),
+)

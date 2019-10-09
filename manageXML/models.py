@@ -154,7 +154,8 @@ class Affiliation(models.Model):
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
-    type = models.CharField(max_length=25, blank=True)
+    type = models.IntegerField(choices=AFFILIATION_TYPES,
+                                     blank=True, null=True, default=None)
 
 
 class Examples(models.Model):

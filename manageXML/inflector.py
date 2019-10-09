@@ -3114,19 +3114,28 @@ class Inflector:
                       "N+Sg+Abl", "N+Sg+Tra", "N+Sg+Ter", "N+Sg+Com", "N+Pl+Nom", "N+Pl+Gen", "N+Pl+Par", "N+Pl+Ill",
                       "N+Pl+Ine", "N+Pl+Ela", "N+Pl+All", "N+Pl+Ade", "N+Pl+Abl", "N+Pl+Tra", "N+Pl+Ter", "N+Pl+Com"]}
 
+    def generate_uralicNLP(self, lang, lemma, pos):
+        generated_forms = defaultdict(list)
+        if uralicApi.is_language_installed(lang):
+            if pos in self.default_forms:
+                poses = self.default_forms[pos]
+                for f in poses:
+                    results = uralicApi.generate(lemma + '+' + f, lang)
+                    for r in results:
+                        generated_forms[f].append([r[0].split('@')[0], ])
+        return generated_forms
+
     def generate(self, lang, lemma, pos):
         generated_forms = defaultdict(list)
         try:
             if lang == 'fin':
-                if pos in self.default_forms:
-                    poses = self.default_forms[pos]
-                    for f in poses:
-                        results = uralicApi.generate(lemma + '+' + f, lang)
-                        for r in results:
-                            generated_forms[f].append([r[0].split('@')[0], ])
-            elif lang in self.get_supported_languages():
-                _method = getattr(self, '__inflect_%s__' % lang)
-                generated_forms = _method(lemma, pos)
+                generated_forms = self.generate_uralicNLP(lang, lemma, pos)
+            else:
+                if lang in self.get_supported_languages():
+                    _method = getattr(self, '__inflect_%s__' % lang)
+                    generated_forms = _method(lemma, pos)
+                else:
+                    generated_forms = self.generate_uralicNLP(lang, lemma, pos)
         except Exception as e:
             pass
 

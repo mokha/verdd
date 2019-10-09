@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.template.loader import get_template
 import datetime
@@ -232,6 +232,38 @@ class MiniParadigmMixin:
                 generated_forms[f].append(_r[0])
         generated_forms.default_factory = None
         return generated_forms
+
+
+class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'lexeme_add.html'
+    model = Lexeme
+    form_class = LexemeCreateForm
+
+    def get_title(self):
+        return "%s" % _("Add Lexeme")
+
+    def form_valid(self, form):
+        clean = form.cleaned_data
+        lexeme = clean.get('lexeme').strip()
+
+        self.object = form.save(commit=False)
+        self.object.save()
+
+        # check if affiliation exists in akusanat
+        semAPI = SemanticAPI()
+        r1 = semAPI.ask(query=(
+            '[[%s:%s]]' % (form.instance.language.capitalize(), lexeme), '?Category', '?POS', '?Lang',
+            '?Contlex')
+        )
+
+        if 'query' in r1 and 'results' in r1['query'] and r1['query']['results']:
+            title, info = r1['query']['results'].popitem()
+
+            # link it
+            if title:
+                a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title)
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):

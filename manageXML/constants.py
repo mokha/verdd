@@ -808,3 +808,8 @@ AFFILIATION_TYPES = (
     (None, _('-')),
     (1, _('Recommendation')),
 )
+
+LANGUAGE_TYPES = (
+    ('fin', _('Finnish')),
+    ('sms', _('Skolt Sammi'))
+)

@@ -63,6 +63,41 @@ class LexemeForm(forms.ModelForm):
         return self.cleaned_data
 
 
+class LexemeCreateForm(LexemeForm):
+    language = forms.ChoiceField(choices=LANGUAGE_TYPES, required=True,
+                                   label=_('Languages'))
+
+    class Meta:
+        model = Lexeme
+        fields = ['lexeme', 'language', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked']
+
+    def __init__(self, *args, **kwargs):
+        super(LexemeForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('lexeme', css_class='form-group col-md-6 mb-0'),
+                Column('language', css_class='form-group col-md-3 mb-0'),
+                Column('pos', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('contlex', css_class='form-group col-md-6 mb-0'),
+                Column('type', css_class='form-group col-md-3 mb-0'),
+                Column('inflexId', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('inflexType', css_class='form-group col-md-6 mb-0'),
+                Column('lemmaId', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            'notes',
+            'checked',
+            Submit('submit', 'Save')
+        )
+
+
 class RelationForm(forms.ModelForm):
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
     checked = forms.BooleanField(required=False, label=_('Processed'))

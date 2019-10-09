@@ -19,5 +19,25 @@ urlpatterns = [
     re_path(r'^lexeme/(?P<lexeme_id>\d+)/add-mini-paradigm/$', views.MiniParadigmCreateView.as_view(),
             name='mini-paradigm-add'),
     re_path(r'^mini-paradigm/edit/(?P<pk>\d+)/$', views.MiniParadigmEditView.as_view(),
-            name='mini-paradigm-edit')
+            name='mini-paradigm-edit'),
+
+    # adding stuff
+    re_path(r'^lexeme/add$', views.LexemeCreateView.as_view(),
+            name='lexeme-add'),
+    # re_path(r'^relation/add$', views.LexemeEditView.as_view(),
+    #         name='relation-add'),
+    # re_path(r'^affiliation/add$', views.LexemeEditView.as_view(),
+    #         name='affiliation-add'),
+    # re_path(r'^source/add$', views.LexemeEditView.as_view(),
+    #         name='source-add'),
+    #
+    # # deleting stuff
+    # re_path(r'^lexeme/delete', views.LexemeEditView.as_view(),
+    #         name='lexeme-delete'),
+    # re_path(r'^relation/delete', views.LexemeEditView.as_view(),
+    #         name='relation-delete'),
+    # re_path(r'^affiliation/delete', views.LexemeEditView.as_view(),
+    #         name='affiliation-delete'),
+    # re_path(r'^source/delete', views.LexemeEditView.as_view(),
+    #         name='source-delete'),
 ]

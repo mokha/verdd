@@ -190,7 +190,7 @@ if not TRANSDUCERS_PATH:
 else:
     TRANSDUCERS_PATH = TRANSDUCERS_PATH.rstrip('/') + '/'
 
-if not TRANSDUCERS_PATH.startswith('/'):  # convert a relative path to an absolute one
+if TRANSDUCERS_PATH and not TRANSDUCERS_PATH.startswith('/'):  # convert a relative path to an absolute one
     TRANSDUCERS_PATH = os.path.join(BASE_DIR, '../%s' % TRANSDUCERS_PATH)
 
 if not os.path.isdir(TRANSDUCERS_PATH):

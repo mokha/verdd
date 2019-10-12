@@ -24,8 +24,8 @@ urlpatterns = [
     # adding stuff
     re_path(r'^lexeme/add$', views.LexemeCreateView.as_view(),
             name='lexeme-add'),
-    re_path(r'^relation/add$', views.LexemeCreateView.as_view(),
-            name='relation-add'),
+    # re_path(r'^relation/add$', views.LexemeCreateView.as_view(),
+    #         name='relation-add'),
     # re_path(r'^affiliation/add$', views.LexemeEditView.as_view(),
     #         name='affiliation-add'),
     # re_path(r'^source/add$', views.LexemeEditView.as_view(),

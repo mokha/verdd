@@ -189,9 +189,7 @@ if not TRANSDUCERS_PATH:
     TRANSDUCERS_PATH = None
 else:
     TRANSDUCERS_PATH = TRANSDUCERS_PATH.rstrip('/') + '/'
-
-if TRANSDUCERS_PATH and not TRANSDUCERS_PATH.startswith('/'):  # convert a relative path to an absolute one
-    TRANSDUCERS_PATH = os.path.join(BASE_DIR, '../%s' % TRANSDUCERS_PATH)
-
-if not os.path.isdir(TRANSDUCERS_PATH):
-    raise Exception("Cannot access the transducer models.")
+    if not TRANSDUCERS_PATH.startswith('/'):  # convert a relative path to an absolute one
+        TRANSDUCERS_PATH = os.path.join(BASE_DIR, '../%s' % TRANSDUCERS_PATH)
+    if not os.path.isdir(TRANSDUCERS_PATH):
+        raise Exception("Cannot access the transducer models.")

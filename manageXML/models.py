@@ -167,6 +167,7 @@ class Affiliation(models.Model):
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
+    link = models.URLField(null=True, default=None)
     type = models.IntegerField(choices=AFFILIATION_TYPES,
                                blank=True, null=True, default=None)
     notes = models.CharField(max_length=250, blank=True)

@@ -14,7 +14,6 @@ def add_termwiki(json_file):
                 for l in ls:
                     a, created = Affiliation.objects.get_or_create(lexeme=l, title=word["word"], link=word["url"],
                                                                    checked=word["sanctioned"], type=TERMWIKI)
-                    a.save()
                     print(l)
             except Exception as e:
                 print(e)
@@ -36,7 +35,6 @@ def add_deriv(json_file):
                 print(l2)
                 r, c = Relation.objects.get_or_create(type=rel_type, lexeme_from_id=l2.id, lexeme_to_id=l1.id,
                                                       notes=derivation[1])
-                r.save()
         except Exception as e:
             print(e)
 

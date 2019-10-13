@@ -806,7 +806,8 @@ INFLEX_TYPE_MAPPINGS = {key: value + NMN_INFLEX_TYPES[key] for key, value in V_I
 
 AFFILIATION_TYPES = (
     (None, _('-')),
-    (1, _('Recommendation')),
+    (1, _('Akusanat')),  # https://www.akusanat.com/
+    (2, _('TermWiki')),  # https://satni.uit.no/termwiki/
 )
 
 LANGUAGE_TYPES = (

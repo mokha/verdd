@@ -163,13 +163,14 @@ class MiniParadigm(models.Model):
 
 class Affiliation(models.Model):
     class Meta:
-        unique_together = ('lexeme', 'title')
+        unique_together = ('lexeme', 'title', 'type')
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
     link = models.URLField(null=True, default=None)
     type = models.IntegerField(choices=AFFILIATION_TYPES,
                                blank=True, null=True, default=None)
+    checked = models.BooleanField(default=False)
     notes = models.CharField(max_length=250, blank=True)
 
 

@@ -16,11 +16,17 @@ INFLEX_TYPE_OPTIONS = (
 )
 INFLEX_TYPE_OPTIONS_DICT = dict(INFLEX_TYPE_OPTIONS)
 
+TRANSLATION = 0
+ETYMOLOGY = 1
+COMPOUND = 2
+DERIVATION = 3
+VARIATION = 4
 RELATION_TYPE_OPTIONS = (
-    (0, _('Translation')),
-    (1, _('Etymology')),
-    (2, _('Compound')),
-    (3, _('Derivation')),
+    (TRANSLATION, _('Translation')),
+    (ETYMOLOGY, _('Etymology')),
+    (COMPOUND, _('Compound')),
+    (DERIVATION, _('Derivation')),
+    (VARIATION, _('Variation')),
     (99, _('Other'))
 )
 RELATION_TYPE_OPTIONS_DICT = dict(RELATION_TYPE_OPTIONS)

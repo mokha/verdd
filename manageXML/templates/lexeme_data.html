@@ -17,7 +17,7 @@
             {% if affiliations %}
                 <ul>
                     {% for affiliation in affiliations %}
-                        <a href="{% mediawiki_link affiliation.title %}" target="_blank">{{ affiliation.title }}</a>
+                        <a href="{{ affiliation.link }}" target="_blank">{% constant_text 'AFFILIATION_TYPES' affiliation.type %}: {{ affiliation.title }}</a>
                     {% endfor %}
                 </ul>
             {% endif %}

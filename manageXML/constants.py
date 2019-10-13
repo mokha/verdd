@@ -804,10 +804,12 @@ NMN_INFLEX_TYPES = {
 
 INFLEX_TYPE_MAPPINGS = {key: value + NMN_INFLEX_TYPES[key] for key, value in V_INFLEX_TYPES.items()}
 
+AKUSANAT = 1
+TERMWIKI = 2
 AFFILIATION_TYPES = (
     (None, _('-')),
-    (1, _('Akusanat')),  # https://www.akusanat.com/
-    (2, _('TermWiki')),  # https://satni.uit.no/termwiki/
+    (AKUSANAT, _('Akusanat')),  # https://www.akusanat.com/
+    (TERMWIKI, _('TermWiki')),  # https://satni.uit.no/termwiki/
 )
 
 LANGUAGE_TYPES = (

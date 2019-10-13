@@ -186,10 +186,11 @@ def add_termwiki():
         for word in sms_data:
             print(word["word"])
             try:
-                l = Lexeme.objects.get(lexeme=word["word"], language="sms")
-                a, created = Affiliation.objects.get_or_create(lexeme=l, title="Termwiki", link=word["url"], checked=word["sanctioned"])
-                a.save()
-                print(l) 
+                ls = Lexeme.objects.filter(lexeme=word["word"], language="sms")
+                for l in ls:
+                    a, created = Affiliation.objects.get_or_create(lexeme=l, title=word["word"], link=word["url"], checked=word["sanctioned"], type=TERMWIKI)
+                    a.save()
+                    print(l) 
             except Exception as e:
                 print(e)
 

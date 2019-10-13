@@ -18,7 +18,6 @@ from django.shortcuts import get_object_or_404
 from collections import defaultdict
 import csv
 from .constants import INFLEX_TYPE_OPTIONS
-from wiki.semantic_api import SemanticAPI
 from manageXML.inflector import Inflector
 
 _inflector = Inflector()
@@ -250,18 +249,10 @@ class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         self.object.save()
 
         # check if affiliation exists in akusanat
-        semAPI = SemanticAPI()
-        r1 = semAPI.ask(query=(
-            '[[%s:%s]]' % (form.instance.language.capitalize(), lexeme), '?Category', '?POS', '?Lang',
-            '?Contlex')
-        )
-
-        if 'query' in r1 and 'results' in r1['query'] and r1['query']['results']:
-            title, info = r1['query']['results'].popitem()
-
-            # link it
-            if title:
-                a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title)
+        title = self.object.find_akusanat_affiliation()
+        # link it
+        if title:
+            a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title)
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -324,18 +315,10 @@ class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
             form.instance.affiliation_set.all().delete()
 
             # check if new affiliation exists
-            semAPI = SemanticAPI()
-            r1 = semAPI.ask(query=(
-                '[[%s:%s]]' % (form.instance.language.capitalize(), new_lexeme), '?Category', '?POS', '?Lang',
-                '?Contlex')
-            )
-
-            if 'query' in r1 and 'results' in r1['query'] and r1['query']['results']:
-                title, info = r1['query']['results'].popitem()
-
-                # link it
-                if title:
-                    a, created = Affiliation.objects.get_or_create(lexeme=form.instance, title=title)
+            title = self.object.find_akusanat_affiliation()
+            # link it
+            if title:
+                a, created = Affiliation.objects.get_or_create(lexeme=form.instance, title=title)
 
         return super(LexemeEditView, self).form_valid(form)
 

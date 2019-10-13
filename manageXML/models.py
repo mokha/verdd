@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from django.urls import reverse
 from .common import Rhyme
 from .constants import *
+from wiki.semantic_api import SemanticAPI
 
 
 class DataFile(models.Model):
@@ -69,6 +70,18 @@ class Lexeme(models.Model):
 
     def inflexType_str(self):
         return INFLEX_TYPE_OPTIONS_DICT[self.inflexType] if self.inflexType in INFLEX_TYPE_OPTIONS_DICT else ''
+
+    def find_akusanat_affiliation(self):
+        semAPI = SemanticAPI()
+        r1 = semAPI.ask(query=(
+            '[[%s:%s]]' % (self.language.capitalize(), self.lexeme), '?Category', '?POS', '?Lang',
+            '?Contlex')
+        )
+
+        if 'query' in r1 and 'results' in r1['query'] and r1['query']['results']:
+            title, info = r1['query']['results'].popitem()
+            return title
+        return None
 
     def save(self, *args, **kwargs):
         # store rhyming features
@@ -155,7 +168,8 @@ class Affiliation(models.Model):
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
     type = models.IntegerField(choices=AFFILIATION_TYPES,
-                                     blank=True, null=True, default=None)
+                               blank=True, null=True, default=None)
+    notes = models.CharField(max_length=250, blank=True)
 
 
 class Examples(models.Model):

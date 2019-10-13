@@ -8,6 +8,7 @@ import json, html, re
 from lxml import etree
 from io import StringIO
 from ._private import *
+from mikatools import *
 
 parser = etree.HTMLParser()
 
@@ -178,6 +179,19 @@ def mediawiki_query(word, lexeme):
 
     return title, pos, translations, contlex, miniparam
 
+def add_termwiki():
+    term_json = json_load(script_path("../../../additional_data/sms_termwiki.json"))
+    for termwiki in term_json:
+        sms_data = termwiki["sms"]
+        for word in sms_data:
+            print(word["word"])
+            try:
+                l = Lexeme.objects.get(lexeme=word["word"], language="sms")
+                a, created = Affiliation.objects.get_or_create(lexeme=l, title="Termwiki", link=word["url"], checked=word["sanctioned"])
+                a.save()
+                print(l) 
+            except Exception as e:
+                print(e)
 
 def process_row(row, df, lang_source, lang_target):
     row_dict = dict(row)
@@ -257,6 +271,7 @@ class Command(BaseCommand):
     help = 'This command imports a CSV file into the database to be edited.'
 
     def add_arguments(self, parser):
+        parser.add_argument("-c", "--command", type=str, help="termwiki for termwiki import", default=None)
         parser.add_argument('-f', '--file', type=str, help='The CSV file to import.', )
         parser.add_argument('-t', '--target', type=str, help='Three letter code of target language.', )
         parser.add_argument('-s', '--source', type=str, help='Three letter code of source language.', )
@@ -266,22 +281,8 @@ class Command(BaseCommand):
                             help='The delimiter to use when reading the CSV file.', )
 
     def handle(self, *args, **options):
-        file_path = options['file']
-        lang_source = options['source']  # language source (e.g. fin)
-        lang_target = options['target']  # language target (e.g. sms)
-        d = options['delimiter']
-
-        if not os.path.isfile(file_path):
-            raise CommandError('File "%s" does not exist.' % file_path)
-
-        filename = options['name']
-        if not filename:
-            filename = os.path.splitext(os.path.basename(file_path))[0]  # get file name without extension
-
-        df = DataFile(lang_source=lang_source, lang_target=lang_target, name=filename)
-        df.save()
-
-        for row in read_csv(file_path, delimiter=d):
-            process_row(row, df, lang_source, lang_target)
-
-        self.stdout.write(self.style.SUCCESS('Successfully imported the file "%s", with ID: %d' % (file_path, df.id)))
+        if options['command'] == "termwiki":
+            print("termwiki import")
+            add_termwiki()
+            quit()
+        

@@ -17,7 +17,7 @@
             {% if affiliations %}
                 <ul>
                     {% for affiliation in affiliations %}
-                        <a href="{{ affiliation.link }}" target="_blank">{% constant_text 'AFFILIATION_TYPES' affiliation.type %}: {{ affiliation.title }}</a>
+                        <li><a href="{{ affiliation.link }}" target="_blank">{% constant_text 'AFFILIATION_TYPES' affiliation.type %}: {{ affiliation.title }}</a></li>
                     {% endfor %}
                 </ul>
             {% endif %}

@@ -194,6 +194,9 @@ def add_termwiki():
             except Exception as e:
                 print(e)
 
+def add_deriv():
+    term_json = json_load(script_path("../../../additional_data/sms_termwiki.json"))
+
 def process_row(row, df, lang_source, lang_target):
     row_dict = dict(row)
     word_1 = fix_encoding(row[0][1])  # first word
@@ -285,5 +288,9 @@ class Command(BaseCommand):
         if options['command'] == "termwiki":
             print("termwiki import")
             add_termwiki()
+            quit()
+        elif options['command'] == "derivations":
+            print("derivation import")
+            add_deriv()
             quit()
         

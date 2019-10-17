@@ -28,6 +28,7 @@ class Lexeme(models.Model):
     assonance_rev = models.CharField(max_length=250, blank=True)
     consonance = models.CharField(max_length=250, blank=True)
     consonance_rev = models.CharField(max_length=250, blank=True)
+    lexeme_lang = models.CharField(max_length=250, blank=True)
     language = models.CharField(max_length=3)
     pos = models.CharField(max_length=25)
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)
@@ -71,6 +72,18 @@ class Lexeme(models.Model):
     def inflexType_str(self):
         return INFLEX_TYPE_OPTIONS_DICT[self.inflexType] if self.inflexType in INFLEX_TYPE_OPTIONS_DICT else ''
 
+    def get_lexeme_lang(self):
+        main_str = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¨ÂÄÅáâäåõöČčđŋśŠšžǥǧǨǩǯʒʹʼˈẹ’₋'
+        _sms_str = 'AaÂâÅåÄäBbCcČčDdĐđEeẸẹFfGgǦǧǤǥHhIiJjKkǨǩLlMmNnŊŋOoÖöÕõPpQqRrSsŠšTtUuVvWwXxYyZzŽžƷʒǮǯАа0123456789 '
+
+        LANGUAGE_SORT = {
+            'sms': dict([(x, main_str[_sms_str.index(x)]) for x in _sms_str]),
+        }
+        if self.language in LANGUAGE_SORT:
+            sort_dict = LANGUAGE_SORT[self.language]
+            return ''.join([sort_dict[c] if c in sort_dict else c for c in self.lexeme])
+        return self.lexeme
+
     def find_akusanat_affiliation(self):
         semAPI = SemanticAPI()
         r1 = semAPI.ask(query=(
@@ -89,6 +102,7 @@ class Lexeme(models.Model):
         self.assonance_rev = self.get_assonance_rev()
         self.consonance = self.get_consonance()
         self.consonance_rev = self.get_consonance_rev()
+        self.lexeme_lang = self.get_lexeme_lang()
 
         # automatically get the inflexType
         if (not self.inflexType or self.inflexType == 0) and self.contlex:

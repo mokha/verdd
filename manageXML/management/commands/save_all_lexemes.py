@@ -10,8 +10,8 @@ class Command(BaseCommand):
     help = 'This command calls the save function to update all lexemes. Used when a new field is added to the database.'
 
     def handle(self, *args, **options):
-
-        for l in Lexeme.objects.all():
+        all_l = Lexeme.objects.all()
+        for l in all_l:
             l.save()
 
-        self.stdout.write(self.style.SUCCESS('Successfully imported the file "%s"' % (file_path,)))
+        self.stdout.write(self.style.SUCCESS('Successfully saved %d lexemes' % (len(all_l),)))

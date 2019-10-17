@@ -19,6 +19,7 @@ from collections import defaultdict
 import csv
 from .constants import INFLEX_TYPE_OPTIONS
 from manageXML.inflector import Inflector
+import operator
 
 _inflector = Inflector()
 
@@ -64,7 +65,7 @@ class LexemeFilter(django_filters.FilterSet):
     ALPHABETS_CHOICES = list(enumerate(string.ascii_uppercase + 'ÄÅÖ'))
     ORDER_BY_FIELDS = {
         'pos': 'pos',
-        'lexeme': 'lexeme',
+        'lexeme_lang': 'lexeme_lang',
         'consonance': 'consonance',
         'consonance_rev': 'revConsonance',
         'assonance': 'assonance',
@@ -97,8 +98,8 @@ class LexemeFilter(django_filters.FilterSet):
 
     order_by = OrderingFilter(
         choices=(
-            ('lexeme', _('Lexeme')),
-            ('-lexeme', '%s (%s)' % (_('Lexeme'), _('descending'))),
+            ('lexeme_lang', _('Lexeme')),
+            ('-lexeme_lang', '%s (%s)' % (_('Lexeme'), _('descending'))),
             ('pos', _('POS')),
             ('-pos', '%s (%s)' % (_('POS'), _('descending'))),
             ('contlex', _('ContLex')),
@@ -124,7 +125,7 @@ class LexemeFilter(django_filters.FilterSet):
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
-        data.setdefault('order', '+lexeme')
+        data.setdefault('order', '+lexeme_lang')
         super().__init__(data, *args, **kwargs)
 
         self.form.fields['language'].choices = set(
@@ -173,7 +174,7 @@ class LexemeView(FilteredListView):
         order_by = self.request.GET.get('order_by', None)
         order_by = order_by[1:] if order_by and order_by.startswith('-') else order_by
         order_by_options = dict([[v, k] for k, v in self.filterset_class.ORDER_BY_FIELDS.items()])
-        if order_by and order_by not in ['pos', 'lexeme'] and order_by in order_by_options:
+        if order_by and order_by not in ['pos', 'lexeme_lang'] and order_by in order_by_options:
             context['order_by'] = order_by_options[order_by]
         return context
 

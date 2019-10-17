@@ -1,6 +1,7 @@
 from manageXML.models import *
 from collections import defaultdict
 import xml.etree.ElementTree as ET
+from uralicNLP import uralicApi
 from wiki.semantic_api import SemanticAPI
 import io
 
@@ -8,6 +9,21 @@ semAPI = SemanticAPI()
 
 new_xml = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
 pos_files = defaultdict(list)
+
+
+def analyze(word, lang):
+    try:
+        a = uralicApi.analyze(word, lang)
+        a = map(lambda r: r[0].split('+'), a)
+        a = list(filter(lambda r: r[0] == word, a))
+        if not a:
+            return [[None]]
+        a = list(map(lambda r: r[1:], a))
+        a = list(filter(lambda r: r, a))
+        return a
+    except:
+        pass
+    return [[None]]
 
 
 def query_semantic_search(lexeme, lang):

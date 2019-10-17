@@ -4,7 +4,7 @@ from mikatools import *
 
 
 def add_termwiki(json_file):
-    term_json = json_load(script_path(json_file))
+    term_json = json_load(json_file)
     for termwiki in term_json:
         sms_data = termwiki["sms"]
         for word in sms_data:
@@ -20,7 +20,7 @@ def add_termwiki(json_file):
 
 
 def add_deriv(json_file):
-    deriv_json = json_load(script_path(json_file))
+    deriv_json = json_load(json_file)
     for word1, derv_data in deriv_json.items():
         id, word = word1.split("_")
         try:

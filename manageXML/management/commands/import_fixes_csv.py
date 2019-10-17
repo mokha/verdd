@@ -1,67 +1,124 @@
 import django
 from django.core.management.base import BaseCommand, CommandError
-import io, csv, os, glob, re
-import xml.etree.ElementTree as ET
-from collections import defaultdict
-from uralicNLP import uralicApi
-from wiki.semantic_api import SemanticAPI
-import json, html, re
-from lxml import etree
-from io import StringIO
+import io, csv, os
 from ._private import *
-from manageXML.constants import VARIATION
+from collections import defaultdict
+from operator import itemgetter
+from manageXML.models import *
+from manageXML.constants import VARIATION, TRANSLATION
+from datetime import datetime
+import logging
+from copy import deepcopy
 
-parser = etree.HTMLParser()
-
-
-def analyze(word, lang):
-    try:
-        a = uralicApi.analyze(word, lang)
-        a = map(lambda r: r[0].split('+'), a)
-        a = list(filter(lambda r: r[0] == word, a))
-        if not a:
-            return [[None]]
-        a = list(map(lambda r: r[1:], a))
-        a = list(filter(lambda r: r, a))
-        return a
-    except:
-        pass
-    return [[None]]
+logger = logging.getLogger('verdd')  # Get an instance of a logger
 
 
-def process_row(row):
-    # data in the row
-    id = int(row[0])  # the id of the original lexeme
-    new_replacement = row[2]
-    additiona_replacements = row[3:]
+def log_change(lexeme_id, lexeme, edit, note):
+    logger.info(
+        "%s (%d): [%s] %s on %s" % (lexeme, lexeme_id, edit, note, datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
+    )  # edit, note time
 
-    # get original lexeme
-    original_lexeme = Lexeme.objects.get(pk=id)  # get original lexeme
-    pos = original_lexeme.pos
-    language = original_lexeme.language
-    homoId = original_lexeme.homoId
-    df = original_lexeme.imported_from
 
-    # fix encoding
-    new_replacement = fix_encoding(new_replacement)
-    additiona_replacements = [fix_encoding(w) for w in additiona_replacements]
+def process(rows):
+    # Assumptions:
+    # -) lexemes don't have any homonyms
 
-    original_lexeme.lexeme = new_replacement
-    try:
-        original_lexeme.save()  # try to fix the new changes
-    except django.db.utils.IntegrityError as e:  # the lexeme already exists
-        original_lexeme = Lexeme.objects.get(lexeme=new_replacement,
-                                             pos=pos,
-                                             language=language, homoId=homoId)
+    existing_lexemes = defaultdict(list)  # correct -> all_wrong
 
-    new_lexemes = [create_lexeme(lexeme=w,
-                                 pos=pos,
-                                 language=language,
-                                 imported_from=df) for w in additiona_replacements]
+    # ROWS format: ID, LANG, NEW REP, VARIATIONS
+    rows.sort(key=itemgetter(1))  # sort rows by language
+    for row in rows:  # fix encoding
+        row[2] = fix_encoding(row[2])
+        row[3:] = [fix_encoding(w) for w in row[3:]]
 
-    for w in new_lexemes:
-        r = Relation.objects.get_or_create(lexeme_from=original_lexeme, lexeme_to=w, type=VARIATION,
-                                           notes="Imported from fixed variations by Jack")
+    # add lexemes that don't exist
+    for row in rows:
+        id = int(row[0])  # the id of the original lexeme
+        # get original lexeme
+        original_lexeme = Lexeme.objects.get(pk=id)  # get original lexeme
+        pos = original_lexeme.pos
+        language = original_lexeme.language
+        homoId = original_lexeme.homoId
+        df = original_lexeme.imported_from
+        old_lexeme = original_lexeme.lexeme
+
+        if not pos.strip():
+            # check if lexeme already exists with pos
+            try:
+                l = Lexeme.objects.get(lexeme=row[2], language=language, pos__gt='', homoId=homoId)
+                pos = l.pos
+                original_lexeme.pos = l.pos
+            except:
+                pass
+
+        original_lexeme.lexeme = row[2]
+        main_lexeme = original_lexeme
+
+        try:
+            original_lexeme.save()  # try to fix the new changes
+            log_change(original_lexeme.id, original_lexeme.lexeme, "UPDATE_LEX",
+                       "Changed %s to %s" % (old_lexeme, original_lexeme.lexeme))
+        except django.db.utils.IntegrityError as e:  # the lexeme already exists
+            l = Lexeme.objects.get(lexeme=row[2], language=language, pos=pos, homoId=homoId)
+            log_change(original_lexeme.id, original_lexeme.lexeme, "NA_LEX",
+                       "Cannot edit, lexeme already exist with id %d" % l.id)
+            existing_lexemes[l.id].append(original_lexeme.id)
+            main_lexeme = l
+
+        for w in row[3:]:
+            try:
+                _l = Lexeme.objects.get(lexeme=w, pos=pos, language=language, homoId=homoId)
+                log_change(_l.id, _l.lexeme, "NA_LEX", "Lexeme already exist")
+            except:
+                _l = create_lexeme(lexeme=w,
+                                   pos=pos,
+                                   language=language,
+                                   imported_from=df)
+                title = _l.find_akusanat_affiliation()
+                if title:
+                    a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title)
+                log_change(_l.id, _l.lexeme, "CREATE_LEX",
+                           "Created lexeme %s" % (_l.lexeme))
+
+            r, created = Relation.objects.get_or_create(lexeme_from=main_lexeme, lexeme_to=_l, type=VARIATION,
+                                                        notes="Imported from var/fixes by Jack")
+            log_change(_l.id, _l.lexeme, "CREATE_VAR_RELATION",
+                       "Created a relation between %s -> %s" % (main_lexeme.lexeme, _l.lexeme))
+
+    for main_id, wrong_lexemes_ids in existing_lexemes.items():
+        main_l = Lexeme.objects.get(pk=main_id)
+        for wrong_id in wrong_lexemes_ids:
+            wrong_l = Lexeme.objects.get(pk=wrong_id)
+            relations = wrong_l.get_relations()
+            for r in relations:
+                # from Finnish
+                if main_l.language == 'fin':
+                    _r, created = Relation.objects.get_or_create(lexeme_from=main_l, lexeme_to=r.lexeme_to,
+                                                                 type=TRANSLATION)
+                else:
+                    _r, created = Relation.objects.get_or_create(lexeme_from=r.lexeme_from, lexeme_to=main_l,
+                                                                 type=TRANSLATION)
+                if created:
+                    log_change(main_l.id, main_l.lexeme, "CREATED_TRANSLATION",
+                               "Created translation: %s -> %s" % (r.lexeme_from.lexeme, main_l.lexeme))
+                if r.notes:
+                    _r.notes = _r.notes + '\n' + r.notes if _r.notes else r.notes
+                    _r.save()
+                    log_change(_r.id, main_l.lexeme, "UPDATED_TRANSLATION",
+                               "Updated notes of translation")
+
+                existing_sources = [s.name for s in _r.source_set.all()]
+
+                for s in r.source_set.all():
+                    if s.name in existing_sources:
+                        continue
+                    _s = deepcopy(s)
+                    _s.id = None
+                    _s.relation = _r
+                    _s.save()
+            log_change(wrong_l.id, wrong_l.lexeme, "DELETED_LEX",
+                       "Deleted lexeme: %s" % (wrong_l.lexeme))
+            wrong_l.delete()  # delete
 
 
 class Command(BaseCommand):
@@ -85,8 +142,8 @@ class Command(BaseCommand):
 
         with io.open(file_path, 'r', encoding='utf-8') as fp:
             reader = csv.reader(fp, delimiter=d)
-            for row in reader:
-                if len(row) > 0:  # the row has some information
-                    process_row(list(row))
+            rows = list(reader)
+            rows = [r for r in rows if len(r) > 0]
+            process(rows)
 
         self.stdout.write(self.style.SUCCESS('Successfully imported the file "%s"' % (file_path,)))

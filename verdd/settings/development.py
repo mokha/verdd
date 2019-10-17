@@ -23,3 +23,19 @@ INTERNAL_IPS = ['127.0.0.1']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'verdd': {
+            'handlers': ['console'],
+            'level': config('LOG_LEVEL', 'INFO'),
+        },
+    },
+}

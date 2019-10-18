@@ -56,6 +56,13 @@ class FilteredListView(TitleMixin, ListView):
         return context
 
 
+class LexemeOrderingFilter(OrderingFilter):
+    def filter(self, qs, value):
+        if value and any('consonance' in v.lower() or 'assonance' in v.lower() for v in value):
+            return qs.order_by(value[0], 'lexeme_lang')
+        return super(LexemeOrderingFilter, self).filter(qs, value)
+
+
 class LexemeFilter(django_filters.FilterSet):
     STATUS_CHOICES = (
         (True, _('Yes')),
@@ -67,9 +74,9 @@ class LexemeFilter(django_filters.FilterSet):
         'pos': 'pos',
         'lexeme_lang': 'lexeme_lang',
         'consonance': 'consonance',
-        'consonance_rev': 'revConsonance',
+        'consonance_rev': 'consonance_rev',
         'assonance': 'assonance',
-        'assonance_rev': 'revAssonance',
+        'assonance_rev': 'assonance_rev',
     }
 
     lookup_choices = [
@@ -96,7 +103,7 @@ class LexemeFilter(django_filters.FilterSet):
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
     source = CharFilter(label=_('Source'), method='source_filter')
 
-    order_by = OrderingFilter(
+    order_by = LexemeOrderingFilter(
         choices=(
             ('lexeme_lang', _('Lexeme')),
             ('-lexeme_lang', '%s (%s)' % (_('Lexeme'), _('descending'))),
@@ -108,12 +115,12 @@ class LexemeFilter(django_filters.FilterSet):
             ('-inflexType', '%s (%s)' % (_('inflexType'), _('descending'))),
             ('consonance', _('Consonance')),
             ('-consonance', '%s (%s)' % (_('Consonance'), _('descending'))),
-            ('revConsonance', _('revConsonance')),
-            ('-revConsonance', '%s (%s)' % (_('revConsonance'), _('descending'))),
+            ('consonance_rev', _('revConsonance')),
+            ('-consonance_rev', '%s (%s)' % (_('revConsonance'), _('descending'))),
             ('assonance', _('Assonance')),
             ('-assonance', '%s (%s)' % (_('Assonance'), _('descending'))),
-            ('revAssonance', _('RevAssonance')),
-            ('-revAssonance', '%s (%s)' % (_('RevAssonance'), _('descending'))),
+            ('assonance_rev', _('RevAssonance')),
+            ('-assonance_rev', '%s (%s)' % (_('RevAssonance'), _('descending'))),
         ),
         fields=ORDER_BY_FIELDS,
         label=_("Order by")

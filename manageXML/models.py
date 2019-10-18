@@ -73,15 +73,17 @@ class Lexeme(models.Model):
         return INFLEX_TYPE_OPTIONS_DICT[self.inflexType] if self.inflexType in INFLEX_TYPE_OPTIONS_DICT else ''
 
     def get_lexeme_lang(self):
-        main_str = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¨ÂÄÅáâäåõöČčđŋśŠšžǥǧǨǩǯʒʹʼˈẹ’₋'
-        _sms_str = 'AaÂâÅåÄäBbCcČčDdĐđEeẸẹFfGgǦǧǤǥHhIiJjKkǨǩLlMmNnŊŋOoÖöÕõPpQqRrSsŠšTtUuVvWwXxYyZzŽžƷʒǮǯАа0123456789 '
-
+        main_str = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¨ÂÄÅÕÖáâäåõöČčĐđŊŋśŠšŽžƷǤǥǦǧǨǩǮǯʒʹʼˈАаẸẹ’₋'
+        _sms_str = ' !"#$%&\'()*+,-./0123456789:;<=>?@AАÂBCČƷǮDĐEẸFGǦǤHIJKǨLMNŊOÕPQRSŠTUVWXYZŽÅÄÖ[\\]^_`аaâbcčʒǯdđeẹfgǧǥhijkǩlmnŋoõpqrsštuvwxyzžåäöáś¨{|}ʹʼˈ~₋’'
+        _fin_str = ' !"#$%&\'()*+,-./0123456789:;<=>?@AАBCDEFGHIJKLMNOPQRSŠTUVWXYZÅÄÖ[\\]^_₋`аabcdefghijklmnopqrsštuvwxyzåäö¨{|}ʹʼ’ˈÂČƷǮĐẸǦǤǨŊÕŽâáčʒǯđẹǧǥǩŋõśž~'
         LANGUAGE_SORT = {
             'sms': dict([(x, main_str[_sms_str.index(x)]) for x in _sms_str]),
+            'fin': dict([(x, main_str[_fin_str.index(x)]) for x in _fin_str]),
         }
         if self.language in LANGUAGE_SORT:
             sort_dict = LANGUAGE_SORT[self.language]
-            return ''.join([sort_dict[c] if c in sort_dict else c for c in self.lexeme])
+            # return ''.join([sort_dict[c] if c in sort_dict else c for c in self.lexeme.upper()])
+            return ''.join([sort_dict[c] for c in self.lexeme.upper() if c in sort_dict])
         return self.lexeme
 
     def find_akusanat_affiliation(self):

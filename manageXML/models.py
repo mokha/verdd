@@ -6,7 +6,9 @@ from django.urls import reverse
 from .common import Rhyme
 from .constants import *
 from wiki.semantic_api import SemanticAPI
+from django.contrib.auth.models import User
 import string
+
 
 class DataFile(models.Model):
     lang_source = models.CharField(max_length=3)
@@ -43,6 +45,7 @@ class Lexeme(models.Model):
     checked = models.BooleanField(default=False)
 
     deleted = models.BooleanField(default=False)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='lexemes')
     history = HistoricalRecords()
 
     def __str__(self):
@@ -119,6 +122,14 @@ class Lexeme(models.Model):
 
         return super(Lexeme, self).save(*args, **kwargs)
 
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
 
 class Relation(models.Model):
     class Meta:
@@ -132,6 +143,7 @@ class Relation(models.Model):
     checked = models.BooleanField(default=False)
     added_date = models.DateTimeField('date published', auto_now_add=True)
     deleted = models.BooleanField(default=False)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='relations')
     history = HistoricalRecords()
 
     def __str__(self):
@@ -144,6 +156,14 @@ class Relation(models.Model):
         return reverse('relation-detail',
                        kwargs={'pk': self.pk})
 
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
 
 class Source(models.Model):
     class Meta:
@@ -155,6 +175,7 @@ class Source(models.Model):
     type = models.CharField(max_length=25)
     notes = models.CharField(max_length=250, blank=True)
     added_date = models.DateTimeField('date published', auto_now_add=True)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='sources')
     history = HistoricalRecords()
 
     def __str__(self):
@@ -164,11 +185,20 @@ class Source(models.Model):
         return reverse('relation-detail',
                        kwargs={'pk': self.relation.pk})
 
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
 
 class MiniParadigm(models.Model):
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     msd = models.CharField(max_length=25)
     wordform = models.CharField(max_length=250)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='miniparadigms')
     history = HistoricalRecords()
 
     def __str__(self):
@@ -177,6 +207,14 @@ class MiniParadigm(models.Model):
     def get_absolute_url(self):
         return reverse('lexeme-detail',
                        kwargs={'pk': self.lexeme.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
 
 
 class Affiliation(models.Model):
@@ -190,9 +228,19 @@ class Affiliation(models.Model):
                                blank=True, null=True, default=None)
     checked = models.BooleanField(default=False)
     notes = models.CharField(max_length=250, blank=True)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='affiliations')
+    history = HistoricalRecords()
 
     def get_absolute_url(self):
         return reverse('lexeme-detail', kwargs={'pk': self.lexeme.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
 
 
 class Examples(models.Model):
@@ -201,4 +249,13 @@ class Examples(models.Model):
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='examples')
     history = HistoricalRecords()
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value

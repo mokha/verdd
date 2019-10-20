@@ -277,7 +277,7 @@ class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         # link it
         if title:
             a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title)
-
+        form.instance.changed_by = self.request.user
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -344,7 +344,7 @@ class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
             # link it
             if title:
                 a, created = Affiliation.objects.get_or_create(lexeme=form.instance, title=title)
-
+        form.instance.changed_by = self.request.user
         return super(LexemeEditView, self).form_valid(form)
 
 
@@ -369,6 +369,7 @@ class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return "%s: %s (%s)" % (_("Edit Relation"), self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
 
     def form_valid(self, form):
+        form.instance.changed_by = self.request.user
         return super(RelationEditView, self).form_valid(form)
 
 
@@ -384,6 +385,10 @@ class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
 
     def get_title(self):
         return "%s: %s" % (_("Edit source"), self.object.relation,)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(SourceEditView, self).form_valid(form)
 
 
 class MiniParadigmEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView):
@@ -403,6 +408,10 @@ class MiniParadigmEditView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, Up
     def get_title(self):
         return "%s: %s" % (
             _("Edit mini paradigm"), self.object.lexeme.lexeme)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(MiniParadigmEditView, self).form_valid(form)
 
 
 class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, CreateView):
@@ -427,7 +436,8 @@ class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, 
 
     def form_valid(self, form):
         form.instance.lexeme = self.lexeme
-        return super().form_valid(form)
+        form.instance.changed_by = self.request.user
+        return super(MiniParadigmCreateView).form_valid(form)
 
 
 class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
@@ -443,6 +453,7 @@ class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return "%s %s" % (_("Add Relation from"), self.lexeme)
 
     def form_valid(self, form):
+        form.instance.changed_by = self.request.user
         return super(RelationCreateView, self).form_valid(form)
 
 
@@ -460,6 +471,7 @@ class AffiliationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.lexeme = self.lexeme
+        form.instance.changed_by = self.request.user
         return super(AffiliationCreateView, self).form_valid(form)
 
 
@@ -472,6 +484,7 @@ class AffiliationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return "%s: %s (%s)" % (_("Edit Affiliation"), self.object.title, self.object.lexeme)
 
     def form_valid(self, form):
+        form.instance.changed_by = self.request.user
         return super(AffiliationEditView, self).form_valid(form)
 
 
@@ -494,6 +507,7 @@ class SourceCreateView(LoginRequiredMixin, TitleMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.relation = self.relation
+        form.instance.changed_by = self.request.user
         return super(SourceCreateView, self).form_valid(form)
 
 

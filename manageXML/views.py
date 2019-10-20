@@ -20,7 +20,9 @@ import csv
 from .constants import INFLEX_TYPE_OPTIONS
 from manageXML.inflector import Inflector
 import operator
+import logging
 
+logger = logging.getLogger('verdd.manageXML')  # Get an instance of a logger
 _inflector = Inflector()
 
 
@@ -495,13 +497,18 @@ class SourceCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(SourceCreateView, self).form_valid(form)
 
 
-class DeleteFormMixin:
+class DeleteFormMixin(LoginRequiredMixin, TitleMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(DeleteFormMixin, self).get_context_data(**kwargs)
         context.update({
             'form': DeleteFormBase(),
         })
         return context
+
+    def delete(self, request, *args, **kwargs):
+        object = self.get_object()
+        logger.info("[DELETE] %s: %s by %s" % (object.__class__.__name__, object, self.request.user))
+        return super(DeleteFormMixin, self).delete(request, *args, **kwargs)
 
 
 class LexemeDeleteFormMixin(DeleteFormMixin):
@@ -513,7 +520,7 @@ class LexemeDeleteFormMixin(DeleteFormMixin):
         return self.lexeme.get_absolute_url()
 
 
-class LexemeDeleteView(LoginRequiredMixin, TitleMixin, DeleteFormMixin, DeleteView):
+class LexemeDeleteView(DeleteFormMixin):
     template_name = 'lexeme_confirm_delete.html'
     model = Lexeme
 
@@ -524,7 +531,7 @@ class LexemeDeleteView(LoginRequiredMixin, TitleMixin, DeleteFormMixin, DeleteVi
         return "%s: %s" % (_("Delete lexeme"), self.object,)
 
 
-class RelationDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixin, DeleteView):
+class RelationDeleteView(LexemeDeleteFormMixin):
     template_name = 'relation_confirm_delete.html'
     model = Relation
 
@@ -532,7 +539,7 @@ class RelationDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixin, 
         return "%s: %s" % (_("Delete Relation"), self.object,)
 
 
-class AffiliationDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixin, DeleteView):
+class AffiliationDeleteView(LexemeDeleteFormMixin):
     template_name = 'affiliation_confirm_delete.html'
     model = Affiliation
 
@@ -540,7 +547,7 @@ class AffiliationDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixi
         return "%s: %s" % (_("Delete Affiliation"), self.object,)
 
 
-class SourceDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixin, DeleteView):
+class SourceDeleteView(LexemeDeleteFormMixin):
     template_name = 'source_confirm_delete.html'
     model = Source
 

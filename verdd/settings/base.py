@@ -193,3 +193,27 @@ else:
         TRANSDUCERS_PATH = os.path.join(BASE_DIR, '../%s' % TRANSDUCERS_PATH)
     if not os.path.isdir(TRANSDUCERS_PATH):
         raise Exception("Cannot access the transducer models.")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'verdd.manageXML': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, '../logs/verdd.manageXML.log')
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'verdd': {
+            'handlers': ['console'],
+            'level': config('LOG_LEVEL', 'INFO'),
+        },
+        'verdd.manageXML': {
+            'handlers': ['verdd.manageXML'],
+        }
+    },
+}

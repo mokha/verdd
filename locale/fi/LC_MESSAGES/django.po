@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-13 19:24+0000\n"
+"POT-Creation-Date: 2019-10-20 21:45+0000\n"
 "PO-Revision-Date: 2019-10-13 22:27+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -62,56 +62,64 @@ msgstr "10"
 msgid "X"
 msgstr "X"
 
-#: manageXML/constants.py:20
+#: manageXML/constants.py:25
 msgid "Translation"
 msgstr "Käännös"
 
-#: manageXML/constants.py:21
+#: manageXML/constants.py:26
 msgid "Etymology"
 msgstr "Etymologia"
 
-#: manageXML/constants.py:22
+#: manageXML/constants.py:27
 msgid "Compound"
 msgstr "Yhdyssana"
 
-#: manageXML/constants.py:23
+#: manageXML/constants.py:28
 msgid "Derivation"
 msgstr "Johdos"
 
-#: manageXML/constants.py:24
+#: manageXML/constants.py:29
+#, fuzzy
+#| msgid "Derivation"
+msgid "Variation"
+msgstr "Johdos"
+
+#: manageXML/constants.py:30
 msgid "Other"
 msgstr "Muu"
 
-#: manageXML/constants.py:810
+#: manageXML/constants.py:816
 msgid "-"
 msgstr "-"
 
-#: manageXML/constants.py:811
+#: manageXML/constants.py:817
 msgid "Akusanat"
 msgstr "Akusanat"
 
-#: manageXML/constants.py:812
+#: manageXML/constants.py:818
 msgid "TermWiki"
 msgstr "TermWiki"
 
-#: manageXML/constants.py:816 verdd/settings/base.py:148
+#: manageXML/constants.py:822 verdd/settings/base.py:148
 msgid "Finnish"
 msgstr "Suomi"
 
-#: manageXML/constants.py:817
+#: manageXML/constants.py:823
 msgid "Skolt Sammi"
 msgstr "Koltansaame"
 
 #: manageXML/forms.py:15 manageXML/forms.py:36
 #: manageXML/templates/lexeme_data.html:3
-#: manageXML/templates/lexeme_list.html:78 manageXML/views.py:87
-#: manageXML/views.py:100 manageXML/views.py:101 manageXML/views.py:189
+#: manageXML/templates/lexeme_list.html:78
+#: manageXML/templates/lexeme_short_data.html:3 manageXML/views.py:95
+#: manageXML/views.py:108 manageXML/views.py:109 manageXML/views.py:197
 msgid "Lexeme"
 msgstr "Lekseemi"
 
 #: manageXML/forms.py:16 manageXML/templates/lexeme_data.html:8
-#: manageXML/templates/lexeme_list.html:79 manageXML/views.py:90
-#: manageXML/views.py:102 manageXML/views.py:103 manageXML/views.py:189
+#: manageXML/templates/lexeme_list.html:79
+#: manageXML/templates/lexeme_short_data.html:8 manageXML/views.py:98
+#: manageXML/views.py:110 manageXML/views.py:111 manageXML/views.py:197
 msgid "POS"
 msgstr "Sanaluokka"
 
@@ -119,8 +127,11 @@ msgstr "Sanaluokka"
 msgid "Continuation Lexicon"
 msgstr "Jatkoleksikko"
 
-#: manageXML/forms.py:18 manageXML/forms.py:120
+#: manageXML/forms.py:18 manageXML/forms.py:138 manageXML/forms.py:168
+#: manageXML/forms.py:204
+#: manageXML/templates/affiliation_confirm_delete.html:12
 #: manageXML/templates/lexeme_data.html:10
+#: manageXML/templates/lexeme_short_data.html:10
 #: manageXML/templates/relation_data.html:6
 #: manageXML/templates/relation_data_list.html:9
 #: manageXML/templates/source_data.html:6
@@ -128,6 +139,7 @@ msgid "Type"
 msgstr "Tyyppi"
 
 #: manageXML/forms.py:19 manageXML/templates/lexeme_data.html:13
+#: manageXML/templates/lexeme_short_data.html:13
 msgid "Lemma ID"
 msgstr "Lemman ID"
 
@@ -136,70 +148,136 @@ msgid "Inflex ID"
 msgstr "Taivutus ID"
 
 #: manageXML/forms.py:22 manageXML/templates/lexeme_data.html:12
-#: manageXML/templates/lexeme_list.html:81 manageXML/views.py:91
-#: manageXML/views.py:189
+#: manageXML/templates/lexeme_list.html:81
+#: manageXML/templates/lexeme_short_data.html:12 manageXML/views.py:99
+#: manageXML/views.py:197
 msgid "Inflex Type"
 msgstr "Taivutustyyppi"
 
-#: manageXML/forms.py:23 manageXML/forms.py:102 manageXML/forms.py:123
+#: manageXML/forms.py:23 manageXML/forms.py:102 manageXML/forms.py:120
+#: manageXML/forms.py:141 manageXML/forms.py:171 manageXML/forms.py:195
+#: manageXML/forms.py:219
+#: manageXML/templates/affiliation_confirm_delete.html:14
 #: manageXML/templates/lexeme_data.html:27
 #: manageXML/templates/lexeme_list.html:86
+#: manageXML/templates/lexeme_short_data.html:15
 #: manageXML/templates/relation_data.html:8
 #: manageXML/templates/relation_data_list.html:11
 #: manageXML/templates/source_data.html:9
 msgid "Notes"
 msgstr "Muistiinpanoja"
 
-#: manageXML/forms.py:24 manageXML/forms.py:103
-#: manageXML/templates/relation_data.html:7 manageXML/views.py:95
+#: manageXML/forms.py:24 manageXML/forms.py:103 manageXML/forms.py:121
+#: manageXML/templates/relation_data.html:7 manageXML/views.py:103
 msgid "Processed"
 msgstr "Käsitelty"
+
+#: manageXML/forms.py:57 manageXML/forms.py:97 manageXML/forms.py:115
+#: manageXML/forms.py:133 manageXML/forms.py:163 manageXML/forms.py:188
+#: manageXML/forms.py:214 manageXML/forms.py:241 manageXML/forms.py:267
+#: manageXML/forms.py:289
+msgid "Save"
+msgstr ""
 
 #: manageXML/forms.py:68
 msgid "Languages"
 msgstr "Kielet"
 
-#: manageXML/forms.py:121
+#: manageXML/forms.py:139 manageXML/forms.py:169
 msgid "Name"
 msgstr "Nimi"
 
-#: manageXML/forms.py:122 manageXML/templates/lexeme_list.html:123
+#: manageXML/forms.py:140 manageXML/forms.py:170
+#: manageXML/templates/lexeme_list.html:124
 #: manageXML/templates/source_data.html:7
 msgid "Page"
 msgstr "Sivu"
 
-#: manageXML/forms.py:135 manageXML/templates/source_data.html:3
-#: manageXML/views.py:96
+#: manageXML/forms.py:153 manageXML/templates/source_data.html:3
+#: manageXML/views.py:104
 msgid "Source"
 msgstr "Lähde"
 
-#: manageXML/forms.py:150 manageXML/forms.py:176
+#: manageXML/forms.py:193
+#: manageXML/templates/affiliation_confirm_delete.html:10
+msgid "Title"
+msgstr ""
+
+#: manageXML/forms.py:194
+msgid "URL"
+msgstr ""
+
+#: manageXML/forms.py:196 manageXML/forms.py:220
+#: manageXML/templates/affiliation_confirm_delete.html:13
+msgid "Approved"
+msgstr ""
+
+#: manageXML/forms.py:246 manageXML/forms.py:272
 #: manageXML/templates/mini_paradigm_data.html:10
 msgid "Word form"
 msgstr "Sanamuoto"
 
-#: manageXML/forms.py:151 manageXML/forms.py:177
+#: manageXML/forms.py:247 manageXML/forms.py:273
 msgid "Morphosyntactic description"
 msgstr "Morfosyntaktinen kuvaus"
 
-#: manageXML/forms.py:163
+#: manageXML/forms.py:259
 msgid "Edit Mini Paradigm"
 msgstr "Muokkaa miniparadigmaa"
 
-#: manageXML/templates/lexeme_add.html:8 manageXML/views.py:242
+#: manageXML/forms.py:304
+msgid "Delete"
+msgstr ""
+
+#: manageXML/templates/affiliation_add.html:8 manageXML/views.py:457
+#, fuzzy
+#| msgid "Affiliations"
+msgid "Add Affiliation"
+msgstr "Sana muualla"
+
+#: manageXML/templates/affiliation_confirm_delete.html:9 manageXML/views.py:540
+#, fuzzy
+#| msgid "Affiliations"
+msgid "Delete Affiliation"
+msgstr "Sana muualla"
+
+#: manageXML/templates/affiliation_confirm_delete.html:11
+msgid "Link"
+msgstr ""
+
+#: manageXML/templates/affiliation_confirm_delete.html:13
+#: manageXML/templates/relation_data.html:7 manageXML/views.py:68
+msgid "Yes"
+msgstr "Kyllä"
+
+#: manageXML/templates/affiliation_confirm_delete.html:13
+#: manageXML/templates/relation_data.html:7 manageXML/views.py:69
+msgid "No"
+msgstr "Ei"
+
+#: manageXML/templates/affiliation_edit.html:9 manageXML/views.py:470
+#, fuzzy
+#| msgid "Affiliations"
+msgid "Edit Affiliation"
+msgstr "Sana muualla"
+
+#: manageXML/templates/lexeme_add.html:8 manageXML/views.py:264
 #: templates/base.html:35
 msgid "Add Lexeme"
 msgstr "Lisää lekseemi"
 
 #: manageXML/templates/lexeme_data.html:4
 #: manageXML/templates/lexeme_list.html:105
+#: manageXML/templates/lexeme_short_data.html:4
 #: manageXML/templates/relation_data_list.html:27
 #: manageXML/templates/relation_data_list.html:38
 msgid "view"
 msgstr "näytä"
 
 #: manageXML/templates/lexeme_data.html:4
+#: manageXML/templates/lexeme_data.html:20
 #: manageXML/templates/lexeme_list.html:107
+#: manageXML/templates/lexeme_short_data.html:4
 #: manageXML/templates/mini_paradigm_data.html:19
 #: manageXML/templates/relation_data_list.html:27
 #: manageXML/templates/relation_data_list.html:42
@@ -208,21 +286,25 @@ msgstr "muokkaa"
 
 #: manageXML/templates/lexeme_data.html:6
 #: manageXML/templates/lexeme_list.html:77
+#: manageXML/templates/lexeme_short_data.html:6
 #: manageXML/templates/mini_paradigm_data.html:8
-#: manageXML/templates/relation_data_list.html:6 manageXML/views.py:189
+#: manageXML/templates/relation_data_list.html:6 manageXML/views.py:197
 msgid "ID"
 msgstr "ID"
 
 #: manageXML/templates/lexeme_data.html:7
+#: manageXML/templates/lexeme_short_data.html:7
 #: manageXML/templates/relation_data.html:5
 msgid "Language (ISO 639-2)"
 msgstr "Kieli (ISO 639-2)"
 
 #: manageXML/templates/lexeme_data.html:9
+#: manageXML/templates/lexeme_short_data.html:9
 msgid "Cont"
 msgstr "Jatkoleksikko"
 
 #: manageXML/templates/lexeme_data.html:11
+#: manageXML/templates/lexeme_short_data.html:11
 msgid "Inflex Id"
 msgstr "Taivutus ID"
 
@@ -230,7 +312,21 @@ msgstr "Taivutus ID"
 msgid "Affiliations"
 msgstr "Sana muualla"
 
+#: manageXML/templates/lexeme_data.html:15
+#: manageXML/templates/lexeme_detail.html:21
+#: manageXML/templates/relation_data_list.html:30
+msgid "add"
+msgstr "lisää"
+
+#: manageXML/templates/lexeme_data.html:20
+#: manageXML/templates/lexeme_list.html:108
+#: manageXML/templates/relation_data_list.html:27
+#: manageXML/templates/relation_data_list.html:45
+msgid "delete"
+msgstr ""
+
 #: manageXML/templates/lexeme_data.html:26
+#: manageXML/templates/lexeme_short_data.html:14
 #: manageXML/templates/relation_data.html:9
 #: manageXML/templates/source_data.html:8
 msgid "Last edit"
@@ -248,11 +344,24 @@ msgstr "Seuraavat lekseemit"
 msgid "Mini Paradigms"
 msgstr "Miniparadigmat"
 
-#: manageXML/templates/lexeme_detail.html:21
-msgid "add"
-msgstr "lisää"
+#: manageXML/templates/lexeme_detail.html:26
+#, fuzzy
+#| msgid "Add mini paradigm"
+msgid "See all mini paradigms"
+msgstr "Lisää miniparadigma"
 
-#: manageXML/templates/lexeme_detail.html:25
+#: manageXML/templates/lexeme_detail.html:35
+#, fuzzy
+#| msgid "Add Mini Paradigms"
+msgid "All Mini Paradigms"
+msgstr "Lisää miniparadigma"
+
+#: manageXML/templates/lexeme_detail.html:36
+#: manageXML/templates/lexeme_detail.html:44
+msgid "Close"
+msgstr ""
+
+#: manageXML/templates/lexeme_detail.html:50
 msgid "Relations:"
 msgstr "Relaatiot:"
 
@@ -268,17 +377,17 @@ msgstr "Etsi"
 msgid "Download"
 msgstr "Lataa"
 
-#: manageXML/templates/lexeme_list.html:80 manageXML/views.py:92
-#: manageXML/views.py:189
+#: manageXML/templates/lexeme_list.html:80 manageXML/views.py:100
+#: manageXML/views.py:197
 msgid "Contlex"
 msgstr "Jatkoleksikko"
 
-#: manageXML/templates/lexeme_list.html:82 manageXML/views.py:89
-#: manageXML/views.py:189
+#: manageXML/templates/lexeme_list.html:82 manageXML/views.py:97
+#: manageXML/views.py:197
 msgid "Language"
 msgstr "Kieli"
 
-#: manageXML/templates/lexeme_list.html:84 manageXML/views.py:191
+#: manageXML/templates/lexeme_list.html:84 manageXML/views.py:199
 msgid "Ordered By"
 msgstr "Järejestys"
 
@@ -287,31 +396,31 @@ msgstr "Järejestys"
 msgid "Actions"
 msgstr "Toiminnot"
 
-#: manageXML/templates/lexeme_list.html:117
+#: manageXML/templates/lexeme_list.html:118
 msgid "First"
 msgstr "Ensimmäinen"
 
-#: manageXML/templates/lexeme_list.html:119
+#: manageXML/templates/lexeme_list.html:120
 msgid "Previous"
 msgstr "Edellinen"
 
-#: manageXML/templates/lexeme_list.html:123
+#: manageXML/templates/lexeme_list.html:124
 msgid "of"
 msgstr "/"
 
-#: manageXML/templates/lexeme_list.html:127
+#: manageXML/templates/lexeme_list.html:128
 msgid "Next"
 msgstr "Seuraava"
 
-#: manageXML/templates/lexeme_list.html:129
+#: manageXML/templates/lexeme_list.html:130
 msgid "Last"
 msgstr "Viimeinen"
 
-#: manageXML/templates/lexeme_list.html:133
+#: manageXML/templates/lexeme_list.html:134
 msgid "Total"
 msgstr "Yhteensä"
 
-#: manageXML/templates/lexeme_list.html:133
+#: manageXML/templates/lexeme_list.html:134
 msgid "Showing"
 msgstr "Näytetään"
 
@@ -328,139 +437,165 @@ msgstr "Lisää miniparadigma"
 msgid "MSD"
 msgstr "Morfosyntaktinen kuvaus"
 
-#: manageXML/templates/relation_data.html:3
-msgid "Relation"
-msgstr "Relaatio"
-
-#: manageXML/templates/relation_data.html:7 manageXML/views.py:60
-msgid "Yes"
-msgstr "Kyllä"
-
-#: manageXML/templates/relation_data.html:7 manageXML/views.py:61
-msgid "No"
-msgstr "Ei"
-
+#: manageXML/templates/relation_base_detail.html:7
 #: manageXML/templates/relation_data_list.html:7
-#: manageXML/templates/relation_detail_content.html:7
-#: manageXML/templates/relation_edit.html:11
 msgid "From"
 msgstr "Lähde"
 
+#: manageXML/templates/relation_base_detail.html:8
 #: manageXML/templates/relation_data_list.html:8
-#: manageXML/templates/relation_detail_content.html:8
-#: manageXML/templates/relation_edit.html:12
 msgid "To"
 msgstr "Kohde"
+
+#: manageXML/templates/relation_data.html:3
+msgid "Relation"
+msgstr "Relaatio"
 
 #: manageXML/templates/relation_data_list.html:10
 msgid "Sources"
 msgstr "Lähteet"
 
-#: manageXML/views.py:75
+#: manageXML/templates/source_add.html:9
+#, fuzzy
+#| msgid "Source"
+msgid "Add Source"
+msgstr "Lähde"
+
+#: manageXML/views.py:83
 msgid "Exact"
 msgstr "Täysi vastaavuus"
 
-#: manageXML/views.py:76
+#: manageXML/views.py:84
 msgid "iExact"
 msgstr "Täysi vastaavuus (kirjainkokoriippumaton)"
 
-#: manageXML/views.py:77
+#: manageXML/views.py:85
 msgid "Contains"
 msgstr "Sisältää"
 
-#: manageXML/views.py:78
+#: manageXML/views.py:86
 msgid "iContains"
 msgstr "Sisältää (kirjainkokoriippumaton)"
 
-#: manageXML/views.py:79
+#: manageXML/views.py:87
 msgid "Starts with"
 msgstr "Alkaa"
 
-#: manageXML/views.py:80
+#: manageXML/views.py:88
 msgid "iStarts with"
 msgstr "Alkaa (kirjainkokoriippumaton)"
 
-#: manageXML/views.py:81
+#: manageXML/views.py:89
 msgid "Ends with"
 msgstr "Päättyy"
 
-#: manageXML/views.py:82
+#: manageXML/views.py:90
 msgid "iEnds with"
 msgstr "Päättyy (kirjainkokoriippumaton)"
 
-#: manageXML/views.py:83
+#: manageXML/views.py:91
 msgid "Regex"
 msgstr "Säännöllinen lauseke"
 
-#: manageXML/views.py:84
+#: manageXML/views.py:92
 msgid "iRegex"
 msgstr "Säännöllinen lauseke (kirjainkokoriippumaton)"
 
-#: manageXML/views.py:93
+#: manageXML/views.py:101
 msgid "Range from"
 msgstr "Alkaen kirjaimesta"
 
-#: manageXML/views.py:94
+#: manageXML/views.py:102
 msgid "Range to"
 msgstr "Päättyen kirjaimeen"
 
-#: manageXML/views.py:101 manageXML/views.py:103 manageXML/views.py:105
-#: manageXML/views.py:107 manageXML/views.py:109 manageXML/views.py:111
-#: manageXML/views.py:113 manageXML/views.py:115
+#: manageXML/views.py:109 manageXML/views.py:111 manageXML/views.py:113
+#: manageXML/views.py:115 manageXML/views.py:117 manageXML/views.py:119
+#: manageXML/views.py:121 manageXML/views.py:123
 msgid "descending"
 msgstr "laskeva"
 
-#: manageXML/views.py:104 manageXML/views.py:105
+#: manageXML/views.py:112 manageXML/views.py:113
 msgid "ContLex"
 msgstr "Jatkoleksikko"
 
-#: manageXML/views.py:106 manageXML/views.py:107
+#: manageXML/views.py:114 manageXML/views.py:115
 msgid "inflexType"
 msgstr "Taivutustyyppi"
 
-#: manageXML/views.py:108 manageXML/views.py:109
+#: manageXML/views.py:116 manageXML/views.py:117
 msgid "Consonance"
 msgstr "Konsonanssi"
 
-#: manageXML/views.py:110 manageXML/views.py:111
+#: manageXML/views.py:118 manageXML/views.py:119
 msgid "revConsonance"
 msgstr "Konsonanssi (käänteinen)"
 
-#: manageXML/views.py:112 manageXML/views.py:113
+#: manageXML/views.py:120 manageXML/views.py:121
 msgid "Assonance"
 msgstr "Assonanssi"
 
-#: manageXML/views.py:114 manageXML/views.py:115
+#: manageXML/views.py:122 manageXML/views.py:123
 msgid "RevAssonance"
 msgstr "Assonanssi (käänteinen)"
 
-#: manageXML/views.py:118
+#: manageXML/views.py:126
 msgid "Order by"
 msgstr "Järjestys"
 
-#: manageXML/views.py:169
+#: manageXML/views.py:177
 msgid "Homepage"
 msgstr "Kotisivu"
 
-#: manageXML/views.py:304
+#: manageXML/views.py:327
 msgid "Edit"
 msgstr "Muokkaa"
 
-#: manageXML/views.py:344
+#: manageXML/views.py:367
 msgid "Edit Relation"
 msgstr "Muokkaa relaatiota"
 
-#: manageXML/views.py:361
+#: manageXML/views.py:384
 msgid "Edit source"
 msgstr "Muokkaa lähdettä"
 
-#: manageXML/views.py:380
+#: manageXML/views.py:403
 msgid "Edit mini paradigm"
 msgstr "Muokkaa miniparadigmaa"
 
-#: manageXML/views.py:401
+#: manageXML/views.py:424
 msgid "Add mini paradigm"
 msgstr "Lisää miniparadigma"
+
+#: manageXML/views.py:441
+#, fuzzy
+#| msgid "Edit Relation"
+msgid "Add Relation from"
+msgstr "Muokkaa relaatiota"
+
+#: manageXML/views.py:491
+#, fuzzy
+#| msgid "Edit source"
+msgid "Add source"
+msgstr "Muokkaa lähdettä"
+
+#: manageXML/views.py:524
+#, fuzzy
+#| msgid "Next Lexemes"
+msgid "Delete lexeme"
+msgstr "Seuraavat lekseemit"
+
+#: manageXML/views.py:532
+#, fuzzy
+#| msgid "Edit Relation"
+msgid "Delete Relation"
+msgstr "Muokkaa relaatiota"
+
+#: manageXML/views.py:548
+#, fuzzy
+#| msgid "Source"
+msgid "Delete Source"
+msgstr "Lähde"
 
 #: templates/allauth/account/email/password_reset_key_message.txt:1
 #, python-format

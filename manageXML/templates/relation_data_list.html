@@ -27,7 +27,7 @@
                                 <li>{{ s }} (<a href="{% url 'source-detail' pk=s.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'source-edit' pk=s.pk %}">{% trans "edit" %}</a>/<a href="{% url 'source-delete' lexeme_id=lexeme.pk pk=s.pk %}">{% trans "delete" %}</a>{% endif %})</li>
                             {% endfor %}
                         {% endif %}
-                        <li>{% if user.is_authenticated %}<a href="{% url 'source-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a>{% endif %}</li>
+                        % if user.is_authenticated %}<li>{<a href="{% url 'source-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a></li>{% endif %}
                     </ul>
                 {% endwith %}
             </td>

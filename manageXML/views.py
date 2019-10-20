@@ -240,6 +240,20 @@ class MiniParadigmMixin:
         generated_forms.default_factory = None
         return generated_forms
 
+    def short_generate_forms(self, lexeme):
+        existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
+        MP_forms = _inflector.generate_uralicNLP(lexeme.language, lexeme.lexeme, lexeme.pos)
+
+        generated_forms = defaultdict(list)
+        for f, r in MP_forms.items():
+            if f in existing_MP_forms:  # if overridden by the user
+                continue  # ignore it
+
+            for _r in r:
+                generated_forms[f].append(_r[0])
+        generated_forms.default_factory = None
+        return generated_forms
+
 
 class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
     template_name = 'lexeme_add.html'
@@ -289,6 +303,7 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(LexemeDetailView, self).get_context_data(**kwargs)
         context['generated_miniparadigms'] = self.generate_forms(self.object)
+        context['short_generated_miniparadigms'] = self.short_generate_forms(self.object)
 
         last_lexeme = self.request.GET.get('lastlexeme', None)  # is last lexeme passed?
         last_lexeme = Lexeme.objects.get(

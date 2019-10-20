@@ -2,7 +2,7 @@ from .models import *
 from django import forms
 from django.utils.translation import gettext as _
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML
+from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML, Button
 from .constants import *
 
 
@@ -54,7 +54,7 @@ class LexemeForm(forms.ModelForm):
             ),
             'notes',
             'checked',
-            Submit('submit', 'Save')
+            Submit('submit', _('Save'))
         )
 
     def clean(self):
@@ -65,7 +65,7 @@ class LexemeForm(forms.ModelForm):
 
 class LexemeCreateForm(LexemeForm):
     language = forms.ChoiceField(choices=LANGUAGE_TYPES, required=True,
-                                   label=_('Languages'))
+                                 label=_('Languages'))
 
     class Meta:
         model = Lexeme
@@ -94,7 +94,7 @@ class LexemeCreateForm(LexemeForm):
             ),
             'notes',
             'checked',
-            Submit('submit', 'Save')
+            Submit('submit', _('Save'))
         )
 
 
@@ -112,7 +112,25 @@ class RelationForm(forms.ModelForm):
         self.helper.layout = Layout(
             'notes',
             'checked',
-            Submit('submit', 'Save')
+            Submit('submit', _('Save'))
+        )
+
+
+class RelationCreateForm(forms.ModelForm):
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Processed'))
+
+    class Meta:
+        model = Relation
+        fields = ['notes', 'checked']
+
+    def __init__(self, *args, **kwargs):
+        super(RelationCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'notes',
+            'checked',
+            Submit('submit', _('Save'))
         )
 
 
@@ -142,7 +160,85 @@ class SourceForm(forms.ModelForm):
                 css_class='form-row'
             ),
             'notes',
-            Submit('submit', 'Save')
+            Submit('submit', _('Save'))
+        )
+
+
+class SourceCreateForm(forms.ModelForm):
+    type = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Type')}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Name')}))
+    page = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Page')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+
+    class Meta:
+        model = Source
+        fields = ['type', 'name', 'page', 'notes']
+
+    def __init__(self, *args, **kwargs):
+        super(SourceCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('name', css_class='form-group col-md-6 mb-0'),
+                Column('type', css_class='form-group col-md-3 mb-0'),
+                Column('page', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            ),
+            'notes',
+            Submit('submit', _('Save'))
+        )
+
+
+class AffiliationCreateForm(forms.ModelForm):
+    title = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Title')}))
+    link = forms.URLField(widget=forms.URLInput(attrs={'placeholder': _('URL')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Approved'))
+
+    class Meta:
+        model = Affiliation
+        fields = ['title', 'link', 'type', 'checked', 'notes']
+
+    def __init__(self, *args, **kwargs):
+        self.type = forms.ChoiceField(choices=AFFILIATION_TYPES, required=True,
+                                      label=_('Type'))
+
+        super(AffiliationCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'title',
+            'link',
+            'type',
+            'checked',
+            'notes',
+            Submit('submit', _('Save'))
+        )
+
+
+class AffiliationEditForm(forms.ModelForm):
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Approved'))
+
+    class Meta:
+        model = Affiliation
+        fields = ['checked', 'notes']
+
+    def __init__(self, *args, **kwargs):
+        super(AffiliationEditForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h3>%s: <a href=\"%s\">%s</a></h3>" % (
+                        dict(AFFILIATION_TYPES)[self.instance.type], self.instance.link, self.instance.title,)),
+                css_class=''
+            ),
+            'title',
+            'link',
+            'type',
+            'checked',
+            'notes',
+            Submit('submit', _('Save'))
         )
 
 
@@ -168,7 +264,7 @@ class MiniParadigmForm(forms.ModelForm):
                 Column('wordform', css_class='form-group col-md-7 mb-0'),
                 css_class='form-row'
             ),
-            Submit('submit', 'Save')
+            Submit('submit', _('Save'))
         )
 
 
@@ -190,5 +286,20 @@ class MiniParadigmCreateForm(forms.ModelForm):
                 Column('wordform', css_class='form-group col-md-7 mb-0'),
                 css_class='form-row'
             ),
-            Submit('submit', 'Save')
+            Submit('submit', _('Save'))
+        )
+
+
+class DangerBtn(Submit):
+    def __init__(self, *args, **kwargs):
+        self.field_classes = 'btn btn-danger'
+        super(Submit, self).__init__(*args, **kwargs)
+
+
+class DeleteFormBase(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(DeleteFormBase, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            DangerBtn('submit', _('Delete'))
         )

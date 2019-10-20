@@ -24,20 +24,24 @@ urlpatterns = [
     # adding stuff
     re_path(r'^lexeme/add$', views.LexemeCreateView.as_view(),
             name='lexeme-add'),
-    # re_path(r'^relation/add$', views.LexemeCreateView.as_view(),
-    #         name='relation-add'),
-    # re_path(r'^affiliation/add$', views.LexemeEditView.as_view(),
-    #         name='affiliation-add'),
-    # re_path(r'^source/add$', views.LexemeEditView.as_view(),
-    #         name='source-add'),
+    re_path(r'^affiliation/(?P<lexeme_id>\d+)/add$', views.AffiliationCreateView.as_view(),
+            name='affiliation-add'),
+    re_path(r'^source/(?P<lexeme_id>\d+)/(?P<relation_id>\d+)/add$', views.SourceCreateView.as_view(),
+            name='source-add'),
+    re_path(r'^relation/(?P<lexeme_id>\d+)/add$', views.RelationCreateView.as_view(),
+            name='relation-add'),
+
+    # editing
+    re_path(r'^affiliation/edit/(?P<pk>\d+)/$', views.AffiliationEditView.as_view(),
+            name='affiliation-edit'),
     #
-    # # deleting stuff
-    # re_path(r'^lexeme/delete', views.LexemeEditView.as_view(),
-    #         name='lexeme-delete'),
-    # re_path(r'^relation/delete', views.LexemeEditView.as_view(),
-    #         name='relation-delete'),
-    # re_path(r'^affiliation/delete', views.LexemeEditView.as_view(),
-    #         name='affiliation-delete'),
-    # re_path(r'^source/delete', views.LexemeEditView.as_view(),
-    #         name='source-delete'),
+    # deleting stuff
+    re_path(r'^lexeme/delete/(?P<pk>\d+)/', views.LexemeDeleteView.as_view(),
+            name='lexeme-delete'),
+    re_path(r'^relation/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.RelationDeleteView.as_view(),
+            name='relation-delete'),
+    re_path(r'^affiliation/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.AffiliationDeleteView.as_view(),
+            name='affiliation-delete'),
+    re_path(r'^source/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.SourceDeleteView.as_view(),
+            name='source-delete'),
 ]

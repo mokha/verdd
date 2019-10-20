@@ -51,7 +51,7 @@
             {% with object.get_relations as relations %}
                 {% if relations %}
                     <div id="relation-details">
-                        {% include "relation_data_list.html" with relations=relations %}
+                        {% include "relation_data_list.html" with relations=relations lexeme=object %}
                     </div>
                 {% endif %}
             {% endwith %}

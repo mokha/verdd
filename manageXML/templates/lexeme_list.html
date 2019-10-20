@@ -105,6 +105,7 @@
                         <li><a href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{% trans "view" %}</a></li>
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'lexeme-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
+                            <li><a href="{% url 'lexeme-delete' pk=obj.pk %}">{% trans "delete" %}</a></li>
                         {% endif %}
                     </ul>
                 </td>

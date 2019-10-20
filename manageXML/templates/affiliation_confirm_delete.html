@@ -1,0 +1,17 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    {% include 'lexeme_short_data.html' with object=object.lexeme %}
+    <h2>{% trans "Delete Affiliation" %}:</h2>
+    <p><b>{% trans "Title" %}:</b> {{ object.title }}</p>
+    <p><b>{% trans "Link" %}:</b> <a href="{{ object.link }}" target="_blank">{{ object.link }}</a></p>
+    <p><b>{% trans "Type" %}:</b> {% constant_text 'AFFILIATION_TYPES' object.type %}</p>
+    <p><b>{% trans "Approved" %}:</b> {% if object.checked %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</p>
+    <p><b>{% trans "Notes" %}:</b> {{ object.notes }}</p>
+
+    {% crispy form %}
+{% endblock %}

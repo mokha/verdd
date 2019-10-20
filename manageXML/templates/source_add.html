@@ -5,6 +5,7 @@
 {% load widget_tweaks %}
 
 {% block main_content %}
-    {% include 'relation_detail_content.html' with object=object %}
+    {% include 'relation_detail_content.html' with object=relation %}
+    <h2>{% trans "Add Source" %}:</h2>
     {% crispy form %}
 {% endblock %}

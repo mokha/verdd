@@ -191,6 +191,9 @@ class Affiliation(models.Model):
     checked = models.BooleanField(default=False)
     notes = models.CharField(max_length=250, blank=True)
 
+    def get_absolute_url(self):
+        return reverse('lexeme-detail', kwargs={'pk': self.lexeme.pk})
+
 
 class Examples(models.Model):
     class Meta:

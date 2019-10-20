@@ -1,0 +1,21 @@
+{% load i18n %}
+{% load custom_tags %}
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>{% trans "From" %}</th>
+        <th>{% trans "To" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            {% include 'lexeme_data.html' with object=object.lexeme_from %}
+        </td>
+        <td>
+            {% include 'lexeme_data.html' with object=object.lexeme_to %}
+        </td>
+    </tr>
+    </tbody>
+</table>

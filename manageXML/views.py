@@ -426,3 +426,123 @@ class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, 
     def form_valid(self, form):
         form.instance.lexeme = self.lexeme
         return super().form_valid(form)
+
+
+class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'relation_add.html'
+    model = Relation
+    form_class = RelationCreateForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_title(self):
+        return "%s %s" % (_("Add Relation from"), self.lexeme)
+
+    def form_valid(self, form):
+        return super(RelationCreateView, self).form_valid(form)
+
+
+class AffiliationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'affiliation_add.html'
+    model = Affiliation
+    form_class = AffiliationCreateForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Affiliation"), self.lexeme)
+
+    def form_valid(self, form):
+        form.instance.lexeme = self.lexeme
+        return super(AffiliationCreateView, self).form_valid(form)
+
+
+class AffiliationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'affiliation_edit.html'
+    model = Affiliation
+    form_class = AffiliationEditForm
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Affiliation"), self.object.title, self.object.lexeme)
+
+    def form_valid(self, form):
+        return super(AffiliationEditView, self).form_valid(form)
+
+
+class SourceCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'source_add.html'
+    model = Source
+    form_class = SourceCreateForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.relation = get_object_or_404(Relation, pk=kwargs['relation_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SourceCreateView, self).get_context_data(**kwargs)
+        context['relation'] = self.relation
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add source"), self.object,)
+
+    def form_valid(self, form):
+        form.instance.relation = self.relation
+        return super(SourceCreateView, self).form_valid(form)
+
+
+class DeleteFormMixin:
+    def get_context_data(self, **kwargs):
+        context = super(DeleteFormMixin, self).get_context_data(**kwargs)
+        context.update({
+            'form': DeleteFormBase(),
+        })
+        return context
+
+
+class LexemeDeleteFormMixin(DeleteFormMixin):
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return self.lexeme.get_absolute_url()
+
+
+class LexemeDeleteView(LoginRequiredMixin, TitleMixin, DeleteFormMixin, DeleteView):
+    template_name = 'lexeme_confirm_delete.html'
+    model = Lexeme
+
+    def get_success_url(self):
+        return reverse('index')
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete lexeme"), self.object,)
+
+
+class RelationDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixin, DeleteView):
+    template_name = 'relation_confirm_delete.html'
+    model = Relation
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Relation"), self.object,)
+
+
+class AffiliationDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixin, DeleteView):
+    template_name = 'affiliation_confirm_delete.html'
+    model = Affiliation
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Affiliation"), self.object,)
+
+
+class SourceDeleteView(LoginRequiredMixin, TitleMixin, LexemeDeleteFormMixin, DeleteView):
+    template_name = 'source_confirm_delete.html'
+    model = Source
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Source"), self.object,)

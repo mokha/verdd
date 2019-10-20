@@ -11,18 +11,6 @@
     <p><b>{% trans "Inflex Id" %}:</b> {{ object.inflexId }}</p>
     <p><b>{% trans "Inflex Type" %}:</b> {{ object.inflexType_str }}</p>
     <p><b>{% trans "Lemma ID" %}:</b> {{ object.lemmaId }}</p>
-    <div>
-        <b>{% trans "Affiliations" %}{% if user.is_authenticated %} (<a href="{% url 'affiliation-add' lexeme_id=object.pk %}">{% trans "add" %}</a>){% endif %}:</b>
-        {% with object.affiliation_set.all as affiliations %}
-            {% if affiliations %}
-                <ul>
-                    {% for affiliation in affiliations %}
-                        <li><a {% if affiliation.checked %}class="text-success"{% endif %}  href="{{ affiliation.link }}" target="_blank">{% constant_text 'AFFILIATION_TYPES' affiliation.type %}: {{ affiliation.title }}</a>{% if user.is_authenticated %} (<a href="{% url 'affiliation-edit' pk=affiliation.pk %}">{% trans "edit" %}</a>/<a href="{% url 'affiliation-delete' lexeme_id=object.pk pk=affiliation.pk %}">{% trans "delete" %}</a>){% endif %}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    </div>
     <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
     <p><b>{% trans "Notes" %}:</b> {{ object.notes|linebreaksbr }}</p>
 </div>

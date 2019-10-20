@@ -21,14 +21,14 @@
             <td>{{ object.type_str }}</td>
             <td>
                 {% with object.source_set.all as sources %}
-                    {% if sources %}
-                        <ul>
+                    <ul>
+                        {% if sources %}
                             {% for s in sources %}
-                                <li>{{ s }} (<a href="{% url 'source-detail' pk=s.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'source-edit' pk=s.pk %}">{% trans "edit" %}</a>{% endif %})
-                                </li>
+                                <li>{{ s }} (<a href="{% url 'source-detail' pk=s.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'source-edit' pk=s.pk %}">{% trans "edit" %}</a>/<a href="{% url 'source-delete' lexeme_id=lexeme.pk pk=s.pk %}">{% trans "delete" %}</a>{% endif %})</li>
                             {% endfor %}
-                        </ul>
-                    {% endif %}
+                        {% endif %}
+                        <li>{% if user.is_authenticated %}<a href="{% url 'source-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a>{% endif %}</li>
+                    </ul>
                 {% endwith %}
             </td>
             <td>{{ object.notes|linebreaksbr }}</td>
@@ -41,7 +41,9 @@
                         <li>
                             <a href="{% url 'relation-edit' pk=object.pk %}">{% trans "edit" %}</a>
                         </li>
-
+                        <li>
+                            <a href="{% url 'relation-delete' lexeme_id=lexeme.pk pk=object.pk %}">{% trans "delete" %}</a>
+                        </li>
                     {% endif %}
                 </ul>
             </td>

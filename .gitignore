@@ -304,4 +304,4 @@ Temporary Items
 .apdisk
 
 /local
-logs/
+logs/*

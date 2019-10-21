@@ -521,7 +521,7 @@ class DeleteFormMixin(LoginRequiredMixin, TitleMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         object = self.get_object()
-        logger.info("[DELETE] %s: %s by %s" % (object.__class__.__name__, object, self.request.user))
+        logger.info("[DELETE] %s: %s (%d) by %s" % (object.__class__.__name__, object, object.id, self.request.user))
         return super(DeleteFormMixin, self).delete(request, *args, **kwargs)
 
 

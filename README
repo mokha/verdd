@@ -27,3 +27,10 @@ When running the above commands in development, pass the following parameters to
 
 sudo ln -s FULLPATH/verdd/verdd.service /etc/systemd/system/
 sudo ln -s FULLPATH/verdd/verdd.ini /etc/uwsgi/apps-available/
+
+#### For daily backups
+``
+crontab -e
+
+# Run verdd backup every day at 2:00 am
+0 2 * * * /www/verdd/venv/bin/python3.5 /www/verdd/manage.py database_backup -d default -p /www/verdd_db_bk/ --settings verdd.settings.development

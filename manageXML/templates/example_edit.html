@@ -5,7 +5,7 @@
 {% load widget_tweaks %}
 
 {% block main_content %}
-    {% include 'lexeme_data.html' with object=lexeme %}
-    <h2>{% trans "Add Affiliation" %}:</h2>
+    {% include 'lexeme_short_data.html' with object=object.lexeme %}
+    <h2>{% trans "Edit Example" %}:</h2>
     {% crispy form %}
 {% endblock %}

@@ -13,6 +13,7 @@ class LexmeChoiceField(forms.ModelChoiceField):
 
 class LexemeForm(forms.ModelForm):
     lexeme = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Lexeme')}))
+    specification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Specification')}))
     pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
     contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
     type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
@@ -25,7 +26,7 @@ class LexemeForm(forms.ModelForm):
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked']
+        fields = ['lexeme', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked', 'specification']
 
     def __init__(self, *args, **kwargs):
         super(LexemeForm, self).__init__(*args, **kwargs)
@@ -48,8 +49,9 @@ class LexemeForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('inflexType', css_class='form-group col-md-6 mb-0'),
-                Column('lemmaId', css_class='form-group col-md-6 mb-0'),
+                Column('specification', css_class='form-group col-md-5 mb-0'),
+                Column('inflexType', css_class='form-group col-md-3 mb-0'),
+                Column('lemmaId', css_class='form-group col-md-4 mb-0'),
                 css_class='form-row'
             ),
             'notes',
@@ -69,7 +71,8 @@ class LexemeCreateForm(LexemeForm):
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'language', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked']
+        fields = ['lexeme', 'language', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked',
+                  'specification']
 
     def __init__(self, *args, **kwargs):
         super(LexemeForm, self).__init__(*args, **kwargs)
@@ -88,8 +91,9 @@ class LexemeCreateForm(LexemeForm):
                 css_class='form-row'
             ),
             Row(
-                Column('inflexType', css_class='form-group col-md-6 mb-0'),
-                Column('lemmaId', css_class='form-group col-md-6 mb-0'),
+                Column('specification', css_class='form-group col-md-5 mb-0'),
+                Column('inflexType', css_class='form-group col-md-3 mb-0'),
+                Column('lemmaId', css_class='form-group col-md-4 mb-0'),
                 css_class='form-row'
             ),
             'notes',
@@ -100,16 +104,18 @@ class LexemeCreateForm(LexemeForm):
 
 class RelationForm(forms.ModelForm):
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    specification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Specification')}))
     checked = forms.BooleanField(required=False, label=_('Processed'))
 
     class Meta:
         model = Relation
-        fields = ['notes', 'checked']
+        fields = ['notes', 'checked', 'specification']
 
     def __init__(self, *args, **kwargs):
         super(RelationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            'specification',
             'notes',
             'checked',
             Submit('submit', _('Save'))
@@ -118,16 +124,18 @@ class RelationForm(forms.ModelForm):
 
 class RelationCreateForm(forms.ModelForm):
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    specification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Specification')}))
     checked = forms.BooleanField(required=False, label=_('Processed'))
 
     class Meta:
         model = Relation
-        fields = ['notes', 'checked']
+        fields = ['notes', 'checked', 'specification']
 
     def __init__(self, *args, **kwargs):
         super(RelationCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            'specification',
             'notes',
             'checked',
             Submit('submit', _('Save'))
@@ -302,4 +310,44 @@ class DeleteFormBase(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             DangerBtn('submit', _('Delete'))
+        )
+
+
+class ExampleForm(forms.ModelForm):
+    text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+
+    class Meta:
+        model = Example
+        fields = ['text']
+
+    def __init__(self, *args, **kwargs):
+        super(ExampleForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+
+            Row(
+                Column('text', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Submit('submit', _('Save'))
+        )
+
+
+class RelationExampleForm(forms.ModelForm):
+    text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+
+    class Meta:
+        model = RelationExample
+        fields = ['text']
+
+    def __init__(self, *args, **kwargs):
+        super(RelationExampleForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+
+            Row(
+                Column('text', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Submit('submit', _('Save'))
         )

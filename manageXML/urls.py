@@ -26,6 +26,10 @@ urlpatterns = [
             name='lexeme-add'),
     re_path(r'^affiliation/(?P<lexeme_id>\d+)/add$', views.AffiliationCreateView.as_view(),
             name='affiliation-add'),
+    re_path(r'^example/(?P<lexeme_id>\d+)/add$', views.ExampleCreateView.as_view(),
+            name='example-add'),
+    re_path(r'^relation-example/(?P<lexeme_id>\d+)/(?P<relation_id>\d+)/add$', views.RelationExampleCreateView.as_view(),
+            name='relation-example-add'),
     re_path(r'^source/(?P<lexeme_id>\d+)/(?P<relation_id>\d+)/add$', views.SourceCreateView.as_view(),
             name='source-add'),
     re_path(r'^relation/(?P<lexeme_id>\d+)/add$', views.RelationCreateView.as_view(),
@@ -34,6 +38,10 @@ urlpatterns = [
     # editing
     re_path(r'^affiliation/edit/(?P<pk>\d+)/$', views.AffiliationEditView.as_view(),
             name='affiliation-edit'),
+    re_path(r'^example/edit/(?P<pk>\d+)/$', views.ExampleEditView.as_view(),
+            name='example-edit'),
+    re_path(r'^relation-example/(?P<lexeme_id>\d+)/edit/(?P<pk>\d+)/$', views.RelationExampleEditView.as_view(),
+            name='relation-example-edit'),
     #
     # deleting stuff
     re_path(r'^lexeme/delete/(?P<pk>\d+)/', views.LexemeDeleteView.as_view(),
@@ -42,6 +50,10 @@ urlpatterns = [
             name='relation-delete'),
     re_path(r'^affiliation/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.AffiliationDeleteView.as_view(),
             name='affiliation-delete'),
+    re_path(r'^example/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.ExampleDeleteView.as_view(),
+            name='example-delete'),
+    re_path(r'^relation-example/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.RelationExampleDeleteView.as_view(),
+            name='relation-example-delete'),
     re_path(r'^source/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.SourceDeleteView.as_view(),
             name='source-delete'),
 ]

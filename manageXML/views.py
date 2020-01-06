@@ -466,6 +466,11 @@ class AffiliationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(AffiliationCreateView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
+
     def get_title(self):
         return "%s: %s" % (_("Add Affiliation"), self.lexeme)
 
@@ -482,6 +487,11 @@ class AffiliationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
 
     def get_title(self):
         return "%s: %s (%s)" % (_("Edit Affiliation"), self.object.title, self.object.lexeme)
+
+    def get_context_data(self, **kwargs):
+        context = super(AffiliationEditView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.object.lexeme
+        return context
 
     def form_valid(self, form):
         form.instance.changed_by = self.request.user
@@ -530,6 +540,11 @@ class LexemeDeleteFormMixin(DeleteFormMixin):
         self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(LexemeDeleteFormMixin, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
+
     def get_success_url(self):
         return self.lexeme.get_absolute_url()
 
@@ -567,3 +582,110 @@ class SourceDeleteView(LexemeDeleteFormMixin):
 
     def get_title(self):
         return "%s: %s" % (_("Delete Source"), self.object,)
+
+
+class ExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'example_add.html'
+    model = Example
+    form_class = ExampleForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ExampleCreateView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Example"), self.lexeme)
+
+    def form_valid(self, form):
+        form.instance.lexeme = self.lexeme
+        form.instance.changed_by = self.request.user
+        return super(ExampleCreateView, self).form_valid(form)
+
+
+class ExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'example_edit.html'
+    model = Example
+    form_class = ExampleForm
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Example"), self.object.text, self.object.lexeme)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(ExampleEditView, self).form_valid(form)
+
+
+class ExampleDeleteView(LexemeDeleteFormMixin):
+    template_name = 'example_confirm_delete.html'
+    model = Example
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Example"), self.object,)
+
+
+class RelationExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'relation_example_add.html'
+    model = RelationExample
+    form_class = RelationExampleForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.relation = get_object_or_404(Relation, pk=kwargs['relation_id'])
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationExampleCreateView, self).get_context_data(**kwargs)
+        context['relation'] = self.relation
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Example"), self.relation)
+
+    def form_valid(self, form):
+        form.instance.relation = self.relation
+        form.instance.changed_by = self.request.user
+        return super(RelationExampleCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return self.lexeme.get_absolute_url()
+
+
+class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'relation_example_edit.html'
+    model = RelationExample
+    form_class = RelationExampleForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationExampleEditView, self).get_context_data(**kwargs)
+        context['relation'] = self.object.relation
+        return context
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Example"), self.object.text, self.object.relation)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(RelationExampleEditView, self).form_valid(form)
+
+    def get_success_url(self):
+        return self.lexeme.get_absolute_url()
+
+
+class RelationExampleDeleteView(LexemeDeleteFormMixin):
+    template_name = 'relation_example_confirm_delete.html'
+    model = RelationExample
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Example"), self.object,)
+
+    def get_success_url(self):
+        return self.lexeme.get_absolute_url()

@@ -43,6 +43,7 @@ class Lexeme(models.Model):
     inflexType = models.IntegerField(choices=INFLEX_TYPE_OPTIONS,
                                      blank=True, null=True, default=None)
     checked = models.BooleanField(default=False)
+    specification = models.CharField(max_length=250, blank=True)
 
     deleted = models.BooleanField(default=False)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='lexemes')
@@ -140,6 +141,8 @@ class Relation(models.Model):
     type = models.IntegerField(choices=RELATION_TYPE_OPTIONS,
                                default=0)
     notes = models.CharField(max_length=250, blank=True)
+    specification = models.CharField(max_length=250, blank=True)
+
     checked = models.BooleanField(default=False)
     added_date = models.DateTimeField('date published', auto_now_add=True)
     deleted = models.BooleanField(default=False)
@@ -243,7 +246,7 @@ class Affiliation(models.Model):
         self.changed_by = value
 
 
-class Examples(models.Model):
+class Example(models.Model):
     class Meta:
         unique_together = ('lexeme', 'text')
 
@@ -251,6 +254,38 @@ class Examples(models.Model):
     text = models.CharField(max_length=250)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='examples')
     history = HistoricalRecords()
+
+    def __str__(self):
+        return self.text
+
+    def get_absolute_url(self):
+        return reverse('lexeme-detail', kwargs={'pk': self.lexeme.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
+
+class RelationExample(models.Model):
+    class Meta:
+        unique_together = ('relation', 'text')
+
+    relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
+    text = models.CharField(max_length=250)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='relation_examples')
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.text
+
+    def get_absolute_url(self):
+        return reverse('relation-detail',
+                       kwargs={'pk': self.relation.pk})
 
     @property
     def _history_user(self):

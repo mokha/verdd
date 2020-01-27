@@ -28,7 +28,8 @@ urlpatterns = [
             name='affiliation-add'),
     re_path(r'^example/(?P<lexeme_id>\d+)/add$', views.ExampleCreateView.as_view(),
             name='example-add'),
-    re_path(r'^relation-example/(?P<lexeme_id>\d+)/(?P<relation_id>\d+)/add$', views.RelationExampleCreateView.as_view(),
+    re_path(r'^relation-example/(?P<lexeme_id>\d+)/(?P<relation_id>\d+)/add$',
+            views.RelationExampleCreateView.as_view(),
             name='relation-example-add'),
     re_path(r'^source/(?P<lexeme_id>\d+)/(?P<relation_id>\d+)/add$', views.SourceCreateView.as_view(),
             name='source-add'),
@@ -56,4 +57,8 @@ urlpatterns = [
             name='relation-example-delete'),
     re_path(r'^source/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.SourceDeleteView.as_view(),
             name='source-delete'),
+
+    # searching
+    re_path(r'^lexeme/search$', views.LexemeSearchView.as_view(),
+            name='lexeme-search'),
 ]

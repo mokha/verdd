@@ -1,0 +1,35 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block main_content %}
+    <h2>{% trans "Add Relation" %}:</h2>
+    {% crispy form %}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.0/dist/latest/bootstrap-autocomplete.min.js"></script>
+    <script>
+        $('.lexeme-autocomplete').autoComplete(
+            {
+                minLength: 2,
+                resolverSettings: {
+                    url: '{% url 'lexeme-search' %}'
+                },
+                formatResult: function (item) {
+                    return {value: item.id, text: item.lexeme};
+                },
+                events: {
+                    searchPost: function (resultFromServer) {
+                        return resultFromServer;
+                    }
+                }
+            }
+        );
+        $('.dropdown-menu').css({'top': 'auto', 'left': 'auto'})
+    </script>
+{% endblock %}

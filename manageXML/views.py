@@ -12,6 +12,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext as _
+from django.db.models import Q
+from rest_framework import generics, response
+from .serializers import *
 import string
 from .forms import *
 from django.shortcuts import get_object_or_404
@@ -447,10 +450,26 @@ class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
-        return super().dispatch(request, *args, **kwargs)
+        return super(RelationCreateView, self).dispatch(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        form = super(RelationCreateView, self).get_form(form_class)
+
+        lexeme_from = get_object_or_404(Lexeme, pk=self.kwargs['lexeme_id'])
+        form.instance.lexeme_from = lexeme_from
+
+        if form.is_valid():
+            data = form.cleaned_data
+            form.instance.lexeme_to = Lexeme.objects.get(pk=data.get('lexeme_to'))
+        return form
 
     def get_title(self):
         return "%s %s" % (_("Add Relation from"), self.lexeme)
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationCreateView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
 
     def form_valid(self, form):
         form.instance.changed_by = self.request.user
@@ -689,3 +708,16 @@ class RelationExampleDeleteView(LexemeDeleteFormMixin):
 
     def get_success_url(self):
         return self.lexeme.get_absolute_url()
+
+
+class LexemeSearchView(generics.ListAPIView):
+    serializer_class = LexemeSerializer
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q', None)
+        if query is not None and query:
+            filter_Q = Q(lexeme__icontains=query)
+            if query.isdigit() and int(query) > 0:
+                filter_Q |= Q(id=query)
+            return Lexeme.objects.filter(filter_Q)
+        return Lexeme.objects.none()

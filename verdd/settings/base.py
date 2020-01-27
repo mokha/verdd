@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',  # for allauth
 
+    'rest_framework',
     'crispy_forms',
     'users',
     'manageXML',
@@ -216,4 +217,10 @@ LOGGING = {
             'handlers': ['verdd.manageXML'],
         }
     },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
 }

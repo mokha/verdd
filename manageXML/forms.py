@@ -130,7 +130,7 @@ class RelationCreateForm(forms.ModelForm):
 
     class Meta:
         model = Relation
-        fields = ['lexeme_to', 'type', 'notes', 'checked', 'specification']
+        fields = ['type', 'notes', 'checked', 'specification']
 
     def __init__(self, *args, **kwargs):
         type = forms.ChoiceField(required=True, choices=RELATION_TYPE_OPTIONS, label=_('Type'))

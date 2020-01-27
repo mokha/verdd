@@ -822,3 +822,8 @@ LANGUAGE_TYPES = (
     ('fin', _('Finnish')),
     ('sms', _('Skolt Sammi'))
 )
+
+SPECIFICATION = 1
+RELATION_METADATA_TYPES = (
+    (SPECIFICATION, _('Specification')),
+)

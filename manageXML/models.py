@@ -141,7 +141,6 @@ class Relation(models.Model):
     type = models.IntegerField(choices=RELATION_TYPE_OPTIONS,
                                default=0)
     notes = models.CharField(max_length=250, blank=True)
-    specification = models.CharField(max_length=250, blank=True)
 
     checked = models.BooleanField(default=False)
     added_date = models.DateTimeField('date published', auto_now_add=True)
@@ -270,18 +269,48 @@ class Example(models.Model):
         self.changed_by = value
 
 
-class RelationExample(models.Model):
+class RelationMetadata(models.Model):
     class Meta:
-        unique_together = ('relation', 'text')
+        unique_together = ('relation', 'language', 'type', 'text')
 
     relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
+    language = models.CharField(max_length=3)
+    type = models.IntegerField(choices=RELATION_METADATA_TYPES,
+                               blank=True, null=True, default=None)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='relation_metadata')
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"({self.language}) {self.text}"
+
+    def get_absolute_url(self):
+        return reverse('relation-detail',
+                       kwargs={'pk': self.relation.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
+
+class RelationExample(models.Model):
+    class Meta:
+        unique_together = ('relation', 'language', 'text')
+
+    relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
+    text = models.CharField(max_length=250)
+    language = models.CharField(max_length=3)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
                                    related_name='relation_examples')
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.text
+        return f"({self.language}) {self.text}"
 
     def get_absolute_url(self):
         return reverse('relation-detail',

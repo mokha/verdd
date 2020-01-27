@@ -657,6 +657,11 @@ class RelationExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
         return super().dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(RelationExampleCreateView, self).get_form_kwargs()
+        kwargs['relation'] = self.relation
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super(RelationExampleCreateView, self).get_context_data(**kwargs)
         context['relation'] = self.relation
@@ -682,6 +687,11 @@ class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
         return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(RelationExampleEditView, self).get_form_kwargs()
+        kwargs['relation'] = self.object.relation
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(RelationExampleEditView, self).get_context_data(**kwargs)

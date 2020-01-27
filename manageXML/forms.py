@@ -124,7 +124,7 @@ class RelationForm(forms.ModelForm):
 
 class RelationCreateForm(forms.ModelForm):
     lexeme_to = forms.CharField(required=True, label=_('To'),
-                                       widget=forms.Select(attrs={'class': 'lexeme-autocomplete', }))
+                                widget=forms.Select(attrs={'class': 'lexeme-autocomplete', }))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
     specification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Specification')}))
 
@@ -347,15 +347,22 @@ class RelationExampleForm(forms.ModelForm):
 
     class Meta:
         model = RelationExample
-        fields = ['text']
+        fields = ['text', 'language']
 
     def __init__(self, *args, **kwargs):
+        relation = kwargs.pop('relation')
         super(RelationExampleForm, self).__init__(*args, **kwargs)
+        self.fields['language'] = forms.ChoiceField(
+            label='',
+            choices=((relation.lexeme_to.language, relation.lexeme_to.language), # show to language first
+                     (relation.lexeme_from.language, relation.lexeme_from.language),)
+        )
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
-
             Row(
-                Column('text', css_class='form-group col-md-12 mb-0'),
+                Column('language', css_class='form-group col-md-2'),
+                Column('text', css_class='form-group col-md-10'),
                 css_class='form-row'
             ),
             Submit('submit', _('Save'))

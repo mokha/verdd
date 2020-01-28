@@ -684,6 +684,38 @@ class RelationExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return self.lexeme.get_absolute_url()
 
 
+class RelationMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'relation_metadata_add.html'
+    model = RelationMetadata
+    form_class = RelationMetadataForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.relation = get_object_or_404(Relation, pk=kwargs['relation_id'])
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(RelationMetadataCreateView, self).get_form_kwargs()
+        kwargs['relation'] = self.relation
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationMetadataCreateView, self).get_context_data(**kwargs)
+        context['relation'] = self.relation
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Data"), self.relation)
+
+    def form_valid(self, form):
+        form.instance.relation = self.relation
+        form.instance.changed_by = self.request.user
+        return super(RelationMetadataCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return self.lexeme.get_absolute_url()
+
+
 class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     template_name = 'relation_example_edit.html'
     model = RelationExample
@@ -714,12 +746,53 @@ class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return self.lexeme.get_absolute_url()
 
 
+class RelationMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'relation_metadata_edit.html'
+    model = RelationMetadata
+    form_class = RelationMetadataForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(RelationMetadataEditView, self).get_form_kwargs()
+        kwargs['relation'] = self.object.relation
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationMetadataEditView, self).get_context_data(**kwargs)
+        context['relation'] = self.object.relation
+        return context
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Data"), self.object.text, self.object.relation)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(RelationMetadataEditView, self).form_valid(form)
+
+    def get_success_url(self):
+        return self.lexeme.get_absolute_url()
+
+
 class RelationExampleDeleteView(LexemeDeleteFormMixin):
     template_name = 'relation_example_confirm_delete.html'
     model = RelationExample
 
     def get_title(self):
         return "%s: %s" % (_("Delete Example"), self.object,)
+
+    def get_success_url(self):
+        return self.lexeme.get_absolute_url()
+
+
+class RelationMetadataDeleteView(LexemeDeleteFormMixin):
+    template_name = 'relation_metadata_confirm_delete.html'
+    model = RelationMetadata
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Data"), self.object,)
 
     def get_success_url(self):
         return self.lexeme.get_absolute_url()

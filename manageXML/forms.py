@@ -371,6 +371,35 @@ class RelationExampleForm(forms.ModelForm):
         )
 
 
+class RelationMetadataForm(forms.ModelForm):
+    text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Text')}))
+
+    class Meta:
+        model = RelationMetadata
+        fields = ['type', 'text', 'language']
+
+    def __init__(self, *args, **kwargs):
+        relation = kwargs.pop('relation')
+        super(RelationMetadataForm, self).__init__(*args, **kwargs)
+        self.fields['language'] = forms.ChoiceField(
+            label='',
+            choices=((relation.lexeme_to.language, relation.lexeme_to.language),  # show to language first
+                     (relation.lexeme_from.language, relation.lexeme_from.language),)
+        )
+        self.fields['type'] = forms.ChoiceField(choices=RELATION_METADATA_TYPES, required=True, label='')
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('language', css_class='form-group col-md-2'),
+                Column('type', css_class='form-group col-md-2'),
+                Column('text', css_class='form-group col-md-8'),
+                css_class='form-row'
+            ),
+            Submit('submit', _('Save'))
+        )
+
+
 class HistoryForm(forms.Form):
     start_date = forms.DateField(input_formats=['%d/%m/%Y'],
                                  widget=forms.DateInput(attrs={

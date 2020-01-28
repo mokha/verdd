@@ -1,0 +1,12 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    {% include 'relation_detail_content.html' with object=object.relation %}
+    <h2>{% trans "Delete Metadata" %}:</h2>
+    <p><b>{% trans "Metadata" %}:</b> {{ object.text }}</p>
+    {% crispy form %}
+{% endblock %}

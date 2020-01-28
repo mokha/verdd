@@ -4,6 +4,8 @@ from django.utils.translation import gettext as _
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML, Button
 from .constants import *
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 
 class LexmeChoiceField(forms.ModelChoiceField):
@@ -354,7 +356,7 @@ class RelationExampleForm(forms.ModelForm):
         super(RelationExampleForm, self).__init__(*args, **kwargs)
         self.fields['language'] = forms.ChoiceField(
             label='',
-            choices=((relation.lexeme_to.language, relation.lexeme_to.language), # show to language first
+            choices=((relation.lexeme_to.language, relation.lexeme_to.language),  # show to language first
                      (relation.lexeme_from.language, relation.lexeme_from.language),)
         )
 
@@ -366,4 +368,37 @@ class RelationExampleForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Submit('submit', _('Save'))
+        )
+
+
+class HistoryForm(forms.Form):
+    start_date = forms.DateField(input_formats=['%d/%m/%Y'],
+                                 widget=forms.DateInput(attrs={
+                                     'class': 'form-control datepicker',
+                                     'data-date-format': "dd/mm/yyyy",
+                                     'value': (timezone.now().date() - timedelta(days=7)).strftime("%d/%m/%Y")
+                                 }))
+    end_date = forms.DateField(input_formats=['%d/%m/%Y'],
+                               widget=forms.DateInput(attrs={
+                                   'class': 'form-control datepicker',
+                                   'data-date-format': "dd/mm/yyyy",
+                                   'value': timezone.now().date().strftime("%d/%m/%Y")
+                               }))
+    model_class = forms.ChoiceField(choices=(
+        ('lexeme', _('Lexeme')),
+        ('relation', _('Relation')),
+    ), required=True, label=_('Model'))
+
+    def __init__(self, *args, **kwargs):
+        super(HistoryForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+
+            Row(
+                Column('start_date', css_class='form-group col-md-6 mb-0'),
+                Column('end_date', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Submit('submit', _('Search'))
         )

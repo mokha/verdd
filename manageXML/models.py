@@ -52,6 +52,9 @@ class Lexeme(models.Model):
     def __str__(self):
         return self.lexeme
 
+    def full_str(self):
+        return f"{self.lexeme} ({self.pos})"
+
     def slug(self):
         return slugify(self.lexeme) if self.lexeme.strip() else 'NA'
 
@@ -150,6 +153,9 @@ class Relation(models.Model):
 
     def __str__(self):
         return "%s - %s" % (self.lexeme_from.lexeme, self.lexeme_to.lexeme)
+
+    def full_str(self):
+        return f"{self.lexeme_from.full_str()}  - {self.lexeme_to.full_str()}"
 
     def type_str(self):
         return RELATION_TYPE_OPTIONS_DICT[self.type] if self.type in RELATION_TYPE_OPTIONS_DICT else ''

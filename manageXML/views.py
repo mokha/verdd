@@ -4,13 +4,13 @@ from django.template.loader import render_to_string
 from django.template.loader import get_template
 import datetime
 from django_filters import DateFromToRangeFilter, DateFilter, CharFilter, NumberFilter, ModelChoiceFilter, ChoiceFilter, \
-    OrderingFilter, LookupChoiceFilter
+    OrderingFilter, LookupChoiceFilter, DateRangeFilter
 from django_filters.widgets import RangeWidget
 import django_filters
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import CreateView, DeleteView, UpdateView, ModelFormMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.utils.translation import gettext as _
 from django.db.models import Q
 from rest_framework import generics, response
@@ -27,6 +27,11 @@ import logging
 
 logger = logging.getLogger('verdd.manageXML')  # Get an instance of a logger
 _inflector = Inflector()
+
+
+class AdminStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user.is_staff
 
 
 class TitleMixin:
@@ -731,3 +736,38 @@ class LexemeSearchView(generics.ListAPIView):
                 filter_Q |= Q(id=query)
             return Lexeme.objects.filter(filter_Q)
         return Lexeme.objects.none()
+
+
+class HistorySearchView(TitleMixin, ListView, AdminStaffRequiredMixin):
+    template_name = 'history_list.html'
+    form_class = HistoryForm
+    title = _("Lexeme History Search")
+    model = HistoricalRecords
+    query_model = Lexeme
+    paginate_by = 50
+
+    query_model_options = {
+        'lexeme': Lexeme,
+        'relation': Relation,
+    }
+
+    def get_context_data(self, *args, **kwargs):
+        # Just include the form
+        context = super(HistorySearchView, self).get_context_data(*args, **kwargs)
+        context['form'] = self.form_class(self.request.GET)
+        return context
+
+    def get_queryset(self):
+        object_list = self.query_model.history.none()
+        if self.request.GET:
+            form = self.form_class(self.request.GET)
+            if form.is_valid():
+                self.query_model = self.query_model_options[form.cleaned_data['model_class']]
+
+                start_date = form.cleaned_data['start_date']
+                end_date = form.cleaned_data['end_date']
+
+                object_list = self.query_model.history \
+                    .filter(Q(history_date__gte=start_date) & Q(history_date__lte=end_date)) \
+                    .order_by("-history_date")
+        return object_list

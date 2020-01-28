@@ -61,4 +61,8 @@ urlpatterns = [
     # searching
     re_path(r'^lexeme/search$', views.LexemeSearchView.as_view(),
             name='lexeme-search'),
+
+    # history search
+    re_path(r'^history/search$', views.HistorySearchView.as_view(), name='history_search'),
+
 ]

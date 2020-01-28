@@ -1,0 +1,104 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load history_tags %}
+{% load widget_tweaks_extras %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    <form method="get">
+        <div class="well">
+            <h4 style="margin-top: 0">{% trans "Filter" %}</h4>
+            <div class="row">
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ form.start_date.label_tag }}
+                    {% render_field form.start_date %}
+                </div>
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ form.end_date.label_tag }}
+                    {% render_field form.end_date %}
+                </div>
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ form.model_class.label_tag }}
+                    {% render_field form.model_class class="form-control" %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
+            </button>
+        </div>
+    </form>
+
+    <br/>
+    {% if object_list %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>{% trans "History ID" %}</th>
+                <th>{% trans "Instance" %}</th>
+                <th>{% trans "Changes" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in object_list %}
+                <tr>
+                    <td>{{ obj.id }}</td>
+                    <td>{{ obj.instance.full_str }}</td>
+                    <td>
+                        <p>{{ obj.history_type }}</p>
+                        <ul>
+                            {% history_diff obj as changes %}
+                            {% for change in changes %}
+                                <li>{% blocktrans with field=change.field old=change.old new=change.new %}
+                                    <b>{{ field }}</b> changed from "<i>{{ old }}</i>" to "<i>{{ new }}</i>
+                                    "{% endblocktrans %}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><a href="{{ obj.instance.get_absolute_url }}">{% trans "view current" %}</a></li>
+                        </ul>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            {% if page_obj.has_previous %}
+                <a href="?{% param_replace page=1 %}">{% trans "First" %}</a>
+                {% if page_obj.previous_page_number != 1 %}
+                    <a href="?{% param_replace page=page_obj.previous_page_number %}">{% trans "Previous" %}</a>
+                {% endif %}
+            {% endif %}
+
+            {% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ paginator.num_pages }}
+
+            {% if page_obj.has_next %}
+                {% if page_obj.next_page_number != paginator.num_pages %}
+                    <a href="?{% param_replace page=page_obj.next_page_number %}">{% trans "Next" %}</a>
+                {% endif %}
+                <a href="?{% param_replace page=paginator.num_pages %}">{% trans "Last" %}</a>
+            {% endif %}
+            <p></p>
+        {% endif %}
+        <p><b>{% trans "Total" %}:</b> {{ page_obj.paginator.count }} {% if is_paginated %}({% trans "Showing" %}:
+            {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %}</p>
+    {% endif %}
+{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
+          integrity="sha256-siyOpF/pBWUPgIcQi17TLBkjvNgNQArcmwJB8YvkAgg=" crossorigin="anonymous"/>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha256-bqVeqGdJ7h/lYPq6xrPv/YGzMEb6dNxlfiTUHSgRCp8=" crossorigin="anonymous"></script>
+    <script>
+        $('.datepicker').datepicker();
+    </script>
+{% endblock %}

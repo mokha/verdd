@@ -53,7 +53,7 @@ class Lexeme(models.Model):
         return self.lexeme
 
     def full_str(self):
-        return f"{self.lexeme} ({self.pos})"
+        return "{} ({})".format(self.lexeme, self.pos)
 
     def slug(self):
         return slugify(self.lexeme) if self.lexeme.strip() else 'NA'
@@ -155,7 +155,7 @@ class Relation(models.Model):
         return "%s - %s" % (self.lexeme_from.lexeme, self.lexeme_to.lexeme)
 
     def full_str(self):
-        return f"{self.lexeme_from.full_str()}  - {self.lexeme_to.full_str()}"
+        return "{}  - {}".format(self.lexeme_from.full_str(), self.lexeme_to.full_str())
 
     def type_str(self):
         return RELATION_TYPE_OPTIONS_DICT[self.type] if self.type in RELATION_TYPE_OPTIONS_DICT else ''
@@ -289,7 +289,7 @@ class RelationMetadata(models.Model):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"({self.language}) {self.text}"
+        return "({}) {}".format(self.language, self.text)
 
     def get_absolute_url(self):
         return reverse('relation-detail',
@@ -316,7 +316,7 @@ class RelationExample(models.Model):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"({self.language}) {self.text}"
+        return "({}) {}".format(self.language, self.text)
 
     def get_absolute_url(self):
         return reverse('relation-detail',

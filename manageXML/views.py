@@ -446,7 +446,7 @@ class MiniParadigmCreateView(LoginRequiredMixin, MiniParadigmMixin, TitleMixin, 
     def form_valid(self, form):
         form.instance.lexeme = self.lexeme
         form.instance.changed_by = self.request.user
-        return super(MiniParadigmCreateView).form_valid(form)
+        return super(MiniParadigmCreateView, self).form_valid(form)
 
 
 class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
@@ -815,7 +815,7 @@ class LexemeSearchView(generics.ListAPIView):
 class HistorySearchView(TitleMixin, ListView, AdminStaffRequiredMixin):
     template_name = 'history_list.html'
     form_class = HistoryForm
-    title = _("Lexeme History Search")
+    title = _("History Search")
     model = HistoricalRecords
     query_model = Lexeme
     paginate_by = 50
@@ -823,6 +823,7 @@ class HistorySearchView(TitleMixin, ListView, AdminStaffRequiredMixin):
     query_model_options = {
         'lexeme': Lexeme,
         'relation': Relation,
+        'miniparadigm': MiniParadigm
     }
 
     def get_context_data(self, *args, **kwargs):
@@ -881,7 +882,8 @@ class LexemeApprovalView(LoginRequiredMixin, FormMixin, FilteredListView):
         if form.is_valid():
             approved_items = form.cleaned_data['choices']
             for _i in self.object_list:
-                if (not _i.checked and _i not in approved_items) or (_i.checked and _i in approved_items): # nothing changed
+                if (not _i.checked and _i not in approved_items) or (
+                        _i.checked and _i in approved_items):  # nothing changed
                     continue
 
                 _i.checked = not _i.checked

@@ -212,6 +212,9 @@ class MiniParadigm(models.Model):
     def __str__(self):
         return "%s: %s" % (self.msd, self.wordform)
 
+    def full_str(self):
+        return "%s - %s: %s" % (self.lexeme.full_str(), self.msd, self.wordform)
+
     def get_absolute_url(self):
         return reverse('lexeme-detail',
                        kwargs={'pk': self.lexeme.pk})

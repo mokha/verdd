@@ -412,6 +412,7 @@ class HistoryForm(forms.Form):
     model_class = forms.ChoiceField(choices=(
         ('lexeme', _('Lexeme')),
         ('relation', _('Relation')),
+        ('miniparadigm', _('Mini Paradigm'))
     ), required=True, label=_('Model'))
 
     def __init__(self, *args, **kwargs):

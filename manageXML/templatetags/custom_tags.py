@@ -38,11 +38,13 @@ def param_replace(context, **kwargs):
 def mediawiki_link(title):
     return "%s%s" % (settings.WIKI_URL, title)
 
+
 @register.simple_tag
 def constant_text(constant_name, index):
     from manageXML import constants
     constant = dict(getattr(constants, constant_name))
     return constant[index]
+
 
 numeric_test = re.compile("^\d+$")
 
@@ -69,3 +71,8 @@ def query_transform(request, **kwargs):
             updated.pop(k, 0)  # Remove or return 0 - aka, delete safely this key
 
     return updated.urlencode()
+
+
+@register.simple_tag(name='zip')
+def zip_lists(a, b):
+    return zip(a, b)

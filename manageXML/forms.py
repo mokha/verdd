@@ -431,3 +431,15 @@ class HistoryForm(forms.Form):
             ),
             Submit('submit', _('Search'))
         )
+
+
+class ApprovalMultipleChoiceForm(forms.Form):
+    choices = forms.ModelMultipleChoiceField(queryset=None, label='',
+                                             widget=forms.CheckboxSelectMultiple(attrs={}))
+
+    def __init__(self, *args, **kwargs):
+        queryset = kwargs.pop('queryset')
+        super().__init__(*args, **kwargs)
+        self.fields['choices'].queryset = queryset
+        self.initial['choices'] = [_i for _i in queryset if _i.checked]
+

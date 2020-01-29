@@ -71,6 +71,8 @@ urlpatterns = [
             name='lexeme-search'),
 
     # history search
-    re_path(r'^history/search$', views.HistorySearchView.as_view(), name='history_search'),
+    re_path(r'^history/search$', views.HistorySearchView.as_view(), name='history-search'),
 
+    # approving lexemes/relations
+    re_path(r'^lexeme/approval', views.LexemeApprovalView.as_view(), name='lexeme-approval'),
 ]

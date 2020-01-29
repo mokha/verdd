@@ -1,0 +1,137 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load widget_tweaks_extras %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    <form method="get">
+        <div class="well">
+            <h4 style="margin-top: 0">{% trans "Filter" %}</h4>
+            <div class="row">
+                <div class="form-group col-sm-12 col-md-12">
+                    {{ filterset.form.lexeme.label_tag }}
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8">
+                            {% render_lookup_choice_field filterset.form.lexeme 0 class="form-control" %}
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            {% render_lookup_choice_field filterset.form.lexeme 1 class="form-control" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ filterset.form.language.label_tag }}
+                    {% render_field filterset.form.language class="form-control" %}
+                </div>
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ filterset.form.pos.label_tag }}
+                    {% render_field filterset.form.pos class="form-control" %}
+                </div>
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ filterset.form.inflexType.label_tag }}
+                    {% render_field filterset.form.inflexType class="form-control" %}
+                </div>
+                <div class="form-group col-sm-6 col-md-6">
+                    {{ filterset.form.source.label_tag }}
+                    {% render_field filterset.form.source class="form-control" %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ filterset.form.range_from.label_tag }}
+                    {% render_field filterset.form.range_from class="form-control" %}
+                </div>
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ filterset.form.range_to.label_tag }}
+                    {% render_field filterset.form.range_to class="form-control" %}
+                </div>
+                <div class="form-group col-sm-2 col-md-2">
+                    {{ filterset.form.checked.label_tag }}
+                    {% render_field filterset.form.checked class="form-control" %}
+                </div>
+                <div class="form-group col-sm-3 col-md-3">
+                    {{ filterset.form.contlex.label_tag }}
+                    {% render_field filterset.form.contlex class="form-control" %}
+                </div>
+                <div class="form-group col-sm-3 col-md-3">
+                    {{ filterset.form.order_by.label_tag }}
+                    {% render_field filterset.form.order_by class="form-control" %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
+            </button>
+        </div>
+    </form>
+
+    <br/>
+    <form action="{% url 'lexeme-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}" method="post">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>{% trans "ID" %}</th>
+                <th>{% trans "Lexeme" %}</th>
+                <th>{% trans "POS" %}</th>
+                <th>{% trans "Contlex" %}</th>
+                <th>{% trans "Inflex Type" %}</th>
+                <th>{% trans "Language" %}</th>
+                {% if order_by %}
+                    <th>{% trans "Ordered By" %}</th>
+                {% endif %}
+                <th>{% trans "Notes" %}</th>
+                <th>{% trans "Approve" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% zip object_list form.choices as obj_form %}
+            {% for obj, choice_field in obj_form %}
+                <tr {% if obj.checked %}class="table-success"{% endif %}>
+                    <td>{{ obj.id }}</td>
+                    <td>{{ choice_field.choice_label }}</td>
+                    <td>{{ obj.pos }}</td>
+                    <td>{{ obj.contlex }}</td>
+                    <td>{{ obj.inflexType_str }}</td>
+                    <td>{{ obj.language }}</td>
+                    {% if order_by %}
+                        <td>{{ obj|getattr:order_by }}</td>
+                    {% endif %}
+                    <td>{{ obj.notes|linebreaksbr }}</td>
+                    <td>
+                        {% render_field choice_field.tag %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary float-right">
+            <span class="glyphicon glyphicon-search"></span> {% trans "Approve" %}
+        </button>
+    </form>
+
+    <br/>
+
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a href="?{% param_replace page=1 %}">{% trans "First" %}</a>
+            {% if page_obj.previous_page_number != 1 %}
+                <a href="?{% param_replace page=page_obj.previous_page_number %}">{% trans "Previous" %}</a>
+            {% endif %}
+        {% endif %}
+
+        {% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ paginator.num_pages }}
+
+        {% if page_obj.has_next %}
+            {% if page_obj.next_page_number != paginator.num_pages %}
+                <a href="?{% param_replace page=page_obj.next_page_number %}">{% trans "Next" %}</a>
+            {% endif %}
+            <a href="?{% param_replace page=paginator.num_pages %}">{% trans "Last" %}</a>
+        {% endif %}
+        <p></p>
+    {% endif %}
+    <p><b>{% trans "Total" %}:</b> {{ page_obj.paginator.count }} {% if is_paginated %}({% trans "Showing" %}:
+        {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %}</p>
+{% endblock %}

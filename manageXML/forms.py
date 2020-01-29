@@ -106,18 +106,16 @@ class LexemeCreateForm(LexemeForm):
 
 class RelationForm(forms.ModelForm):
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
-    specification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Specification')}))
     checked = forms.BooleanField(required=False, label=_('Processed'))
 
     class Meta:
         model = Relation
-        fields = ['notes', 'checked', 'specification']
+        fields = ['notes', 'checked']
 
     def __init__(self, *args, **kwargs):
         super(RelationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            'specification',
             'notes',
             'checked',
             Submit('submit', _('Save'))
@@ -128,11 +126,10 @@ class RelationCreateForm(forms.ModelForm):
     lexeme_to = forms.CharField(required=True, label=_('To'),
                                 widget=forms.Select(attrs={'class': 'lexeme-autocomplete', }))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
-    specification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Specification')}))
 
     class Meta:
         model = Relation
-        fields = ['type', 'notes', 'checked', 'specification']
+        fields = ['type', 'notes', 'checked',]
 
     def __init__(self, *args, **kwargs):
         type = forms.ChoiceField(required=True, choices=RELATION_TYPE_OPTIONS, label=_('Type'))
@@ -147,7 +144,6 @@ class RelationCreateForm(forms.ModelForm):
             ),
             'lexeme_to',
             'type',
-            'specification',
             'notes',
             Submit('submit', _('Save'))
         )

@@ -64,6 +64,8 @@
             <button type="submit" class="btn btn-primary">
                 <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
             </button>
+            <a class="btn btn-outline-secondary float-right" href="{% url 'lexeme-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+                {% blocktrans %}Bulk Approve{% endblocktrans %}</a>
             <a class="btn btn-outline-secondary float-right" href="{% url 'download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
                 {% blocktrans %}Download{% endblocktrans %}</a>
         </div>

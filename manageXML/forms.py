@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML, Button
 from .constants import *
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 
 

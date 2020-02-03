@@ -12,8 +12,11 @@
                 <div class="form-group col-sm-12 col-md-12">
                     {{ filterset.form.lexeme.label_tag }}
                     <div class="row">
-                        <div class="col-sm-8 col-md-8">
+                        <div class="col-sm-6 col-md-6">
                             {% render_lookup_choice_field filterset.form.lexeme 0 class="form-control" %}
+                        </div>
+                        <div class="col-sm-2 col-md-2">
+                            {% render_field filterset.form.lexeme_side class="form-control" %}
                         </div>
                         <div class="col-sm-4 col-md-4">
                             {% render_lookup_choice_field filterset.form.lexeme 1 class="form-control" %}
@@ -23,91 +26,79 @@
             </div>
             <div class="row">
                 <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.language.label_tag }}
-                    {% render_field filterset.form.language class="form-control" %}
-                </div>
-                <div class="form-group col-sm-2 col-md-2">
                     {{ filterset.form.pos.label_tag }}
                     {% render_field filterset.form.pos class="form-control" %}
-                </div>
-                <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.inflexType.label_tag }}
-                    {% render_field filterset.form.inflexType class="form-control" %}
-                </div>
-                <div class="form-group col-sm-6 col-md-6">
-                    {{ filterset.form.source.label_tag }}
-                    {% render_field filterset.form.source class="form-control" %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.range_from.label_tag }}
-                    {% render_field filterset.form.range_from class="form-control" %}
-                </div>
-                <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.range_to.label_tag }}
-                    {% render_field filterset.form.range_to class="form-control" %}
                 </div>
                 <div class="form-group col-sm-2 col-md-2">
                     {{ filterset.form.checked.label_tag }}
                     {% render_field filterset.form.checked class="form-control" %}
                 </div>
-                <div class="form-group col-sm-3 col-md-3">
-                    {{ filterset.form.contlex.label_tag }}
-                    {% render_field filterset.form.contlex class="form-control" %}
-                </div>
-                <div class="form-group col-sm-3 col-md-3">
-                    {{ filterset.form.order_by.label_tag }}
-                    {% render_field filterset.form.order_by class="form-control" %}
+                <div class="form-group col-sm-8 col-md-8">
+                    {{ filterset.form.source.label_tag }}
+                    {% render_field filterset.form.source class="form-control" %}
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">
                 <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
             </button>
-            <a class="btn btn-outline-secondary float-right" href="{% url 'lexeme-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+            <a class="btn btn-outline-secondary float-right" href="{% url 'relation-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
                 {% blocktrans %}Bulk Approve{% endblocktrans %}</a>
-            <a class="btn btn-outline-secondary float-right" style="margin-right: 5px;" href="{% url 'download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+            <a class="btn btn-outline-secondary float-right" style="margin-right: 5px;" href="{% url 'relation-download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
                 {% blocktrans %}Download{% endblocktrans %}</a>
         </div>
     </form>
 
+
+
     <br/>
 
-    <table class="table table-bordered">
+    <table class="search-table table table-bordered">
         <thead>
         <tr>
-            <th>{% trans "ID" %}</th>
+            <th rowspan="2">{% trans "ID" %}</th>
+            <th colspan="4">{% trans "From" %}</th>
+            <th colspan="4">{% trans "To" %}</th>
+            {% if order_by %}
+                <th rowspan="2">{% trans "Ordered By" %}</th>
+            {% endif %}
+            <th rowspan="2">{% trans "Notes" %}</th>
+            <th rowspan="2">{% trans "Actions" %}</th>
+        </tr>
+        <tr>
             <th>{% trans "Lexeme" %}</th>
+            <th>{% trans "Language" %}</th>
             <th>{% trans "POS" %}</th>
             <th>{% trans "Contlex" %}</th>
-            <th>{% trans "Inflex Type" %}</th>
+
+            <th>{% trans "Lexeme" %}</th>
             <th>{% trans "Language" %}</th>
-            {% if order_by %}
-                <th>{% trans "Ordered By" %}</th>
-            {% endif %}
-            <th>{% trans "Notes" %}</th>
-            <th>{% trans "Actions" %}</th>
+            <th>{% trans "POS" %}</th>
+            <th>{% trans "Contlex" %}</th>
         </tr>
         </thead>
         <tbody>
         {% for obj in object_list %}
             <tr {% if obj.checked %}class="table-success"{% endif %}>
                 <td>{{ obj.id }}</td>
-                <td>{{ obj.lexeme }}</td>
-                <td>{{ obj.pos }}</td>
-                <td>{{ obj.contlex }}</td>
-                <td>{{ obj.inflexType_str }}</td>
-                <td>{{ obj.language }}</td>
+                <td>{{ obj.lexeme_from }}</td>
+                <td>{{ obj.lexeme_from.language }}</td>
+                <td>{{ obj.lexeme_from.pos }}</td>
+                <td>{{ obj.lexeme_from.contlex }}</td>
+
+                <td>{{ obj.lexeme_to }}</td>
+                <td>{{ obj.lexeme_to.language }}</td>
+                <td>{{ obj.lexeme_to.pos }}</td>
+                <td>{{ obj.lexeme_to.contlex }}</td>
                 {% if order_by %}
                     <td>{{ obj|getattr:order_by }}</td>
                 {% endif %}
                 <td>{{ obj.notes|linebreaksbr }}</td>
                 <td>
                     <ul>
-                        <li><a href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{% trans "view" %}</a></li>
+                        <li><a href="{% url 'relation-detail' pk=obj.pk %}?{% query_transform request lastlexeme=obj.pk %}">{% trans "view" %}</a></li>
                         {% if user.is_authenticated %}
-                            <li><a href="{% url 'lexeme-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
-                            <li><a href="{% url 'lexeme-delete' pk=obj.pk %}">{% trans "delete" %}</a></li>
+                            <li><a href="{% url 'relation-edit' pk=obj.pk %}">{% trans "edit" %}</a></li>
+                            <li><a href="{% url 'relation-delete' pk=obj.pk lexeme_id=obj.lexeme_from.pk %}">{% trans "delete" %}</a></li>
                         {% endif %}
                     </ul>
                 </td>
@@ -135,4 +126,5 @@
     {% endif %}
     <p><b>{% trans "Total" %}:</b> {{ page_obj.paginator.count }} {% if is_paginated %}({% trans "Showing" %}:
         {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %}</p>
+
 {% endblock %}

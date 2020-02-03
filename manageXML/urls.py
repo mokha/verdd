@@ -73,6 +73,11 @@ urlpatterns = [
     # history search
     re_path(r'^history/search$', views.HistorySearchView.as_view(), name='history-search'),
 
-    # approving lexemes/relations
+    # approving lexemes
     re_path(r'^lexeme/approval', views.LexemeApprovalView.as_view(), name='lexeme-approval'),
+
+    path('relation/search', views.RelationView.as_view(), name='relation-search'),
+    path('relation/download', views.RelationExportView.as_view(), name='relation-download-csv'),
+    path('relation/approval', views.RelationApprovalView.as_view(), name='relation-approval'),
+
 ]

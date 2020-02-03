@@ -848,16 +848,9 @@ class HistorySearchView(TitleMixin, ListView, AdminStaffRequiredMixin):
         return object_list
 
 
-class LexemeApprovalView(LoginRequiredMixin, FormMixin, FilteredListView):
-    filterset_class = LexemeFilter
-    model = Lexeme
-    template_name = 'lexeme_approval.html'
-    paginate_by = 50
-    title = _("Approving Lexemes")
-    form_class = ApprovalMultipleChoiceForm
-
+class ApprovalViewMixin(LoginRequiredMixin, FormMixin, FilteredListView):
     def get_form_kwargs(self, **kwargs):
-        kwargs = super(LexemeApprovalView, self).get_form_kwargs()
+        kwargs = super(ApprovalViewMixin, self).get_form_kwargs()
         kwargs['queryset'] = self.object_list
         return kwargs
 
@@ -892,3 +885,142 @@ class LexemeApprovalView(LoginRequiredMixin, FormMixin, FilteredListView):
                 _i.save()
 
         return self.get(request, *args, **kwargs)
+
+
+class LexemeApprovalView(ApprovalViewMixin):
+    filterset_class = LexemeFilter
+    model = Lexeme
+    template_name = 'lexeme_approval.html'
+    paginate_by = 50
+    title = _("Approving Lexemes")
+    form_class = ApprovalMultipleChoiceForm
+
+
+class RelationFilter(django_filters.FilterSet):
+    class Meta:
+        model = Lexeme
+        fields = ['checked']
+
+    STATUS_CHOICES = (
+        (True, _('Yes')),
+        (False, _('No')),
+    )
+
+    lookup_choices = [
+        ('exact', _('Exact')),
+        ('iexact', _('iExact')),
+        ('contains', _('Contains')),
+        ('icontains', _('iContains')),
+        ('startswith', _('Starts with')),
+        ('istartswith', _('iStarts with')),
+        ('endswith', _('Ends with')),
+        ('iendswith', _('iEnds with')),
+        ('regex', _('Regex')),
+        ('iregex', _('iRegex')),
+    ]
+
+    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_('Lexeme'), empty_label=None,
+                                lookup_choices=lookup_choices, method='filter_lexeme')
+    pos = ChoiceFilter(label=_('POS'), method='filter_pos')
+    lexeme_side = ChoiceFilter(label='', method='filter_pos', choices=[('from', _('From')),
+                                                                       ('to', _('To'))])
+    source = CharFilter(label=_('Source'), method='filter_source')
+    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
+
+    def __init__(self, data, *args, **kwargs):
+        data = data.copy()
+        super().__init__(data, *args, **kwargs)
+        self.form.fields['pos'].choices = set([(p['pos'], p['pos']) for p in Lexeme.objects.all().values('pos')])
+
+    def filter_lexeme(self, queryset, name, value):
+        lexeme_str, lookup_expr = self.form.cleaned_data['lexeme'] if 'lexeme' in self.form.cleaned_data else None
+        lexeme_side = self.data['lexeme_side'] if 'lexeme_side' in self.data else None
+        return self.filter_field(queryset, 'lexeme', lexeme_str, lookup_expr, side=lexeme_side)
+
+    def filter_pos(self, queryset, name, value):
+        value = self.data['pos'] if 'pos' in self.data else None
+        return self.filter_field(queryset, 'pos', value)
+
+    def filter_field(self, queryset, name, value, lookup_expr='exact', side=None):
+        filters = models.Q()
+        if value:
+            if not side or side == 'from':
+                filters |= models.Q(
+                    **{'lexeme_from__{}__{}'.format(name, lookup_expr): value}
+                )
+            if not side or side == 'to':
+                filters |= models.Q(
+                    **{'lexeme_to__{}__{}'.format(name, lookup_expr): value}
+                )
+        return queryset.filter(filters)
+
+    def filter_source(self, queryset, name, value):
+        source = self.data['source'] if 'source' in self.data else None
+        filters = models.Q()
+        if source:
+            filters |= models.Q(source__name__icontains=source)
+        return queryset.filter(filters)
+
+
+class RelationView(FilteredListView):
+    filterset_class = RelationFilter
+    model = Relation
+    template_name = 'relation_list.html'
+    paginate_by = 50
+    title = _("Relation Search")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class RelationExportView(RelationView):
+    def render_to_response(self, context, **response_kwargs):
+        filename = "{}-export.csv".format(datetime.datetime.now().replace(microsecond=0).isoformat())
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+
+        writer = csv.writer(response)
+
+        headers = [
+            ['',
+             _('From'), '', '', '', '',
+             _('To'), '', '', '', '',
+             ],
+            [_('ID'),
+             _('Lexeme ID'), _('Lexeme'), _('Language'), _('POS'), _('Contlex'),
+             _('Lexeme ID'), _('Lexeme'), _('Language'), _('POS'), _('Contlex'),
+             ],
+        ]
+        for header in headers:
+            writer.writerow(header)
+
+        for obj in self.object_list:
+            row = [
+                obj.id,
+
+                obj.lexeme_from.id,
+                obj.lexeme_from.lexeme,
+                obj.lexeme_from.language,
+                obj.lexeme_from.pos,
+                obj.lexeme_from.contlex,
+
+                obj.lexeme_to.id,
+                obj.lexeme_to.lexeme,
+                obj.lexeme_to.language,
+                obj.lexeme_to.pos,
+                obj.lexeme_to.contlex,
+            ]
+            writer.writerow(row)
+
+        return response
+
+
+class RelationApprovalView(ApprovalViewMixin):
+    filterset_class = RelationFilter
+    model = Relation
+    template_name = 'relation_approval.html'
+    paginate_by = 50
+    title = _("Approving Relations")
+    form_class = ApprovalMultipleChoiceForm

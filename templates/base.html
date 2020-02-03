@@ -35,7 +35,10 @@
                            class="nav-link">{% blocktrans %}Back{% endblocktrans %}</a>
                         {% if user.is_authenticated %}
                             <a class="btn btn-sm btn-outline-primary" href="{% url 'lexeme-add' %}" class="nav-link">
-                                {% blocktrans %}Add Lexeme{% endblocktrans %}</a>{% endif %}
+                                {% blocktrans %}Add Lexeme{% endblocktrans %}</a>
+                        {% endif %}
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'relation-search' %}" class="nav-link">
+                                {% blocktrans %}Search Relations{% endblocktrans %}</a>
                     </div>
                     <div class="col-4 text-center">
                         <a class="header-logo text-dark" href="{% url 'index' %}">{% blocktrans %}

@@ -35,3 +35,8 @@ h1, h2, h3, h4, h5, h6 {
     width: 140px;
     top: 0;
 }
+
+.search-table {
+    table-layout: fixed;
+    word-wrap: break-word;
+}

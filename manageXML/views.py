@@ -996,7 +996,7 @@ class RelationExportView(RelationView):
         for header in headers:
             writer.writerow(header)
 
-        for obj in self.object_list:
+        for obj in self.object_list.select_related('lexeme_from').select_related('lexeme_to').all():
             row = [
                 obj.id,
 

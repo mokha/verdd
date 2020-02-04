@@ -4,4 +4,44 @@
 
 {% block main_content %}
     {% include 'relation_detail_content.html' with object=object %}
+
+    {% with object.lexeme_from as lexeme %}
+        <h3>{% trans "Sources" %}</h3>
+        {% with object.source_set.all as sources %}
+            <ul>
+                {% if sources %}
+                    {% for s in sources %}
+                        <li>{{ s }} (<a href="{% url 'source-detail' pk=s.pk %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'source-edit' pk=s.pk %}">{% trans "edit" %}</a>/<a href="{% url 'source-delete' lexeme_id=lexeme.pk pk=s.pk %}">{% trans "delete" %}</a>{% endif %})</li>
+                    {% endfor %}
+                {% endif %}
+                {% if user.is_authenticated %}<li><a href="{% url 'source-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a></li>{% endif %}
+            </ul>
+        {% endwith %}
+
+        <h3>{% trans "Examples" %}</h3>
+        {% with object.relationexample_set.all as examples %}
+            <ul>
+                {% if examples %}
+                    {% for e in examples %}
+                        <li>{{ e }}{% if user.is_authenticated %} (<a href="{% url 'relation-example-edit' pk=e.pk lexeme_id=lexeme.pk %}">{% trans "edit" %}</a>/<a href="{% url 'relation-example-delete' lexeme_id=lexeme.pk pk=e.pk %}">{% trans "delete" %}</a>{% endif %})</li>
+                    {% endfor %}
+                {% endif %}
+                {% if user.is_authenticated %}<li><a href="{% url 'relation-example-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a></li>{% endif %}
+            </ul>
+        {% endwith %}
+
+        <h3>{% trans "Metadata" %}</h3>
+        {% with object.relationmetadata_set.all as metadata %}
+            <ul>
+                {% if metadata %}
+                    {% for md in metadata %}
+                        <li>{{ md }}{% if user.is_authenticated %} (<a href="{% url 'relation-metadata-edit' pk=md.pk lexeme_id=lexeme.pk %}">{% trans "edit" %}</a>/<a href="{% url 'relation-metadata-delete' lexeme_id=lexeme.pk pk=md.pk %}">{% trans "delete" %}</a>{% endif %})</li>
+                    {% endfor %}
+                {% endif %}
+                {% if user.is_authenticated %}<li><a href="{% url 'relation-metadata-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a></li>{% endif %}
+            </ul>
+        {% endwith %}
+    {% endwith %}
+
+
 {% endblock %}

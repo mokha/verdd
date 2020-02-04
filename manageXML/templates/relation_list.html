@@ -41,8 +41,10 @@
             <button type="submit" class="btn btn-primary">
                 <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
             </button>
-            <a class="btn btn-outline-secondary float-right" href="{% url 'relation-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
-                {% blocktrans %}Bulk Approve{% endblocktrans %}</a>
+            {% if user.is_authenticated %}
+                <a class="btn btn-outline-secondary float-right" href="{% url 'relation-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+                    {% blocktrans %}Bulk Approve{% endblocktrans %}</a>
+            {% endif %}
             <a class="btn btn-outline-secondary float-right" style="margin-right: 5px;" href="{% url 'relation-download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
                 {% blocktrans %}Download{% endblocktrans %}</a>
         </div>

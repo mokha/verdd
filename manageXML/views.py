@@ -968,6 +968,7 @@ class RelationView(FilteredListView):
     template_name = 'relation_list.html'
     paginate_by = 50
     title = _("Relation Search")
+    ordering = ["-lexeme_to"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

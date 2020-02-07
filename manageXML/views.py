@@ -1025,3 +1025,23 @@ class RelationApprovalView(ApprovalViewMixin):
     paginate_by = 50
     title = _("Approving Relations")
     form_class = ApprovalMultipleChoiceForm
+
+
+def download_dictionary_tex(request):
+    template = 'export/latex.html'
+    content_type = 'application/x-tex'  # text/plain
+    context = {}
+
+    # get all approved relations
+    context['relations'] = Relation.objects.filter(checked=True) \
+        .select_related('lexeme_from').select_related('lexeme_to').all()
+
+    output = get_template(template).render(context)
+
+    filename = "{}-export.tex".format(datetime.datetime.now().replace(microsecond=0).isoformat())
+
+    response = HttpResponse(content_type=content_type)
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+
+    response.write(output)
+    return response

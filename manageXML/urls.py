@@ -80,4 +80,7 @@ urlpatterns = [
     path('relation/download', views.RelationExportView.as_view(), name='relation-download-csv'),
     path('relation/approval', views.RelationApprovalView.as_view(), name='relation-approval'),
 
+
+    path('download/latex', views.download_dictionary_tex, name='download-tex'),
+
 ]

@@ -1,0 +1,5 @@
+{% load latex_tags %}
+{% autoescape off %}{% for relation in relations %}\begin{dictionaryentry}
+    {% dictionary_entry relation %}
+\end{dictionaryentry}
+{% endfor %}{% endautoescape %}

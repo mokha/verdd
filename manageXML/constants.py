@@ -21,14 +21,14 @@ ETYMOLOGY = 1
 COMPOUND = 2
 DERIVATION = 3
 VARIATION = 4
-PHRASEOLGY = 5
+PHRASEOLOGY = 5
 RELATION_TYPE_OPTIONS = (
     (TRANSLATION, _('Translation')),
     (ETYMOLOGY, _('Etymology')),
     (COMPOUND, _('Compound')),
     (DERIVATION, _('Derivation')),
     (VARIATION, _('Variation')),
-    (PHRASEOLGY, _('Phraseolgy')),
+    (PHRASEOLOGY, _('Phraseology')),
     (99, _('Other'))
 )
 RELATION_TYPE_OPTIONS_DICT = dict(RELATION_TYPE_OPTIONS)

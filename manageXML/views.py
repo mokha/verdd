@@ -1028,20 +1028,51 @@ class RelationApprovalView(ApprovalViewMixin):
 
 
 def download_dictionary_tex(request):
-    template = 'export/latex.html'
-    content_type = 'application/x-tex'  # text/plain
-    context = {}
+    from django.db.models.functions import Substr, Upper
+    from itertools import groupby
+    from django.template.loader import render_to_string
+    from io import BytesIO
+    from zipfile import ZipFile
+    import uuid
+    import time
+
+    main_template = 'export/latex.html'
+    chapter_template = 'export/latex-chapter.html'
 
     # get all approved relations
-    context['relations'] = Relation.objects.filter(checked=True) \
-        .select_related('lexeme_from').select_related('lexeme_to').all()
+    # 1) get approved translation relations
+    # 2) group them by their first character
+    # 3) order them
 
-    output = get_template(template).render(context)
+    relations = Relation.objects.filter(checked=True, type=TRANSLATION) \
+        .annotate(lexeme_fc=Upper(Substr('lexeme_from__lexeme', 1, 1)),
+                  lexeme_fcl=Substr('lexeme_from__lexeme_lang', 1, 1)) \
+        .select_related('lexeme_from').select_related('lexeme_to') \
+        .order_by('lexeme_fcl') \
+        .all()
 
-    filename = "{}-export.tex".format(datetime.datetime.now().replace(microsecond=0).isoformat())
+    grouped_relations = groupby(sorted(relations, key=lambda r: r.lexeme_fc), key=lambda r: r.lexeme_fc)
 
-    response = HttpResponse(content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    in_memory = BytesIO()
+    zip_file = ZipFile(in_memory, "a")
 
-    response.write(output)
+    keys = []
+    for key, relations in grouped_relations:
+        keys.append(key)
+        _chapter_html = render_to_string(chapter_template, {'relations': list(relations)})
+        zip_file.writestr("chapter-{}.tex".format(key), _chapter_html.encode('utf-8'))
+    _main_html = render_to_string(main_template, {'relation_keys': keys})
+    zip_file.writestr("dictionary.tex", _main_html.encode('utf-8'))
+
+    for _file in zip_file.filelist:
+        _file.create_system = 0
+        zip_file.close()
+
+    response = HttpResponse(content_type='application/force-download')
+    _filename = time.strftime("%Y%m%d-%H%M%S") + '-' + str(uuid.uuid4())[:5]
+    response["Content-Disposition"] = "attachment; filename=" + _filename + "-export.zip"
+
+    in_memory.seek(0)
+    response.write(in_memory.read())
+
     return response

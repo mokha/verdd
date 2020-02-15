@@ -38,8 +38,14 @@ def dictionary_entry(relation):
     '''
 
     # LaTeX escape the content
-    content = (relation.lexeme_from.lexeme, relation.lexeme_to.lexeme, relation.lexeme_to.pos, "",)
+    content = (relation.lexeme_from.lexeme, relation.lexeme_from.pos, relation.lexeme_from.specification,
+               relation.lexeme_to.lexeme, relation.lexeme_to.pos, relation.lexeme_to.specification,
+               "", "")
     content = (tex_escape(c) for c in content)
     content = tuple(content)
+    return "\entry{%s}{%s}{%s}{%s}{%s}{%s}{%s}{%s}" % content
 
-    return "\entry{%s}{%s}{%s}{%s}" % content
+
+@register.simple_tag(name='dictionary_chapter')
+def dictionary_chapter(key):
+    return "\includedictionary{%s}{chapter-%s.tex}" % (key, key,)

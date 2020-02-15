@@ -63,7 +63,7 @@
             {% if order_by %}
                 <th rowspan="2">{% trans "Ordered By" %}</th>
             {% endif %}
-            <th rowspan="2">{% trans "Notes" %}</th>
+            <th rowspan="2">{% trans "Metadata" %}</th>
             <th rowspan="2">{% trans "Actions" %}</th>
         </tr>
         <tr>
@@ -94,7 +94,17 @@
                 {% if order_by %}
                     <td>{{ obj|getattr:order_by }}</td>
                 {% endif %}
-                <td>{{ obj.notes|linebreaksbr }}</td>
+                <td>
+                    {% with obj.relationmetadata_set.all as metadata %}
+                        <ul>
+                            {% if metadata %}
+                                {% for md in metadata %}
+                                    <li>{% constant_text 'RELATION_METADATA_TYPES_DICT' md.type %} ({{ md.language }}): {{ md.text }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    {% endwith %}
+                </td>
                 <td>
                     <ul>
                         <li><a href="{% url 'relation-detail' pk=obj.pk %}?{% query_transform request lastlexeme=obj.pk %}">{% trans "view" %}</a></li>

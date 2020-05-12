@@ -8,7 +8,7 @@ class LexemeAdmin(SimpleHistoryAdmin):
 
 
 class RelationAdmin(SimpleHistoryAdmin):
-    search_fields = ('id', 'lexeme_from', 'lexeme_to',)
+    search_fields = ('id', 'lexeme_from__lexeme', 'lexeme_to__lexeme',)
 
 
 admin.site.register(DataFile)

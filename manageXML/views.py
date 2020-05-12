@@ -11,6 +11,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView, ModelFormMixin, FormMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models.functions import Substr, Upper
 from django.utils.translation import gettext as _
 from django.http import Http404
 from django.db.models import Q
@@ -849,19 +850,32 @@ class HistorySearchView(TitleMixin, ListView, AdminStaffRequiredMixin):
 
 
 class ApprovalViewMixin(LoginRequiredMixin, FormMixin, FilteredListView):
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super(ApprovalViewMixin, self).get_form_kwargs()
-        kwargs['queryset'] = self.object_list
-        return kwargs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**{'form': None, **kwargs})  # ignore the default form rendering
+        context['form'] = self.form_class(**{'queryset': context['object_list'], **self.get_form_kwargs()})
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        allow_empty = self.get_allow_empty()
+
+        if not allow_empty:
+            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
+                is_empty = not self.object_list.exists()
+            else:
+                is_empty = not self.object_list
+            if is_empty:
+                raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
+                    'class_name': self.__class__.__name__,
+                })
+        context = self.get_context_data()
+        return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
 
         if not allow_empty:
-            # When pagination is enabled and object_list is a queryset,
-            # it's better to do a cheap query than to load the unpaginated
-            # queryset in memory.
             if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
                 is_empty = not self.object_list.exists()
             else:
@@ -1026,9 +1040,14 @@ class RelationApprovalView(ApprovalViewMixin):
     title = _("Approving Relations")
     form_class = ApprovalMultipleChoiceForm
 
+    def get_queryset(self):
+        # prefetch to speed things up
+        queryset = self.model.objects.prefetch_related('lexeme_from').prefetch_related('lexeme_to')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+        return self.filterset.qs.distinct()
+
 
 def download_dictionary_tex(request):
-    from django.db.models.functions import Substr, Upper
     from itertools import groupby
     from django.template.loader import render_to_string
     from io import BytesIO
@@ -1047,7 +1066,7 @@ def download_dictionary_tex(request):
     relations = Relation.objects.filter(checked=True, type=TRANSLATION) \
         .annotate(lexeme_fc=Upper(Substr('lexeme_from__lexeme', 1, 1)),
                   lexeme_fcl=Substr('lexeme_from__lexeme_lang', 1, 1)) \
-        .select_related('lexeme_from').select_related('lexeme_to') \
+        .prefetch_related('lexeme_from').prefetch_related('lexeme_to') \
         .order_by('lexeme_fcl') \
         .all()
 

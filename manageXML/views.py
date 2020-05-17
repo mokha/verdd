@@ -913,7 +913,7 @@ class LexemeApprovalView(ApprovalViewMixin):
 class RelationFilter(django_filters.FilterSet):
     class Meta:
         model = Lexeme
-        fields = ['checked']
+        fields = ['checked', 'type']
 
     STATUS_CHOICES = (
         (True, _('Yes')),
@@ -940,6 +940,7 @@ class RelationFilter(django_filters.FilterSet):
                                                                        ('to', _('To'))])
     source = CharFilter(label=_('Source'), method='filter_source')
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
+    type = ChoiceFilter(choices=RELATION_TYPE_OPTIONS, label=_('Type'))
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()

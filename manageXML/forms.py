@@ -434,7 +434,7 @@ class HistoryForm(forms.Form):
 
 
 class ApprovalMultipleChoiceForm(forms.Form):
-    choices = forms.ModelMultipleChoiceField(queryset=None, label='',
+    choices = forms.ModelMultipleChoiceField(queryset=None, label='', required=False,
                                              widget=forms.CheckboxSelectMultiple(attrs={}))
 
     def __init__(self, *args, **kwargs):

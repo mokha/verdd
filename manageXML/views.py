@@ -885,10 +885,11 @@ class ApprovalViewMixin(LoginRequiredMixin, FormMixin, FilteredListView):
                     'class_name': self.__class__.__name__,
                 })
 
-        form = self.get_form()
+        context = self.get_context_data()
+        form = self.form_class(**{'queryset': self.object_list, **self.get_form_kwargs()})
         if form.is_valid():
             approved_items = form.cleaned_data['choices']
-            for _i in self.object_list:
+            for _i in context['object_list']:
                 if (not _i.checked and _i not in approved_items) or (
                         _i.checked and _i in approved_items):  # nothing changed
                     continue

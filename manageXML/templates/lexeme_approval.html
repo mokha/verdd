@@ -83,7 +83,10 @@
                     <th>{% trans "Ordered By" %}</th>
                 {% endif %}
                 <th>{% trans "Notes" %}</th>
-                <th>{% trans "Approve" %}</th>
+                <th>
+                    <input type="checkbox" id="select-all" />
+                    {% trans "Approve" %}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -134,4 +137,23 @@
     {% endif %}
     <p><b>{% trans "Total" %}:</b> {{ page_obj.paginator.count }} {% if is_paginated %}({% trans "Showing" %}:
         {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %}</p>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+
+    <script>
+        $('#select-all').click(function(event) {
+            if(this.checked) {
+                // Iterate each checkbox
+                $(':checkbox').each(function() {
+                    this.checked = true;
+                });
+            } else {
+                $(':checkbox').each(function() {
+                    this.checked = false;
+                });
+            }
+        });
+    </script>
 {% endblock %}

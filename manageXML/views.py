@@ -896,7 +896,6 @@ class ApprovalViewMixin(LoginRequiredMixin, FormMixin, FilteredListView):
 
                 _i.checked = not _i.checked
                 _i.changed_by = self.request.user
-                _i.comments_on = False
                 _i.save()
 
         return self.get(request, *args, **kwargs)

@@ -17,6 +17,7 @@ class LexemeForm(forms.ModelForm):
     lexeme = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Lexeme')}))
     specification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Specification')}))
     pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('POS')}))
+    homoId = forms.IntegerField(required=True, label=_('Homonym ID'), initial=0)
     contlex = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
     type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Type')}))
     lemmaId = forms.CharField(required=False, label=_('Lemma ID'))
@@ -28,7 +29,7 @@ class LexemeForm(forms.ModelForm):
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked', 'specification']
+        fields = ['lexeme', 'pos', 'homoId', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked', 'specification']
 
     def __init__(self, *args, **kwargs):
         super(LexemeForm, self).__init__(*args, **kwargs)
@@ -41,7 +42,8 @@ class LexemeForm(forms.ModelForm):
             ),
             Row(
                 Column('lexeme', css_class='form-group col-md-6 mb-0'),
-                Column('pos', css_class='form-group col-md-6 mb-0'),
+                Column('pos', css_class='form-group col-md-3 mb-0'),
+                Column('homoId', css_class='form-group col-md-3 mb-0'),
                 css_class='form-row'
             ),
             Row(
@@ -73,7 +75,7 @@ class LexemeCreateForm(LexemeForm):
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'language', 'pos', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked',
+        fields = ['lexeme', 'language', 'pos', 'homoId', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked',
                   'specification']
 
     def __init__(self, *args, **kwargs):
@@ -81,9 +83,10 @@ class LexemeCreateForm(LexemeForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column('lexeme', css_class='form-group col-md-6 mb-0'),
+                Column('lexeme', css_class='form-group col-md-3 mb-0'),
                 Column('language', css_class='form-group col-md-3 mb-0'),
                 Column('pos', css_class='form-group col-md-3 mb-0'),
+                Column('homoId', css_class='form-group col-md-3 mb-0'),
                 css_class='form-row'
             ),
             Row(

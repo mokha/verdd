@@ -1,6 +1,7 @@
 {% extends 'template.html' %}
 {% load i18n %}
 {% load custom_tags %}
+{% load crispy_forms_tags %}
 
 {% block main_content %}
     <div class="row sticky-sidebar-container d-none d-xl-block">
@@ -57,6 +58,15 @@
                     </div>
                 {% endif %}
             {% endwith %}
+
+            {% if user.is_authenticated and not object.checked %}
+                <form action="{% url 'lexeme-approve' pk=object.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                        {% trans "Approve" %}
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 

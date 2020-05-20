@@ -25,6 +25,7 @@
             {% endif %}
         {% endwith %}
     </div>
+    <p><b>{% trans "Processed" %}:</b> {% if object.checked %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</p>
     <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
     <p><b>{% trans "Notes" %}:</b> {{ object.notes|linebreaksbr }}</p>
 </div>

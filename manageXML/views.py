@@ -10,6 +10,7 @@ import django_filters
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView, ModelFormMixin, FormMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.functions import Substr, Upper
 from django.utils.translation import gettext as _
@@ -1096,3 +1097,25 @@ def download_dictionary_tex(request):
     response.write(in_memory.read())
 
     return response
+
+
+@login_required
+def approve_lexeme(request, pk):
+    lexeme = get_object_or_404(Lexeme, pk=pk)
+    if request.method == 'POST':
+        lexeme.checked = True
+        lexeme.changed_by = request.user
+        lexeme.save()
+
+    return HttpResponseRedirect(lexeme.get_absolute_url())
+
+
+@login_required
+def approve_relation(request, pk):
+    relation = get_object_or_404(Relation, pk=pk)
+    if request.method == 'POST':
+        relation.checked = True
+        relation.changed_by = request.user
+        relation.save()
+
+    return HttpResponseRedirect(relation.get_absolute_url())

@@ -44,4 +44,14 @@
     {% endwith %}
 
 
+    {% if user.is_authenticated and not object.checked%}
+        <form action="{% url 'relation-approve' pk=object.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+                {% trans "Approve" %}
+            </button>
+        </form>
+    {% endif %}
+
+
 {% endblock %}

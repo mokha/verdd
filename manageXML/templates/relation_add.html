@@ -21,7 +21,7 @@
                     url: '{% url 'lexeme-search' %}'
                 },
                 formatResult: function (item) {
-                    return {value: item.id, text: `${item.lexeme} (${item.pos}) - ${item.language}`};
+                    return {value: item.id, text: `${item.lexeme} (${item.pos}) - ${item.homoId} ${item.language}`};
                 },
                 events: {
                     searchPost: function (resultFromServer) {

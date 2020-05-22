@@ -13,6 +13,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView, ModelF
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.functions import Substr, Upper
+from django.db.models import Prefetch
 from django.utils.translation import gettext as _
 from django.http import Http404
 from django.db.models import Q
@@ -1061,14 +1062,18 @@ def download_dictionary_tex(request):
     chapter_template = 'export/latex-chapter.html'
 
     # get all approved relations
-    # 1) get approved translation relations
+    # 1) get approved translation relations (fin->sms, for our case)
     # 2) group them by their first character
     # 3) order them
 
     relations = Relation.objects.filter(checked=True, type=TRANSLATION) \
+        .prefetch_related(
+        Prefetch('lexeme_from', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
+        Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
+        'relationexample_set', 'relationmetadata_set') \
+        .filter(lexeme_from__language='fin', lexeme_to__language='sms') \
         .annotate(lexeme_fc=Upper(Substr('lexeme_from__lexeme', 1, 1)),
                   lexeme_fcl=Substr('lexeme_from__lexeme_lang', 1, 1)) \
-        .prefetch_related('lexeme_from').prefetch_related('lexeme_to') \
         .order_by('lexeme_fcl') \
         .all()
 
@@ -1080,7 +1085,13 @@ def download_dictionary_tex(request):
     keys = []
     for key, relations in grouped_relations:
         keys.append(key)
-        _chapter_html = render_to_string(chapter_template, {'relations': list(relations)})
+
+        # group relations based on the lexeme_from (source)
+        grouped_relations_source = groupby(sorted(relations, key=lambda r: r.lexeme_from.id),
+                                           key=lambda r: r.lexeme_from.id)
+        grouped_relations_source = [(k, list(g),) for k, g in grouped_relations_source]
+        grouped_relations_source = list(sorted(grouped_relations_source, key=lambda k: k[1][0].lexeme_from.lexeme_lang))
+        _chapter_html = render_to_string(chapter_template, {'grouped_relations': grouped_relations_source})
         zip_file.writestr("chapter-{}.tex".format(key), _chapter_html.encode('utf-8'))
     _main_html = render_to_string(main_template, {'relation_keys': keys})
     zip_file.writestr("dictionary.tex", _main_html.encode('utf-8'))

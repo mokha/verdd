@@ -1,5 +1,5 @@
 {% load latex_tags %}
-{% autoescape off %}{% for relation in relations %}\begin{dictionaryentry}
-    {% dictionary_entry relation %}
+{% autoescape off %}{% for grouped_relation in grouped_relations %}\begin{dictionaryentry}
+    {% dictionary_entry grouped_relation %}
 \end{dictionaryentry}
 {% endfor %}{% endautoescape %}

@@ -35,7 +35,7 @@
             <ul>
                 {% if metadata %}
                     {% for md in metadata %}
-                        <li>{% constant_text 'RELATION_METADATA_TYPES_DICT' md.type %} ({{ md.language }}): {{ md.text }}{% if user.is_authenticated %} (<a href="{% url 'relation-metadata-edit' pk=md.pk lexeme_id=lexeme.pk %}">{% trans "edit" %}</a>/<a href="{% url 'relation-metadata-delete' lexeme_id=lexeme.pk pk=md.pk %}">{% trans "delete" %}</a>{% endif %})</li>
+                        <li>{% constant_text 'RELATION_METADATA_TYPES_DICT' md.type %} ({{ md.language }}): {{ md.text }}{% if user.is_authenticated %} (<a href="{% url 'relation-metadata-edit' pk=md.pk lexeme_id=lexeme.pk %}">{% trans "edit" %}</a>/<a href="{% url 'relation-metadata-delete' lexeme_id=lexeme.pk pk=md.pk %}">{% trans "delete" %}</a>){% endif %}</li>
                     {% endfor %}
                 {% endif %}
                 {% if user.is_authenticated %}<li><a href="{% url 'relation-metadata-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a></li>{% endif %}

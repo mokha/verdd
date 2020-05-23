@@ -208,7 +208,7 @@ class Inflector:
             r = synthetiser.lookup(q)
             try:
                 item = r[0][0].split("@")[0], q_translations[i]
-                results[MP_form].append(item)
+                results[MP_form].append(item[0])
             except:
                 pass
         return results

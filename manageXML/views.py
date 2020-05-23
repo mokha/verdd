@@ -253,7 +253,7 @@ class MiniParadigmMixin:
                 continue  # ignore it
 
             for _r in r:
-                generated_forms[f].append(_r[0])
+                generated_forms[f].append(_r)
         generated_forms.default_factory = None
         return generated_forms
 
@@ -267,7 +267,7 @@ class MiniParadigmMixin:
                 continue  # ignore it
 
             for _r in r:
-                generated_forms[f].append(_r[0])
+                generated_forms[f].append(_r)
         generated_forms.default_factory = None
         return generated_forms
 

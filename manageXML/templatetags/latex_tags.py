@@ -2,6 +2,7 @@ import re
 from django import template
 from manageXML.constants import SPECIFICATION
 from manageXML.inflector import Inflector
+from collections import defaultdict
 
 register = template.Library()
 _inflector = Inflector()
@@ -65,15 +66,16 @@ def dictionary_entry(grouped_relation):
         # LaTeX escape the content
         inflections = []
         MP_forms = translation.miniparadigm_set.all()
-        existing_MP_forms = {form.msd: form.wordform for form in MP_forms}
+        existing_MP_forms = defaultdict(list)
+        for form in MP_forms:
+            existing_MP_forms[form.msd].append(form.wordform)
         generated_MP_forms = _inflector.generate(translation.language, translation.lexeme, translation.pos)
         if translation.pos in inflection_table:
             for inflection_form in inflection_table[translation.pos]:
                 if inflection_form in existing_MP_forms:
-                    inflections.append(existing_MP_forms[inflection_form])
+                    inflections.extend(existing_MP_forms[inflection_form])
                 elif inflection_form in generated_MP_forms:
-                    inflections.append(generated_MP_forms[inflection_form])
-        inflections = [i for inf in inflections for i in inf]
+                    inflections.extend(generated_MP_forms[inflection_form])
         source_specification = r.relationmetadata_set.values_list('text', flat=True) \
             .filter(type=SPECIFICATION, language=lexeme_from.language) \
             .order_by('text').all()

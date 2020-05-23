@@ -51,9 +51,10 @@ class Inflector:
 
     def get_supported_languages(self):
         langs = []
-        for x in os.listdir(self._transducers_base_dir):
-            if os.path.isdir(os.path.join(self._transducers_base_dir, x)):
-                langs.append(x)
+        if self._transducers_base_dir:
+            for x in os.listdir(self._transducers_base_dir):
+                if os.path.isdir(os.path.join(self._transducers_base_dir, x)):
+                    langs.append(x)
         return langs
 
     def language_processors(self, lang):
@@ -3122,7 +3123,7 @@ class Inflector:
                 for f in poses:
                     results = uralicApi.generate(lemma + '+' + f, lang)
                     for r in results:
-                        generated_forms[f].append([r[0].split('@')[0], ])
+                        generated_forms[f].append(r[0].split('@')[0],)
         return generated_forms
 
     def generate(self, lang, lemma, pos):

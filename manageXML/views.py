@@ -238,7 +238,10 @@ class MiniParadigmMixin:
     @staticmethod
     def existing_forms(lexeme):
         MP_forms = lexeme.miniparadigm_set.all()
-        return {form.msd: form.wordform for form in MP_forms}
+        existing_MP_forms = defaultdict(list)
+        for form in MP_forms:
+            existing_MP_forms[form.msd].append(form.wordform)
+        return existing_MP_forms
 
     def generate_forms(self, lexeme):
         existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)

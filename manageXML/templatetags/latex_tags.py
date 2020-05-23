@@ -73,7 +73,7 @@ def dictionary_entry(grouped_relation):
                     inflections.append(existing_MP_forms[inflection_form])
                 elif inflection_form in generated_MP_forms:
                     inflections.append(generated_MP_forms[inflection_form])
-
+        inflections = [i for inf in inflections for i in inf]
         source_specification = r.relationmetadata_set.values_list('text', flat=True) \
             .filter(type=SPECIFICATION, language=lexeme_from.language) \
             .order_by('text').all()

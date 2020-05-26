@@ -14,6 +14,7 @@ if os.path.exists(transducer_path) and os.path.isfile(transducer_path):
     input_stream = hfst.HfstInputStream(transducer_path)
     synthetiser = input_stream.read()
 
+
 @register.filter(name='tex_escape')
 def tex_escape(text):
     """
@@ -65,8 +66,6 @@ def dictionary_entry(grouped_relation):
         'A': [],
     }
 
-
-
     relations = list(
         sorted(relations, key=lambda r: (r.relationmetadata_set.all().count() != 0, r.lexeme_to.lexeme_lang,))
     )
@@ -81,10 +80,6 @@ def dictionary_entry(grouped_relation):
         for form in MP_forms:
             existing_MP_forms[form.msd].append(form.wordform)
 
-
-        # default (uralicNLP)
-        # generated_MP_forms = _inflector.generate(translation.language, translation.lexeme, translation.pos)
-
         # custom transducer
         generated_MP_forms = defaultdict(list)
         if synthetiser:
@@ -98,6 +93,8 @@ def dictionary_entry(grouped_relation):
                         raise
             except:  # POS is empty or no queries
                 pass
+        else:  # default (uralicNLP)
+            generated_MP_forms = _inflector.generate(translation.language, translation.lexeme, translation.pos)
 
         if translation.pos in inflection_table:
             for inflection_form in inflection_table[translation.pos]:

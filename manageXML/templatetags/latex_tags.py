@@ -3,10 +3,16 @@ from django import template
 from manageXML.constants import SPECIFICATION
 from manageXML.inflector import Inflector
 from collections import defaultdict
+from django.conf import settings
+import os
+import hfst
 
 register = template.Library()
 _inflector = Inflector()
-
+transducer_path = os.path.join(settings.BASE_DIR, '../local/transducers/generator-dict-gt-norm.hfstol')
+if os.path.exists(transducer_path) and os.path.isfile(transducer_path):
+    input_stream = hfst.HfstInputStream(transducer_path)
+    synthetiser = input_stream.read()
 
 @register.filter(name='tex_escape')
 def tex_escape(text):
@@ -58,7 +64,12 @@ def dictionary_entry(grouped_relation):
         'N': ['N+Sg+Loc', 'N+Sg+Ill', 'N+Pl+Gen'],
         'A': [],
     }
-    relations = list(sorted(relations, key=lambda r: r.lexeme_to.lexeme_lang))
+
+
+
+    relations = list(
+        sorted(relations, key=lambda r: (r.relationmetadata_set.all().count() != 0, r.lexeme_to.lexeme_lang,))
+    )
     for r in relations:
         translation = r.lexeme_to
         pos = '' if translation.pos == lexeme_from.pos else translation.pos
@@ -69,7 +80,25 @@ def dictionary_entry(grouped_relation):
         existing_MP_forms = defaultdict(list)
         for form in MP_forms:
             existing_MP_forms[form.msd].append(form.wordform)
-        generated_MP_forms = _inflector.generate(translation.language, translation.lexeme, translation.pos)
+
+
+        # default (uralicNLP)
+        # generated_MP_forms = _inflector.generate(translation.language, translation.lexeme, translation.pos)
+
+        # custom transducer
+        generated_MP_forms = defaultdict(list)
+        if synthetiser:
+            try:
+                queries, _ = _inflector.__generator_queries__(translation.lexeme, translation.pos)
+                for i in range(len(queries)):
+                    MP_form = '+'.join(queries[i].split('+')[1:])
+                    try:
+                        generated_MP_forms[MP_form].append(synthetiser.lookup(queries[i])[0][0].split("@")[0])
+                    except:
+                        raise
+            except:  # POS is empty or no queries
+                pass
+
         if translation.pos in inflection_table:
             for inflection_form in inflection_table[translation.pos]:
                 if inflection_form in existing_MP_forms:

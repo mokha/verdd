@@ -6,6 +6,7 @@ from collections import defaultdict
 from django.conf import settings
 import os
 import hfst
+from uralicNLP import uralicApi
 
 register = template.Library()
 _inflector = Inflector()
@@ -63,7 +64,8 @@ def dictionary_entry(grouped_relation):
     inflection_table = {
         'V': ['V+Ind+Prs+ConNeg', 'V+Ind+Prs+Sg3', 'V+Ind+Prt+Sg1', 'V+Ind+Prt+Sg3'],
         'N': ['N+Sg+Loc', 'N+Sg+Ill', 'N+Pl+Gen'],
-        'A': [],
+        'A': ['A+Attr'],
+        'Prop': ['N+Prop+Sg+Loc', 'N+Prop+Sem/Mal+Sg+Loc', 'N+Prop+Sem/Fem+Sg+Loc', 'N+Prop+Sem/Plc+Sg+Loc']
     }
 
     relations = list(
@@ -98,10 +100,29 @@ def dictionary_entry(grouped_relation):
 
         if translation.pos in inflection_table:
             for inflection_form in inflection_table[translation.pos]:
+                generated_form = None
                 if inflection_form in existing_MP_forms:
-                    inflections.extend(existing_MP_forms[inflection_form])
+                    generated_form = existing_MP_forms[inflection_form]
                 elif inflection_form in generated_MP_forms:
-                    inflections.extend(generated_MP_forms[inflection_form])
+                    generated_form = generated_MP_forms[inflection_form]
+
+                if generated_form:
+                    if inflection_form == 'A+Attr':
+                        generated_form = ["#{}".format(gf) for gf in generated_form]
+                    elif inflection_form == 'V+Ind+Prs+ConNeg':
+                        generated_form[0] = "ij {}".format(generated_form[0])
+                    inflections.extend(generated_form)
+
+        if not inflections and translation.pos == 'N' and re.match(r'[A-Z](.+)', translation.lexeme):
+            for inflection_form in inflection_table['Prop']:
+                generated_results = uralicApi.generate("{}+{}".format(translation.lexeme, inflection_form),
+                                                       translation.language)
+                generated_form = [gr[0].split('@')[0] for gr in generated_results]
+                if generated_form:
+                    inflections.extend(generated_form)
+                    break
+
+
         source_specification = r.relationmetadata_set.values_list('text', flat=True) \
             .filter(type=SPECIFICATION, language=lexeme_from.language) \
             .order_by('text').all()

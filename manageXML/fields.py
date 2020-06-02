@@ -13,7 +13,23 @@ class BinaryCharField(models.CharField):
     A solution is to set the default collate of the table to utf8_bin and use VARBINARY as a field instead of VARCHAR.
     '''
 
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return value
+        return smart_str(value)  # to support VARBINARY in MySQL databases
+
     def to_python(self, value):
         if isinstance(value, str) or value is None:
             return value
-        return smart_str(str(value))  # to support utf8_bin in MySQL databases
+        return smart_str(value)  # to support VARBINARY in MySQL databases
+
+    def db_type(self, connection):
+        if connection.settings_dict['ENGINE'] == 'django.db.backends.mysql':
+            return 'VARBINARY'
+        return 'VARCHAR'
+
+    def rel_db_type(self, connection):
+        return self.db_type(connection)
+
+    def get_internal_type(self):
+        return "BinaryCharField"

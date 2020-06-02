@@ -25,8 +25,8 @@ class BinaryCharField(models.CharField):
 
     def db_type(self, connection):
         if connection.settings_dict['ENGINE'] == 'django.db.backends.mysql':
-            return 'VARBINARY'
-        return 'VARCHAR'
+            return 'VARBINARY(%s)' % self.max_length
+        return 'VARCHAR(%s)' % self.max_length
 
     def rel_db_type(self, connection):
         return self.db_type(connection)

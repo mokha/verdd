@@ -5,10 +5,10 @@ from django.utils.text import slugify
 from django.urls import reverse
 from .common import Rhyme
 from .constants import *
+from .fields import *
 from wiki.semantic_api import SemanticAPI
 from django.contrib.auth.models import User
 import string
-
 
 class DataFile(models.Model):
     lang_source = models.CharField(max_length=3)
@@ -24,7 +24,7 @@ class Lexeme(models.Model):
     class Meta:
         unique_together = ('lexeme', 'pos', 'homoId', 'language',)
 
-    lexeme = models.CharField(max_length=250)
+    lexeme = BinaryCharField(max_length=250)
     homoId = models.IntegerField(default=0)
     assonance = models.CharField(max_length=250, blank=True)
     assonance_rev = models.CharField(max_length=250, blank=True)

@@ -224,3 +224,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     )
 }
+
+# For localizations
+LANGUAGE_COOKIE_NAME = 'language'

@@ -63,14 +63,49 @@
         </div>
     {% endblock %}
 
+    <div class="container">
     {% block main_container %}
-        <main role="main" class="container">
+        <main role="main">
             <div class="container-content">
                 {% block main_content %}
                 {% endblock %}
             </div>
         </main><!-- /.container -->
     {% endblock %}
+
+    {% block footer %}
+        <footer class="pt-4 my-md-5 pt-md-5 border-top">
+            <div class="row">
+                <div class="col-6 col-md dropdown show">
+                    <div class="text-center">
+                        <a class="header-logo text-dark" href="{% url 'index' %}">
+                            {% blocktrans %}Verdd{% endblocktrans %}
+                        </a>
+                    </div>
+
+                </div>
+                <div class="col-6 col-md text-center">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_language_info for LANGUAGE_CODE as lang %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    <a class="dropdown-toggle" href="#" role="button" id="languageLink"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ lang.name_local }}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="languageLink">
+                        {% for language in languages %}
+                           <a class="dropdown-item language-select" href="#" data-lang="{{ language.code }}">{{ language.name_local }} ({{ language.code }})</a>
+                        {% endfor %}
+                    </div>
+                    <form action="{% url 'set_language' %}" method="post" id="language-form">{% csrf_token %}
+                        <input name="next" type="hidden" value="{{ redirect_to }}">
+                        <input name="language" type="hidden" value="{{ redirect_to }}">
+                    </form>
+                </div>
+        </footer>
+    {% endblock %}
+    </div>
 {% endblock %}
 {% block js %}
     <!-- Optional JavaScript -->
@@ -85,6 +120,19 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function(){
+            $(".language-select").click(function(event){
+                event.preventDefault();
+
+                let language_form = $('#language-form');
+                let selected_language = $(this).attr('data-lang');
+                $("input[name=language]", language_form).val(selected_language);
+                language_form.submit();
+            });
+        });
+    </script>
 
 {% endblock %}
 </body>

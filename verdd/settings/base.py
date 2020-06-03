@@ -56,11 +56,14 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'simple_history.middleware.HistoryRequestMiddleware',  # simple_history
 ]
 
 ROOT_URLCONF = 'verdd.urls'
@@ -132,17 +135,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "../assets"),
 ]
 
-# Localization settings
-# The LocaleMiddleware check's the incoming request for the
-# user's preferred language settings. Add the LocaleMiddleware
-# after SessionMiddleware and CacheMiddleware, and before the
-# CommonMiddleware.
-MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'simple_history.middleware.HistoryRequestMiddleware',  # simple_history
-)
 # Provide a lists of languages which your site supports.
 LANGUAGES = (
     ('en-us', _('English')),

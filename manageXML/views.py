@@ -939,14 +939,14 @@ class RelationFilter(django_filters.FilterSet):
         ('iregex', _l('iRegex')),
     ]
 
-    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_('Lexeme'), empty_label=None,
+    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_l('Lexeme'), empty_label=None,
                                 lookup_choices=lookup_choices, method='filter_lexeme')
-    pos = ChoiceFilter(label=_('POS'), method='filter_pos')
+    pos = ChoiceFilter(label=_l('POS'), method='filter_pos')
     lexeme_side = ChoiceFilter(label='', method='filter_pos', choices=[('from', _l('From')),
                                                                        ('to', _l('To'))])
-    source = CharFilter(label=_('Source'), method='filter_source')
-    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
-    type = ChoiceFilter(choices=RELATION_TYPE_OPTIONS, label=_('Type'))
+    source = CharFilter(label=_l('Source'), method='filter_source')
+    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_l('Processed'))
+    type = ChoiceFilter(choices=RELATION_TYPE_OPTIONS, label=_l('Type'))
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()

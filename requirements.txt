@@ -23,7 +23,7 @@ requests==2.22.0
 requests-oauthlib==1.2.0
 six==1.12.0
 sqlparse==0.3.0
-uralicNLP==1.1.1
+uralicNLP==1.2.1
 urllib3==1.25.2
 uWSGI==2.0.18
 tqdm==4.36.1

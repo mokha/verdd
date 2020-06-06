@@ -29,6 +29,7 @@ from .constants import INFLEX_TYPE_OPTIONS
 from manageXML.inflector import Inflector
 import operator
 import logging
+from .utils import *
 
 logger = logging.getLogger('verdd.manageXML')  # Get an instance of a logger
 _inflector = Inflector()
@@ -1077,14 +1078,7 @@ def download_dictionary_tex(request):
     # 2) group them by their first character
     # 3) order them
 
-    file_path = os.path.join(settings.BASE_DIR, '../local/data/approved_relations.csv')
-    to_ignore_ids = []
-    if os.path.exists(file_path) and os.path.isfile(file_path):
-        with open(file_path, 'r', encoding='utf-8') as fp:
-            reader = csv.reader(fp, delimiter=',')
-            rows = list(reader)
-            rows = [r for r in rows if len(r) > 0]
-            to_ignore_ids = [r[0] for r in rows]
+    to_ignore_ids = read_first_ids_from(os.path.join(settings.BASE_DIR, '../local/data/approved_relations.csv'))
 
     relations = Relation.objects.filter(checked=True, type=TRANSLATION) \
         .exclude(pk__in=to_ignore_ids) \

@@ -30,7 +30,7 @@ class Lexeme(models.Model):
     assonance_rev = models.CharField(max_length=250, blank=True)
     consonance = models.CharField(max_length=250, blank=True)
     consonance_rev = models.CharField(max_length=250, blank=True)
-    lexeme_lang = models.CharField(max_length=250, blank=True)
+    lexeme_lang = BinaryCharField(max_length=250, blank=True)
     language = models.CharField(max_length=3)
     pos = models.CharField(max_length=25)
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)

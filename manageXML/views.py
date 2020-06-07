@@ -1069,6 +1069,7 @@ def download_dictionary_tex(request):
     from zipfile import ZipFile
     import uuid
     import time
+    from django.db.models.functions import Cast
 
     main_template = 'export/latex.html'
     chapter_template = 'export/latex-chapter.html'
@@ -1087,8 +1088,8 @@ def download_dictionary_tex(request):
         Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
         'relationexample_set', 'relationmetadata_set') \
         .filter(lexeme_from__language='fin', lexeme_to__language='sms') \
-        .annotate(lexeme_fc=Upper(Substr('lexeme_from__lexeme', 1, 1)),
-                  lexeme_fcl=Substr('lexeme_from__lexeme_lang', 1, 1)) \
+        .annotate(lexeme_fc=Upper(Substr(Cast('lexeme_from__lexeme', models.CharField()), 1, 1)),
+                  lexeme_fcl=Substr(Cast('lexeme_from__lexeme_lang', models.CharField()), 1, 1)) \
         .order_by('lexeme_fcl') \
         .all()
 

@@ -73,6 +73,21 @@ def dictionary_entry(grouped_relation):
         'Prop': ['N+Prop+Sg+Loc', 'N+Prop+Sem/Mal+Sg+Loc', 'N+Prop+Sem/Fem+Sg+Loc', 'N+Prop+Sem/Plc+Sg+Loc']
     }
 
+    contelex_inflexType_cases = {
+        'V': {
+            r'(YD,1)': ['V+Ind+Prs+Sg1', 'V+Ind+Prs+Sg3'],
+            r'(AD,1)': ['V+Ind+Prs+Sg1', 'V+Ind+Prt+Sg1'],
+            r'(ED,1)': ['V+Ind+Prs+Sg1', 'V+Ind+Prt+Sg1', 'V+Ind+Prt+Sg3'],
+            r'(,[2-4])': ['V+Ind+Prs+ConNeg']
+        },
+        'N': {
+            r'(Q[^,\n]*)(,1)': ['N+Sg+Loc', 'N+Sg+Ill', 'N+Pl+Gen'],
+            r'(_[^Q,\n]*)(,1)': ['N+Sg+Loc', 'N+Sg+Ill'],
+            r'(,3|[^D],2|ID,2)': ['N+Sg+Gen', 'N+Sg+IllN+Sg+Gen', 'N+Sg+Ill'],
+            r'(,4|[YAE]D,2)': ['N+Sg+Loc', 'N+Sg+Ill'],
+        }
+    }
+
     relations = list(
         sorted(relations, key=lambda r: (r.relationmetadata_set.all().count() != 0, r.lexeme_to.lexeme_lang,))
     )
@@ -105,7 +120,16 @@ def dictionary_entry(grouped_relation):
                 generated_MP_forms = _inflector.generate(translation.language, translation.lexeme, translation.pos)
 
             if translation.pos in inflection_table:
-                for inflection_form in inflection_table[translation.pos]:
+                inflection_forms = inflection_table[translation.pos]  # default inflections
+
+                # specific inflections based on contlex
+                if translation.contlex and translation.pos in contelex_inflexType_cases:
+                    for re_pattern, inflections in contelex_inflexType_cases[translation.pos].items():
+                        if re.search(re_pattern, "{},{}".format(translation.contlex, translation.inflexType_str())):
+                            inflection_forms = inflections
+                            break
+
+                for inflection_form in inflection_forms:
                     generated_form = None
                     if inflection_form in existing_MP_forms:
                         generated_form = existing_MP_forms[inflection_form]

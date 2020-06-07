@@ -124,9 +124,9 @@ def dictionary_entry(grouped_relation):
 
                 # specific inflections based on contlex
                 if translation.contlex and translation.pos in contelex_inflexType_cases:
-                    for re_pattern, inflections in contelex_inflexType_cases[translation.pos].items():
+                    for re_pattern, _inflections in contelex_inflexType_cases[translation.pos].items():
                         if re.search(re_pattern, "{},{}".format(translation.contlex, translation.inflexType_str())):
-                            inflection_forms = inflections
+                            inflection_forms = _inflections
                             break
 
                 for inflection_form in inflection_forms:

@@ -1,9 +1,48 @@
-from django.core.management.base import BaseCommand, CommandError
 import os
 import time
 import shutil
 from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError)
+from subprocess import Popen, PIPE, list2cmdline
+
+
+def gen_name(ext):
+    return 'db.%s.%s' % (time.strftime('%Y-%m-%d'), ext)
+
+
+def sqlite_db_backup(db_name, out_path):
+    if os.path.isfile(db_name):
+        # backup the latest database, eg to: `db.2017-02-29.sqlite3`
+        shutil.copyfile(db_name, out_path)
+        return True
+    return False
+
+
+def mysql_db_backup(db_settings, out_path):
+    username = db_settings['USER']
+    password = db_settings['PASSWORD']
+    database = db_settings['NAME']
+    host = db_settings['HOST']
+    port = db_settings['PORT']
+
+    cmd = ['mysqldump',
+           '-h', host, '-P', port,
+           '-u', username, '-p%s' % password,
+           '--no-create-info', '--skip-add-drop-table',
+           database]
+
+    p = Popen(list2cmdline(cmd),
+              stdout=PIPE, stderr=PIPE,
+              shell=True)
+    stdout, stderr = p.communicate()
+
+    if stderr:
+        return False
+
+    with open(out_path, 'w', encoding='utf-8') as output_file:
+        output_file.write(stdout)
+
+    return True
 
 
 class Command(BaseCommand):
@@ -33,18 +72,21 @@ class Command(BaseCommand):
             return self.print_help()
         elif database not in settings.DATABASES:
             return self.error_info('Database %s not found in the configuration!' % database)
-        elif settings.DATABASES[database]['ENGINE'] != 'django.db.backends.sqlite3':
-            return self.error_info("This script backs up sqlite databases only!")
         elif not os.path.isdir(dir_path):
             return self.error_info("The backup directory doesn't exist!")
 
-        DATABASE_NAME = settings.DATABASES[database]['NAME']
+        DB_SETTINGS = settings.DATABASES[database]
 
-        if os.path.isfile(DATABASE_NAME):
-            # backup the latest database, eg to: `db.2017-02-29.sqlite3`
-            backup_database = 'db.%s.sqlite3' % time.strftime('%Y-%m-%d')
-            backup_database_path = os.path.join(dir_path, backup_database)
-            shutil.copyfile(DATABASE_NAME, backup_database_path)
-            self.success_info("[+] Backup the database `%s` to %s" % (DATABASE_NAME, backup_database_path))
+        if settings.DATABASES[database]['ENGINE'] == 'django.db.backends.sqlite3':
+            backup_database_path = os.path.join(dir_path, gen_name('sqlite3'))
+            sqlite_db_backup(DB_SETTINGS['NAME'], backup_database_path)
+        elif settings.DATABASES[database]['ENGINE'] == 'django.db.backends.mysql':
+            backup_database_path = os.path.join(dir_path, gen_name('sql'))
+            mysql_db_backup(DB_SETTINGS, backup_database_path)
         else:
-            self.error_info("Database %s not found" % DATABASE_NAME)
+            return self.error_info("This script backs up sqlite/mysql databases only!")
+
+        if backup_database_path:
+            self.success_info("[+] Backup the database `%s` to %s" % (DB_SETTINGS['NAME'], backup_database_path))
+        else:
+            self.error_info("Database %s not found" % DB_SETTINGS['NAME'])

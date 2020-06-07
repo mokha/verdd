@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 import io, csv, os
 from ._private import *
-from manageXML.models import *
 import logging
 from manageXML.models import *
 

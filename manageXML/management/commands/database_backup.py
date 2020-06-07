@@ -33,6 +33,7 @@ def mysql_db_backup(db_settings, out_path):
 
     p = Popen(list2cmdline(cmd),
               stdout=PIPE, stderr=PIPE,
+              universal_newlines=True,
               shell=True)
     stdout, stderr = p.communicate()
 
@@ -40,7 +41,7 @@ def mysql_db_backup(db_settings, out_path):
         return False
 
     with open(out_path, 'w', encoding='utf-8') as output_file:
-        output_file.write(stdout)
+        output_file.write(stdout.strip())
 
     return True
 

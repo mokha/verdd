@@ -29,7 +29,8 @@ class LexemeForm(forms.ModelForm):
 
     class Meta:
         model = Lexeme
-        fields = ['lexeme', 'pos', 'homoId', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked', 'specification']
+        fields = ['lexeme', 'pos', 'homoId', 'contlex', 'type', 'lemmaId', 'inflexType', 'notes', 'checked',
+                  'specification']
 
     def __init__(self, *args, **kwargs):
         super(LexemeForm, self).__init__(*args, **kwargs)
@@ -132,7 +133,7 @@ class RelationCreateForm(forms.ModelForm):
 
     class Meta:
         model = Relation
-        fields = ['type', 'notes', 'checked',]
+        fields = ['type', 'notes', 'checked', ]
 
     def __init__(self, *args, **kwargs):
         type = forms.ChoiceField(required=True, choices=RELATION_TYPE_OPTIONS, label=_('Type'))
@@ -308,9 +309,10 @@ class MiniParadigmCreateForm(forms.ModelForm):
         )
 
 
-class DangerBtn(Submit):
+class CustomBtn(Submit):
     def __init__(self, *args, **kwargs):
-        self.field_classes = 'btn btn-danger'
+        _type = kwargs.pop('type')
+        self.field_classes = 'btn btn-%s' % _type
         super(Submit, self).__init__(*args, **kwargs)
 
 
@@ -319,7 +321,7 @@ class DeleteFormBase(forms.Form):
         super(DeleteFormBase, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            DangerBtn('submit', _('Delete'))
+            CustomBtn('submit', _('Delete'), type='danger')
         )
 
 
@@ -443,3 +445,17 @@ class ApprovalMultipleChoiceForm(forms.Form):
         self.fields['choices'].queryset = queryset
         self.initial['choices'] = [_i for _i in queryset if _i.checked]
 
+
+class FlipRelationForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        relation = kwargs.pop('relation')
+
+        super(FlipRelationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'switch-relation-form'
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('relation-switch', kwargs={'pk': relation.id})
+
+        self.helper.layout = Layout(
+            CustomBtn('submit', _('Switch Direction'), type='secondary')
+        )

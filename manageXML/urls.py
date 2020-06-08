@@ -88,4 +88,8 @@ urlpatterns = [
     re_path(r'^relation/approve/(?P<pk>\d+)/', views.approve_relation,
             name='relation-approve'),
 
+    # switching the directionality of a relation
+    re_path(r'^relation/switch/(?P<pk>\d+)/', views.switch_relation,
+            name='relation-switch'),
+
 ]

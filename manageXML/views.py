@@ -14,8 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.functions import Substr, Upper
 from django.db.models import Prefetch
-from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy as _l
+from django.utils.translation import gettext_lazy as _
 from django.http import Http404
 from django.db.models import Q
 from rest_framework import generics, response
@@ -81,8 +80,8 @@ class LexemeOrderingFilter(OrderingFilter):
 
 class LexemeFilter(django_filters.FilterSet):
     STATUS_CHOICES = (
-        (True, _l('Yes')),
-        (False, _l('No')),
+        (True, _('Yes')),
+        (False, _('No')),
     )
 
     ALPHABETS_CHOICES = list(enumerate(string.ascii_uppercase + 'ÄÅÖ'))
@@ -96,50 +95,50 @@ class LexemeFilter(django_filters.FilterSet):
     }
 
     lookup_choices = [
-        ('exact', _l('Exact')),
-        ('iexact', _l('iExact')),
-        ('contains', _l('Contains')),
-        ('icontains', _l('iContains')),
-        ('startswith', _l('Starts with')),
-        ('istartswith', _l('iStarts with')),
-        ('endswith', _l('Ends with')),
-        ('iendswith', _l('iEnds with')),
-        ('regex', _l('Regex')),
-        ('iregex', _l('iRegex')),
+        ('exact', _('Exact')),
+        ('iexact', _('iExact')),
+        ('contains', _('Contains')),
+        ('icontains', _('iContains')),
+        ('startswith', _('Starts with')),
+        ('istartswith', _('iStarts with')),
+        ('endswith', _('Ends with')),
+        ('iendswith', _('iEnds with')),
+        ('regex', _('Regex')),
+        ('iregex', _('iRegex')),
     ]
 
-    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_l('Lexeme'), empty_label=None,
+    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_('Lexeme'), empty_label=None,
                                 lookup_choices=lookup_choices)
-    language = ChoiceFilter(label=_l('Language'))
-    pos = ChoiceFilter(label=_l('POS'))
-    inflexType = ChoiceFilter(choices=INFLEX_TYPE_OPTIONS, label=_l('Inflex Type'))
-    contlex = CharFilter(label=_l('Contlex'), lookup_expr='exact')
-    range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_l('Range from'), method='filter_range')
-    range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_l('Range to'), method='filter_range')
-    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_l('Processed'))
-    source = CharFilter(label=_l('Source'), method='source_filter')
+    language = ChoiceFilter(label=_('Language'))
+    pos = ChoiceFilter(label=_('POS'))
+    inflexType = ChoiceFilter(choices=INFLEX_TYPE_OPTIONS, label=_('Inflex Type'))
+    contlex = CharFilter(label=_('Contlex'), lookup_expr='exact')
+    range_from = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range from'), method='filter_range')
+    range_to = ChoiceFilter(choices=ALPHABETS_CHOICES, label=_('Range to'), method='filter_range')
+    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
+    source = CharFilter(label=_('Source'), method='source_filter')
 
     order_by = LexemeOrderingFilter(
         choices=(
-            ('lexeme_lang', _l('Lexeme')),
-            ('-lexeme_lang', '%s (%s)' % (_l('Lexeme'), _l('descending'))),
-            ('pos', _l('POS')),
-            ('-pos', '%s (%s)' % (_l('POS'), _l('descending'))),
-            ('contlex', _l('ContLex')),
-            ('-contlex', '%s (%s)' % (_l('ContLex'), _l('descending'))),
-            ('inflexType', _l('inflexType')),
-            ('-inflexType', '%s (%s)' % (_l('inflexType'), _l('descending'))),
-            ('consonance', _l('Consonance')),
-            ('-consonance', '%s (%s)' % (_l('Consonance'), _l('descending'))),
-            ('consonance_rev', _l('revConsonance')),
-            ('-consonance_rev', '%s (%s)' % (_l('revConsonance'), _l('descending'))),
-            ('assonance', _l('Assonance')),
-            ('-assonance', '%s (%s)' % (_l('Assonance'), _l('descending'))),
-            ('assonance_rev', _l('RevAssonance')),
-            ('-assonance_rev', '%s (%s)' % (_l('RevAssonance'), _l('descending'))),
+            ('lexeme_lang', _('Lexeme')),
+            ('-lexeme_lang', '%s (%s)' % (_('Lexeme'), _('descending'))),
+            ('pos', _('POS')),
+            ('-pos', '%s (%s)' % (_('POS'), _('descending'))),
+            ('contlex', _('ContLex')),
+            ('-contlex', '%s (%s)' % (_('ContLex'), _('descending'))),
+            ('inflexType', _('inflexType')),
+            ('-inflexType', '%s (%s)' % (_('inflexType'), _('descending'))),
+            ('consonance', _('Consonance')),
+            ('-consonance', '%s (%s)' % (_('Consonance'), _('descending'))),
+            ('consonance_rev', _('revConsonance')),
+            ('-consonance_rev', '%s (%s)' % (_('revConsonance'), _('descending'))),
+            ('assonance', _('Assonance')),
+            ('-assonance', '%s (%s)' % (_('Assonance'), _('descending'))),
+            ('assonance_rev', _('RevAssonance')),
+            ('-assonance_rev', '%s (%s)' % (_('RevAssonance'), _('descending'))),
         ),
         fields=ORDER_BY_FIELDS,
-        label=_l("Order by")
+        label=_("Order by")
     )
 
     class Meta:
@@ -210,7 +209,7 @@ class LexemeExportView(LexemeView):
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
 
         writer = csv.writer(response)
-        header = [_l('ID'), _l('Language'), _l('Lexeme'), _l('POS'), _l('Contlex'), _l('Inflex Type'), ]
+        header = [_('ID'), _('Language'), _('Lexeme'), _('POS'), _('Contlex'), _('Inflex Type'), ]
         if 'order_by' in context:
             header += [_('Ordered By')]
         writer.writerow(header)
@@ -388,6 +387,11 @@ class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     def form_valid(self, form):
         form.instance.changed_by = self.request.user
         return super(RelationEditView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationEditView, self).get_context_data(**kwargs)
+        context['switch_form'] = FlipRelationForm(relation=self.object)
+        return context
 
 
 class SourceDetailView(DetailView):
@@ -923,31 +927,31 @@ class RelationFilter(django_filters.FilterSet):
         fields = ['checked', 'type']
 
     STATUS_CHOICES = (
-        (True, _l('Yes')),
-        (False, _l('No')),
+        (True, _('Yes')),
+        (False, _('No')),
     )
 
     lookup_choices = [
-        ('exact', _l('Exact')),
-        ('iexact', _l('iExact')),
-        ('contains', _l('Contains')),
-        ('icontains', _l('iContains')),
-        ('startswith', _l('Starts with')),
-        ('istartswith', _l('iStarts with')),
-        ('endswith', _l('Ends with')),
-        ('iendswith', _l('iEnds with')),
-        ('regex', _l('Regex')),
-        ('iregex', _l('iRegex')),
+        ('exact', _('Exact')),
+        ('iexact', _('iExact')),
+        ('contains', _('Contains')),
+        ('icontains', _('iContains')),
+        ('startswith', _('Starts with')),
+        ('istartswith', _('iStarts with')),
+        ('endswith', _('Ends with')),
+        ('iendswith', _('iEnds with')),
+        ('regex', _('Regex')),
+        ('iregex', _('iRegex')),
     ]
 
-    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_l('Lexeme'), empty_label=None,
+    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_('Lexeme'), empty_label=None,
                                 lookup_choices=lookup_choices, method='filter_lexeme')
-    pos = ChoiceFilter(label=_l('POS'), method='filter_pos')
-    lexeme_side = ChoiceFilter(label='', method='filter_pos', choices=[('from', _l('From')),
-                                                                       ('to', _l('To'))])
-    source = CharFilter(label=_l('Source'), method='filter_source')
-    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_l('Processed'))
-    type = ChoiceFilter(choices=RELATION_TYPE_OPTIONS, label=_l('Type'))
+    pos = ChoiceFilter(label=_('POS'), method='filter_pos')
+    lexeme_side = ChoiceFilter(label='', method='filter_pos', choices=[('from', _('From')),
+                                                                       ('to', _('To'))])
+    source = CharFilter(label=_('Source'), method='filter_source')
+    checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
+    type = ChoiceFilter(choices=RELATION_TYPE_OPTIONS, label=_('Type'))
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
@@ -1008,12 +1012,12 @@ class RelationExportView(RelationView):
 
         headers = [
             ['',
-             _l('From'), '', '', '', '',
-             _l('To'), '', '', '', '',
+             _('From'), '', '', '', '',
+             _('To'), '', '', '', '',
              ],
-            [_l('ID'),
-             _l('Lexeme ID'), _l('Lexeme'), _l('Language'), _l('POS'), _l('Contlex'),
-             _l('Lexeme ID'), _l('Lexeme'), _l('Language'), _l('POS'), _l('Contlex'),
+            [_('ID'),
+             _('Lexeme ID'), _('Lexeme'), _('Language'), _('POS'), _('Contlex'),
+             _('Lexeme ID'), _('Lexeme'), _('Language'), _('POS'), _('Contlex'),
              ],
         ]
         for header in headers:
@@ -1146,5 +1150,19 @@ def approve_relation(request, pk):
         relation.checked = True
         relation.changed_by = request.user
         relation.save()
+
+    return HttpResponseRedirect(relation.get_absolute_url())
+
+
+@login_required
+def switch_relation(request, pk):
+    relation = get_object_or_404(Relation, pk=pk)
+
+    if request.method == 'POST':
+        form = FlipRelationForm(request.POST, relation=relation)
+        if form.is_valid():
+            relation.lexeme_from, relation.lexeme_to = relation.lexeme_to, relation.lexeme_from
+            relation.changed_by = request.user
+            relation.save()
 
     return HttpResponseRedirect(relation.get_absolute_url())

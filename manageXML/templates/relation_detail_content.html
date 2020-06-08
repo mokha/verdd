@@ -1,5 +1,12 @@
 {% load i18n %}
 {% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
 
 {% include 'relation_base_detail.html' with object=object %}
+    {% if switch_form %}
+        <div class="center-block text-center">
+            {% crispy switch_form %}
+        </div>
+    {% endif %}
 {% include 'relation_data.html' with object=object %}

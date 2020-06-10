@@ -21,6 +21,9 @@ class TranslationText(object):
     def attributes(self, value):
         self._attributes = value
 
+    def unique_str(self):
+        return "{}__{}".format(self.text, "_".join(self.attributes))
+
 
 class TranslationPair(object):
     def __init__(self):
@@ -126,7 +129,11 @@ class Command(BaseCommand):
             raise CommandError('File "%s" does not exist.' % file_path)
 
         alphabet, sdefs, pardefs, elements = parse_dix(file_path)
+
+        from collections import Counter
+        _counter = []
         for e in elements:
-            print(e)
+            _counter.extend([e.pair.left.unique_str(), e.pair.right.unique_str()])
+        print(Counter(_counter))
 
         self.stdout.write(self.style.SUCCESS('Successfully imported the file.'))

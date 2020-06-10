@@ -128,7 +128,7 @@ def merge(main_lexeme, other_lexemes=[]):
 def process(row, fields_length=4):
     lexemes = [row[x:x + fields_length] for x in range(0, len(row), fields_length)]
     try:
-        lexemes = [Lexeme.objects.get(pk=_l[0]) for _l in lexemes if len(_l) == fields_length]
+        lexemes = [Lexeme.objects.get(pk=_l[0]) for _l in lexemes if len(_l) == fields_length and _l[0]]
         merge(lexemes[0], lexemes[1:])
     except Exception as ex:
         logger.info("Couldn't merge row {} because '{}'".format("\t".join(row), repr(ex)))

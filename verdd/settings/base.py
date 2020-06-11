@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'users',
     'manageXML',
+    'apertium',
 
     'allauth',
     'allauth.account',

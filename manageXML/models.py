@@ -10,6 +10,7 @@ from wiki.semantic_api import SemanticAPI
 from django.contrib.auth.models import User
 import string
 
+
 class DataFile(models.Model):
     lang_source = models.CharField(max_length=3)
     lang_target = models.CharField(max_length=3)
@@ -324,6 +325,32 @@ class RelationExample(models.Model):
     def get_absolute_url(self):
         return reverse('relation-detail',
                        kwargs={'pk': self.relation.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
+
+class LexemeMetadata(models.Model):
+    class Meta:
+        unique_together = ('lexeme', 'text',)
+
+    lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
+    text = models.CharField(max_length=250)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='lexeme_metadata')
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return "{}".format(self.text)
+
+    def get_absolute_url(self):
+        return reverse('lexeme-detail',
+                       kwargs={'pk': self.lexeme.pk})
 
     @property
     def _history_user(self):

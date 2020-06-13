@@ -70,11 +70,11 @@ def parse_e(_e):
 
     _pair = _e.find('p')
     _left = _pair.find('l')
-    e.pair.left.text = _left.text.strip()
+    e.pair.left.text = _left.text.strip() if _left.text else ''
     e.pair.left.attributes = [_s.attrib['n'] for _s in _left.findall('s') if 'n' in _s.attrib]
 
     _right = _pair.find('r')
-    e.pair.right.text = _right.text.strip()
+    e.pair.right.text = _right.text.strip() if _right.text else ''
     e.pair.right.attributes = [_s.attrib['n'] for _s in _right.findall('s') if 'n' in _s.attrib]
 
     _re = _e.find('re')

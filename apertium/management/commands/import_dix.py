@@ -69,6 +69,9 @@ def parse_e(_e):
     e.direction = _e.attrib['r'].strip() if 'r' in _e.attrib else None
 
     _pair = _e.find('p')
+    if not _pair:
+        return None
+
     _left = _pair.find('l')
     e.pair.left.text = _left.text.strip() if _left.text else ''
     e.pair.left.attributes = [_s.attrib['n'] for _s in _left.findall('s') if 'n' in _s.attrib]
@@ -114,10 +117,14 @@ def parse_dix(file_path):
 
 def get_lexeme(e: TranslationText, language):
     homoId = 0
-    res = re.match(r'^([^¹²³⁴⁵⁶⁷⁸⁹]+)([¹²³⁴⁵⁶⁷⁸⁹])?$', e.text).groups()
-    if res[1]:  # has homoId
-        homoId = homoIdMap[res[1]]
-    text = res[0]
+    try:
+        res = re.match(r'^([^¹²³⁴⁵⁶⁷⁸⁹]+)([¹²³⁴⁵⁶⁷⁸⁹])?$', e.text).groups()
+        if res[1]:  # has homoId
+            homoId = homoIdMap[res[1]]
+        text = res[0]
+    except:
+        text = e.text
+
     for attr in list(e.attributes):
         if attr in POS_tags:
             pos = POS_tags[attr]
@@ -144,6 +151,9 @@ def add_attributes_to_relation(r: Relation, attributes: list, language: str):
 
 
 def add_element(e: DixElement, src_lang, tgt_lang):
+    if not e:
+        return
+
     _ll = get_lexeme(e.pair.left, src_lang)
     _rl = get_lexeme(e.pair.right, tgt_lang)
 

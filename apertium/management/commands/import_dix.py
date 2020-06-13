@@ -93,7 +93,7 @@ def parse_dix(file_path):
 
         sdefs = defaultdict(str)
         for sdef in root.find('sdefs').findall('sdef'):
-            sdefs[sdef.attrib['n']] = sdef.attrib['c'].strip()
+            sdefs[sdef.attrib['n']] = sdef.attrib['n'].strip()
 
         pardefs = defaultdict(str)
         _pardefs = root.find('pardefs')

@@ -29,6 +29,7 @@ from manageXML.inflector import Inflector
 import operator
 import logging
 from .utils import *
+from django.conf import settings
 
 logger = logging.getLogger('verdd.manageXML')  # Get an instance of a logger
 _inflector = Inflector()
@@ -292,7 +293,8 @@ class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         title = self.object.find_akusanat_affiliation()
         # link it
         if title:
-            a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title)
+            a, created = Affiliation.objects.get_or_create(lexeme=self.object., title=title, type=AKUSANAT,
+                                                           link="{}{}".format(settings.WIKI_URL, title))
         form.instance.changed_by = self.request.user
         return HttpResponseRedirect(self.get_success_url())
 
@@ -359,7 +361,8 @@ class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
             title = self.object.find_akusanat_affiliation()
             # link it
             if title:
-                a, created = Affiliation.objects.get_or_create(lexeme=form.instance, title=title)
+                a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title, type=AKUSANAT,
+                                                               link="{}{}".format(settings.WIKI_URL, title))
         form.instance.changed_by = self.request.user
         return super(LexemeEditView, self).form_valid(form)
 

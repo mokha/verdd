@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from collections import defaultdict
 from manageXML.models import *
 from apertium.constants import *
+from django.conf import settings
 
 
 class TranslationText(object):
@@ -130,7 +131,8 @@ def get_lexeme(e: TranslationText, language):
     title = _l.find_akusanat_affiliation()
     # link it
     if title:
-        a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title)
+        a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title, type=AKUSANAT,
+                                                       link="{}{}".format(settings.WIKI_URL, title))
     return _l
 
 

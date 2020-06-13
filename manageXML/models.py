@@ -1,4 +1,3 @@
-from django.db import models
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
 from django.utils.text import slugify
@@ -9,6 +8,7 @@ from .fields import *
 from wiki.semantic_api import SemanticAPI
 from django.contrib.auth.models import User
 import string
+from .managers import *
 
 
 class DataFile(models.Model):
@@ -57,7 +57,7 @@ class Lexeme(models.Model):
         return "{} ({})".format(self.lexeme, self.pos)
 
     def slug(self):
-        return slugify(self.lexeme) if self.lexeme.strip() else 'NA'
+        return slugify(self.lexeme) if self.lexeme.strip() and slugify(self.lexeme) else 'NA'
 
     def get_absolute_url(self):
         return reverse('lexeme-detail', kwargs={'pk': self.pk})
@@ -134,6 +134,10 @@ class Lexeme(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+
+    def metadata_str(self, sep='__'):
+        _metadata = self.lexememetadata_set.order_by('text').values_list('text', flat=True)
+        return sep.join(_metadata) if _metadata else ''
 
 
 class Relation(models.Model):

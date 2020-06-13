@@ -1,8 +1,11 @@
 import os
 import io
+import re
 from django.core.management.base import BaseCommand, CommandError
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from manageXML.models import *
+from apertium.constants import *
 
 
 class TranslationText(object):
@@ -108,6 +111,51 @@ def parse_dix(file_path):
         return alphabet, sdefs, pardefs, elements
 
 
+def get_lexeme(e: TranslationText, language):
+    homoId = 0
+    res = re.match(r'^([^¹²³⁴⁵⁶⁷⁸⁹]+)([¹²³⁴⁵⁶⁷⁸⁹])?$', e.text).groups()
+    if res[1]:  # has homoId
+        homoId = homoIdMap[res[1]]
+    text = res[0]
+    for attr in list(e.attributes):
+        if attr in POS_tags:
+            pos = POS_tags[attr]
+            e.attributes.remove(attr)
+            break
+    else:
+        pos = ''
+
+    # find the lexeme or create the instance and return it
+    _l, created = Lexeme.objects.get_or_create(lexeme=text, homoId=homoId, pos=pos, language=language)
+    title = _l.find_akusanat_affiliation()
+    # link it
+    if title:
+        a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title)
+    return _l
+
+
+def add_attributes_to_relation(r: Relation, attributes: list, language: str):
+    if attributes:
+        for attr in attributes:
+            md, created = RelationMetadata.objects.get_or_create(relation=r, language=language, text=attr,
+                                                                 type=GENERIC_METADATA)
+
+
+def add_element(e: DixElement, src_lang, tgt_lang):
+    _ll = get_lexeme(e.pair.left, src_lang)
+    _rl = get_lexeme(e.pair.right, tgt_lang)
+
+    if e.direction is None or e.direction == "RL":
+        r, created = Relation.objects.get_or_create(lexeme_from=_ll, lexeme_to=_rl)
+        add_attributes_to_relation(r, e.pair.left.attributes, src_lang)
+        add_attributes_to_relation(r, e.pair.right.attributes, tgt_lang)
+
+    if e.direction is None or e.direction == "LR":
+        r, created = Relation.objects.get_or_create(lexeme_from=_rl, lexeme_to=_ll)
+        add_attributes_to_relation(r, e.pair.left.attributes, src_lang)
+        add_attributes_to_relation(r, e.pair.right.attributes, tgt_lang)
+
+
 class Command(BaseCommand):
     '''
     Example: python manage.py import_dix -f ../apertium-myv-fin -s myv -t fin
@@ -130,10 +178,7 @@ class Command(BaseCommand):
 
         alphabet, sdefs, pardefs, elements = parse_dix(file_path)
 
-        from collections import Counter
-        _counter = []
         for e in elements:
-            _counter.extend([e.pair.left.unique_str(), e.pair.right.unique_str()])
-        print(Counter(_counter))
+            add_element(e, lang_source, lang_target)
 
         self.stdout.write(self.style.SUCCESS('Successfully imported the file.'))

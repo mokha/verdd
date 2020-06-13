@@ -293,7 +293,7 @@ class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         title = self.object.find_akusanat_affiliation()
         # link it
         if title:
-            a, created = Affiliation.objects.get_or_create(lexeme=self.object., title=title, type=AKUSANAT,
+            a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title, type=AKUSANAT,
                                                            link="{}{}".format(settings.WIKI_URL, title))
         form.instance.changed_by = self.request.user
         return HttpResponseRedirect(self.get_success_url())

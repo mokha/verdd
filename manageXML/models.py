@@ -57,7 +57,8 @@ class Lexeme(models.Model):
         return "{} ({})".format(self.lexeme, self.pos)
 
     def slug(self):
-        return slugify(self.lexeme) if self.lexeme.strip() and slugify(self.lexeme) else 'NA'
+        _slug = slugify(self.lexeme) if self.lexeme.strip() else 'NA'
+        return _slug if _slug else self.lexeme.strip()
 
     def get_absolute_url(self):
         return reverse('lexeme-detail', kwargs={'pk': self.pk})

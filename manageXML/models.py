@@ -146,7 +146,8 @@ class Relation(models.Model):
         unique_together = ('lexeme_from', 'lexeme_to', 'type')
 
     lexeme_from = models.ForeignKey(Lexeme, related_name='lexeme_from_lexeme_set', on_delete=models.CASCADE)
-    lexeme_to = models.ForeignKey(Lexeme, related_name='lexeme_to_lexeme_set', on_delete=models.CASCADE)
+    lexeme_to = models.ForeignKey(Lexeme, null=True, blank=True, related_name='lexeme_to_lexeme_set',
+                                  on_delete=models.CASCADE)
     type = models.IntegerField(choices=RELATION_TYPE_OPTIONS,
                                default=0)
     notes = models.CharField(max_length=250, blank=True)

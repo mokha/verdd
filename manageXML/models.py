@@ -383,6 +383,9 @@ class Stem(models.Model):
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='stems')
     history = HistoricalRecords()
 
+    def get_absolute_url(self):
+        return reverse('stem-detail', kwargs={'pk': self.pk})
+
     @property
     def _history_user(self):
         return self.changed_by

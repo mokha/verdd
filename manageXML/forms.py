@@ -459,3 +459,30 @@ class FlipRelationForm(forms.Form):
         self.helper.layout = Layout(
             CustomBtn('submit', _('Switch Direction'), type='secondary')
         )
+
+
+class StemForm(forms.ModelForm):
+    text = forms.CharField(label=_('Stem'), required=True, widget=forms.TextInput(attrs={'placeholder': _('Stem')}))
+    contlex = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
+    order = forms.IntegerField(required=True, label=_('Order'), initial=0)
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Processed'))
+
+    class Meta:
+        model = Stem
+        fields = ['text', 'contlex', 'order', 'notes', 'checked', ]
+
+    def __init__(self, *args, **kwargs):
+        super(StemForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('text', css_class='form-group col-md-4 mb-0'),
+                Column('contlex', css_class='form-group col-md-4 mb-0'),
+                Column('order', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
+            'notes',
+            'checked',
+            Submit('submit', _('Save'))
+        )

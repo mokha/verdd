@@ -1140,6 +1140,58 @@ def download_dictionary_tex(request):
     return response
 
 
+class StemDetailView(TitleMixin, DetailView):
+    model = Stem
+    template_name = 'stem_detail.html'
+
+    def get_title(self):
+        return "%s (%s)" % (self.object.text, self.object.lexeme.lexeme)
+
+
+class StemCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'stem_add.html'
+    model = Stem
+    form_class = StemForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(StemCreateView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Stem"), self.lexeme)
+
+    def form_valid(self, form):
+        form.instance.lexeme = self.lexeme
+        form.instance.changed_by = self.request.user
+        return super(StemCreateView, self).form_valid(form)
+
+
+class StemEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'stem_edit.html'
+    model = Stem
+    form_class = StemForm
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Stem"), self.object.text, self.object.lexeme)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(StemEditView, self).form_valid(form)
+
+
+class StemDeleteView(LexemeDeleteFormMixin):
+    template_name = 'stem_confirm_delete.html'
+    model = Stem
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Stem"), self.object,)
+
+
 @login_required
 def approve_lexeme(request, pk):
     lexeme = get_object_or_404(Lexeme, pk=pk)
@@ -1160,6 +1212,17 @@ def approve_relation(request, pk):
         relation.save()
 
     return HttpResponseRedirect(relation.get_absolute_url())
+
+
+@login_required
+def approve_stem(request, pk):
+    stem = get_object_or_404(Stem, pk=pk)
+    if request.method == 'POST':
+        stem.checked = True
+        stem.changed_by = request.user
+        stem.save()
+
+    return HttpResponseRedirect(stem.get_absolute_url())
 
 
 @login_required

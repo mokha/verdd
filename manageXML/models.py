@@ -364,3 +364,27 @@ class LexemeMetadata(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+
+
+class Stem(models.Model):
+    class Meta:
+        unique_together = ('lexeme', 'text',)
+
+    lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
+    text = BinaryCharField(max_length=250)
+    contlex = models.CharField(max_length=250, blank=True)
+    notes = models.CharField(max_length=250, blank=True)
+    order = models.IntegerField(default=0)
+
+    checked = models.BooleanField(default=False)
+    added_date = models.DateTimeField('date published', auto_now_add=True)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='stems')
+    history = HistoricalRecords()
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value

@@ -159,7 +159,8 @@ class Relation(models.Model):
     history = HistoricalRecords()
 
     def __str__(self):
-        return "%s - %s" % (self.lexeme_from.lexeme, self.lexeme_to.lexeme)
+        return "%s - %s" % (self.lexeme_from.lexeme,
+                            self.lexeme_to.lexeme if self.lexeme_to else '')
 
     def full_str(self):
         return "{}  - {}".format(self.lexeme_from.full_str(), self.lexeme_to.full_str())

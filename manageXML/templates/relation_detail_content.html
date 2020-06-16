@@ -4,7 +4,7 @@
 {% load widget_tweaks %}
 
 {% include 'relation_base_detail.html' with object=object %}
-    {% if switch_form %}
+    {% if object.lexeme_to and switch_form %}
         <div class="center-block text-center">
             {% crispy switch_form %}
         </div>

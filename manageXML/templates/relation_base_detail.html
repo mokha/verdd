@@ -14,7 +14,9 @@
             {% include 'lexeme_data.html' with object=object.lexeme_from %}
         </td>
         <td>
-            {% include 'lexeme_data.html' with object=object.lexeme_to %}
+            {% if object.lexeme_to %}
+                {% include 'lexeme_data.html' with object=object.lexeme_to %}
+            {% endif %}
         </td>
     </tr>
     </tbody>

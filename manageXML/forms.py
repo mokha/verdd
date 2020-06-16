@@ -127,7 +127,7 @@ class RelationForm(forms.ModelForm):
 
 
 class RelationCreateForm(forms.ModelForm):
-    lexeme_to = forms.CharField(required=True, label=_('To'),
+    lexeme_to = forms.CharField(required=False, label=_('To'),
                                 widget=forms.Select(attrs={'class': 'lexeme-autocomplete', }))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 

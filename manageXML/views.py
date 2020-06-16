@@ -376,7 +376,8 @@ class RelationDetailView(TitleMixin, DetailView):
         return context
 
     def get_title(self):
-        return "%s (%s)" % (self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
+        return "%s (%s)" % (self.object.lexeme_from.lexeme,
+                            self.object.lexeme_to.lexeme if self.object.lexeme_to else '')
 
 
 class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
@@ -385,7 +386,8 @@ class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     form_class = RelationForm
 
     def get_title(self):
-        return "%s: %s (%s)" % (_("Edit Relation"), self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
+        return "%s: %s (%s)" % (_("Edit Relation"), self.object.lexeme_from.lexeme,
+                                self.object.lexeme_to.lexeme if self.object.lexeme_to else '')
 
     def form_valid(self, form):
         form.instance.changed_by = self.request.user
@@ -481,7 +483,10 @@ class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
 
         if form.is_valid():
             data = form.cleaned_data
-            form.instance.lexeme_to = Lexeme.objects.get(pk=data.get('lexeme_to'))
+
+            lexeme_to_id = data.get('lexeme_to', None)
+            if lexeme_to_id:
+                form.instance.lexeme_to = Lexeme.objects.get(pk=lexeme_to_id)
         return form
 
     def get_title(self):
@@ -823,7 +828,7 @@ class LexemeSearchView(generics.ListAPIView):
             filter_Q = Q(lexeme__icontains=query)
             if query.isdigit() and int(query) > 0:
                 filter_Q |= Q(id=query)
-            return Lexeme.objects.filter(filter_Q)
+            return Lexeme.objects.filter(filter_Q).order_by('lexeme_lang')
         return Lexeme.objects.none()
 
 

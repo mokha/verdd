@@ -374,6 +374,7 @@ class Stem(models.Model):
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     text = BinaryCharField(max_length=250)
+    homoId = models.IntegerField(default=0)
     contlex = models.CharField(max_length=250, blank=True)
     notes = models.CharField(max_length=250, blank=True)
     order = models.IntegerField(default=0)

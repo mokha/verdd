@@ -85,7 +85,8 @@ def add_element(e: DixElement, lang):
         a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title, type=AKUSANAT,
                                                        link="{}{}".format(settings.WIKI_URL, title))
 
-    s, created = Stem.objects.get_or_create(lexeme=_l, text=stem, homoId=homoId)
+    if stem:
+        s, created = Stem.objects.get_or_create(lexeme=_l, text=stem, homoId=homoId, contlex=X) # contlex from par n=
 
 
 class Command(BaseCommand):

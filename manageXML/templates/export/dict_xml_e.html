@@ -1,0 +1,18 @@
+<e>
+    <lg>
+        <l pos="{{ object.pos }}">{{ object.lexeme }}</l>
+        <stg>
+            <st/>
+        </stg>
+    </lg>
+    <mg>
+        {% regroup translations by language as translations_by_lang %}
+        {% for lang in translations_by_lang %}
+            <tg xml:lang="{{ lang }}">
+                {% for translation in lang.list %}
+                    <t Contlex="{{ translation.contlex }}" pos="{{ translation.pos }}">{{ translation.lexeme }}</t>
+                {% endfor %}
+            </tg>
+        {% endfor %}
+    </mg>
+</e>

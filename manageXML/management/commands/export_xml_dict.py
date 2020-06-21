@@ -8,7 +8,7 @@ from zipfile import ZipFile
 import uuid
 import time
 from django.db.models.functions import Cast, Substr, Upper
-from django.db.models import Prefetch, F, Value
+from django.db.models import Prefetch, F, Value, When, Case
 from manageXML.models import *
 from manageXML.utils import *
 
@@ -32,8 +32,11 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None):
         tgt_lang = 'X'
 
     relations = relations \
-        .annotate(pos_U=Upper('lexeme_from__pos'),
-                  pos=F('lexeme_from__pos')) \
+        .annotate(
+        pos=Case(
+            When(lexeme_to__contlex__icontains='PROP_', then=Value('N_Prop')),
+            default=F('lexeme_from__pos')),
+        pos_U=Upper('pos')) \
         .order_by('pos_U') \
         .all()
 
@@ -51,6 +54,7 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None):
             'grouped_relations': grouped_relations_source,
             'src_lang': src_lang,
             'tgt_lang': tgt_lang,
+            'pos': key,
         })
         zip_file.writestr("{}_{}{}.xml".format(grouped_relations_source[0][1][0].pos, src_lang, tgt_lang),
                           _chapter_html.encode('utf-8'))

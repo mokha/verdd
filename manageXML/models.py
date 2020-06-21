@@ -396,28 +396,27 @@ class Stem(models.Model):
     def _history_user(self, value):
         self.changed_by = value
 
-
-class StemAffiliation(models.Model):
-    class Meta:
-        unique_together = ('stem',)
-
-    stem = models.ForeignKey(Stem, on_delete=models.CASCADE)
-    title = models.CharField(max_length=250)
-    link = models.URLField(null=True, default=None)
-    type = models.IntegerField(choices=AFFILIATION_TYPES,
-                               blank=True, null=True, default=None)
-    checked = models.BooleanField(default=False)
-    notes = models.CharField(max_length=250, blank=True)
-    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='affiliations')
-    history = HistoricalRecords()
-
-    def get_absolute_url(self):
-        return reverse('lexeme-detail', kwargs={'pk': self.lexeme.pk})
-
-    @property
-    def _history_user(self):
-        return self.changed_by
-
-    @_history_user.setter
-    def _history_user(self, value):
-        self.changed_by = value
+# class StemAffiliation(models.Model):
+#     class Meta:
+#         unique_together = ('stem',)
+#
+#     stem = models.ForeignKey(Stem, on_delete=models.CASCADE)
+#     title = models.CharField(max_length=250)
+#     link = models.URLField(null=True, default=None)
+#     type = models.IntegerField(choices=AFFILIATION_TYPES,
+#                                blank=True, null=True, default=None)
+#     checked = models.BooleanField(default=False)
+#     notes = models.CharField(max_length=250, blank=True)
+#     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='affiliations')
+#     history = HistoricalRecords()
+#
+#     def get_absolute_url(self):
+#         return reverse('lexeme-detail', kwargs={'pk': self.lexeme.pk})
+#
+#     @property
+#     def _history_user(self):
+#         return self.changed_by
+#
+#     @_history_user.setter
+#     def _history_user(self, value):
+#         self.changed_by = value

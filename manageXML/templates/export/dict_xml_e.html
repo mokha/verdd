@@ -1,18 +1,18 @@
-<e>
-    <lg>
-        <l pos="{{ object.pos }}">{{ object.lexeme }}</l>
-        <stg>
-            <st/>
-        </stg>
-    </lg>
-    <mg>
-        {% regroup translations by language as translations_by_lang %}
-        {% for lang in translations_by_lang %}
-            <tg xml:lang="{{ lang }}">
-                {% for translation in lang.list %}
-                    <t Contlex="{{ translation.contlex }}" pos="{{ translation.pos }}">{{ translation.lexeme }}</t>
-                {% endfor %}
-            </tg>
-        {% endfor %}
-    </mg>
-</e>
+{% with object=grouped_relation.1.0.lexeme_from translations=grouped_relation.1 %}
+    <e>
+        <lg>
+            <l pos="{{ object.pos }}">{{ object.lexeme }}</l>
+            <stg>
+                <st/>
+            </stg>
+        </lg>
+        <mg>{% regroup translations by lexeme_to.language as translations_by_lang %}
+            {% for lang in translations_by_lang %}
+                <tg xml:lang="{{ lang.grouper }}">
+                    {% for translation in lang.list %}
+                        <t Contlex="{{ translation.lexeme_to.contlex }}"
+                           pos="{{ translation.lexeme_to.pos }}">{{ translation.lexeme_to.lexeme }}</t>
+                    {% endfor %}</tg>
+            {% endfor %}</mg>
+    </e>
+{% endwith %}

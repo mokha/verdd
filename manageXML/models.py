@@ -27,6 +27,12 @@ class Language(models.Model):
     id = models.CharField(max_length=3, unique=True, primary_key=True)  # ISO 639-3
     name = models.CharField(max_length=250)
 
+    def __str__(self):
+        return self.id
+
+    def __repr__(self):
+        return self.id
+
 
 class Lexeme(models.Model):
     class Meta:
@@ -39,7 +45,7 @@ class Lexeme(models.Model):
     consonance = models.CharField(max_length=250, blank=True)
     consonance_rev = models.CharField(max_length=250, blank=True)
     lexeme_lang = BinaryCharField(max_length=250, blank=True)
-    language = models.CharField(max_length=3)
+    language = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='lexemes')
     pos = models.CharField(max_length=25)
     imported_from = models.ForeignKey(DataFile, null=True, blank=True, on_delete=models.CASCADE)
     notes = models.CharField(max_length=250, blank=True)
@@ -299,7 +305,7 @@ class RelationMetadata(models.Model):
 
     relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
-    language = models.CharField(max_length=3)
+    language = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='relation_metadata')
     type = models.IntegerField(choices=RELATION_METADATA_TYPES,
                                blank=True, null=True, default=None)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
@@ -328,7 +334,7 @@ class RelationExample(models.Model):
 
     relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
-    language = models.CharField(max_length=3)
+    language = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='relation_examples')
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
                                    related_name='relation_examples')
     history = HistoricalRecords()

@@ -1,13 +1,15 @@
-from simple_history.models import HistoricalRecords
+import string
+
+from django.contrib.auth.models import User
 from django.db.models import Q
-from django.utils.text import slugify
 from django.urls import reverse
+from django.utils.text import slugify
+from simple_history.models import HistoricalRecords
+
+from wiki.semantic_api import SemanticAPI
 from .common import Rhyme
 from .constants import *
 from .fields import *
-from wiki.semantic_api import SemanticAPI
-from django.contrib.auth.models import User
-import string
 from .managers import *
 
 
@@ -19,6 +21,11 @@ class DataFile(models.Model):
 
     def __str__(self):
         return "%s (%d)" % (self.name, self.id)
+
+
+class Language(models.Model):
+    id = models.CharField(max_length=3, unique=True, primary_key=True)  # ISO 639-3
+    name = models.CharField(max_length=250)
 
 
 class Lexeme(models.Model):

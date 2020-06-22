@@ -15,6 +15,10 @@ from uralicNLP import uralicApi
 uralicApi.download("sms")
 uralicApi.download("fin")
 ````
+#### To load language fixtures:
+````sh
+python manage.py loaddata languages_data
+````
 
 #### For development
 ````

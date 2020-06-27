@@ -1192,6 +1192,11 @@ class StemDeleteView(LexemeDeleteFormMixin):
         return "%s: %s" % (_("Delete Stem"), self.object,)
 
 
+class SymbolListView(ListView):
+    model = Symbol
+    template_name = 'symbol_list.html'
+
+
 @login_required
 def approve_lexeme(request, pk):
     lexeme = get_object_or_404(Lexeme, pk=pk)

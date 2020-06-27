@@ -102,4 +102,7 @@ urlpatterns = [
     re_path(r'^relation/switch/(?P<pk>\d+)/', views.switch_relation,
             name='relation-switch'),
 
+    # symbols
+    re_path(r'^symbol/list', views.SymbolListView.as_view(), name='symbol-list')
+
 ]

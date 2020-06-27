@@ -34,6 +34,11 @@ class Language(models.Model):
         return self.id
 
 
+class Symbol(models.Model):
+    name = BinaryCharField(max_length=250, unique=True)
+    comment = models.CharField(max_length=250, blank=True)
+
+
 class Lexeme(models.Model):
     class Meta:
         unique_together = ('lexeme', 'pos', 'homoId', 'language',)

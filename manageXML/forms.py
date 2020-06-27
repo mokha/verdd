@@ -486,3 +486,21 @@ class StemForm(forms.ModelForm):
             'checked',
             Submit('submit', _('Save'))
         )
+
+
+class SymbolForm(forms.ModelForm):
+    name = forms.CharField(label=_('Symbol'), required=True, widget=forms.TextInput(attrs={'placeholder': _('Symbol')}))
+    comment = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Comment')}))
+
+    class Meta:
+        model = Stem
+        fields = ['name', 'comment', ]
+
+    def __init__(self, *args, **kwargs):
+        super(SymbolForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'name',
+            'comment',
+            Submit('submit', _('Save'))
+        )

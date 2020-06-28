@@ -1192,9 +1192,10 @@ class StemDeleteView(LexemeDeleteFormMixin):
         return "%s: %s" % (_("Delete Stem"), self.object,)
 
 
-class SymbolListView(ListView):
+class SymbolListView(TitleMixin, ListView):
     model = Symbol
     template_name = 'symbol_list.html'
+    title = _('Symbol')
 
 
 @login_required

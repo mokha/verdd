@@ -23,7 +23,14 @@
             <ul>
                 {% if examples %}
                     {% for e in examples %}
-                        <li>{{ e }}{% if user.is_authenticated %} (<a href="{% url 'relation-example-edit' pk=e.pk lexeme_id=lexeme.pk %}">{% trans "edit" %}</a>/<a href="{% url 'relation-example-delete' lexeme_id=lexeme.pk pk=e.pk %}">{% trans "delete" %}</a>{% endif %})</li>
+                        <li>{{ e }}{% if user.is_authenticated %} (<a href="{% url 'relation-example-edit' pk=e.pk lexeme_id=lexeme.pk %}">{% trans "edit" %}</a>/<a href="{% url 'relation-link' pk=e.pk %}">{% trans "link" %}</a>/<a href="{% url 'relation-example-delete' lexeme_id=lexeme.pk pk=e.pk %}">{% trans "delete" %}</a>{% endif %})</li>
+                        {% if e.linked_examples %}
+                            <ul class="dashed">
+                                {% for le in e.linked_examples %}
+                                    <li>{{ le.example_to.pk }}{% if user.is_authenticated %} (<a href="{% url 'relation-link-delete' lexeme_id=lexeme.pk pk=le.pk %}">{% trans "delete" %}</a>){% endif %}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                     {% endfor %}
                 {% endif %}
                 {% if user.is_authenticated %}<li><a href="{% url 'relation-example-add' lexeme_id=lexeme.pk relation_id=object.pk %}">{% trans "add" %}</a></li>{% endif %}

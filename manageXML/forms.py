@@ -6,6 +6,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML, Button
 from .constants import *
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Q
 
 
 class LexmeChoiceField(forms.ModelChoiceField):
@@ -458,4 +459,32 @@ class FlipRelationForm(forms.Form):
 
         self.helper.layout = Layout(
             CustomBtn('submit', _('Switch Direction'), type='secondary')
+        )
+
+
+class RelationExampleLinkForm(forms.ModelForm):
+    example_to = forms.ModelChoiceField(queryset=None, required=True, label=_('To'))
+
+    class Meta:
+        model = RelationExampleRelation
+        fields = ['example_to']
+
+    def __init__(self, *args, **kwargs):
+        example_from = kwargs.pop('example_from')
+        super(RelationExampleLinkForm, self).__init__(*args, **kwargs)
+
+        filter_ids = list(example_from.example_from_relationexample_set.values_list('example_to', flat=True).all())
+        filter_ids.append(example_from.id)
+
+        self.fields['example_to'].queryset = example_from.relation.relationexample_set.filter(~Q(id__in=filter_ids))
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h4>%s: %s</h4>" % (_("From"), "{{ example_from }}")),
+                css_class=''
+            ),
+            'example_to',
+            Submit('submit', _('Save'))
         )

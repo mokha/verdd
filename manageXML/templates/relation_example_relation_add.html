@@ -1,0 +1,11 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block main_content %}
+    <h2>{% trans "Link Examples" %}:</h2>
+    {% crispy form %}
+{% endblock %}

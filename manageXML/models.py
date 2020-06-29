@@ -10,6 +10,7 @@ from wiki.semantic_api import SemanticAPI
 from django.contrib.auth.models import User
 import string
 
+
 class DataFile(models.Model):
     lang_source = models.CharField(max_length=3)
     lang_target = models.CharField(max_length=3)
@@ -319,11 +320,40 @@ class RelationExample(models.Model):
     history = HistoricalRecords()
 
     def __str__(self):
-        return "({}) {}".format(self.language, self.text)
+        return "({}-{}) {}".format(self.id, self.language, self.text)
 
     def get_absolute_url(self):
         return reverse('relation-detail',
                        kwargs={'pk': self.relation.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
+    def linked_examples(self):
+        return self.example_from_relationexample_set.all()
+
+
+class RelationExampleRelation(models.Model):
+    class Meta:
+        unique_together = ('example_from', 'example_to')
+
+    example_from = models.ForeignKey(RelationExample, related_name='example_from_relationexample_set',
+                                     on_delete=models.CASCADE)
+    example_to = models.ForeignKey(RelationExample, related_name='example_to_relationexample_set',
+                                   on_delete=models.CASCADE)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return "{} {}".format(self.example_from, self.example_to)
+
+    def get_absolute_url(self):
+        return reverse('relation-detail',
+                       kwargs={'pk': self.example_from.relation.pk})
 
     @property
     def _history_user(self):

@@ -261,6 +261,7 @@ class Example(models.Model):
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
+    source = models.CharField(max_length=250, blank=True)
     notes = models.CharField(max_length=250, blank=True)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='examples')
     history = HistoricalRecords()
@@ -316,6 +317,7 @@ class RelationExample(models.Model):
     relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
     language = models.CharField(max_length=3)
+    source = models.CharField(max_length=250, blank=True)
     notes = models.CharField(max_length=250, blank=True)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
                                    related_name='relation_examples')

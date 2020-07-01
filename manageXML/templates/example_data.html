@@ -5,7 +5,7 @@
     {% if examples %}
         <ul>
             {% for obj in examples %}
-                <li>{{ obj.text }}{% if user.is_authenticated %} (<a href="{% url 'example-edit' pk=obj.pk %}">{% trans "edit" %}</a>/<a href="{% url 'example-delete' lexeme_id=object.pk pk=obj.pk %}">{% trans "delete" %}</a>){% endif %}</li>
+                <li>{% if obj.source %}{{ obj.source }}: {% endif %}{{ obj.text }}{% if obj.notes %} ({{ obj.notes }}){% endif %}{% if user.is_authenticated %} (<a href="{% url 'example-edit' pk=obj.pk %}">{% trans "edit" %}</a>/<a href="{% url 'example-delete' lexeme_id=object.pk pk=obj.pk %}">{% trans "delete" %}</a>){% endif %}</li>
             {% endfor %}
         </ul>
     {% endif %}

@@ -328,11 +328,12 @@ class DeleteFormBase(forms.Form):
 
 class ExampleForm(forms.ModelForm):
     text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+    source = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Source')}))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
     class Meta:
         model = Example
-        fields = ['text', 'notes']
+        fields = ['text', 'source', 'notes']
 
     def __init__(self, *args, **kwargs):
         super(ExampleForm, self).__init__(*args, **kwargs)
@@ -343,6 +344,7 @@ class ExampleForm(forms.ModelForm):
                 Column('text', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
+            'source',
             'notes',
             Submit('submit', _('Save'))
         )
@@ -350,11 +352,12 @@ class ExampleForm(forms.ModelForm):
 
 class RelationExampleForm(forms.ModelForm):
     text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+    source = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Source')}))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
     class Meta:
         model = RelationExample
-        fields = ['text', 'language', 'notes']
+        fields = ['text', 'language', 'source', 'notes']
 
     def __init__(self, *args, **kwargs):
         relation = kwargs.pop('relation')
@@ -372,6 +375,7 @@ class RelationExampleForm(forms.ModelForm):
                 Column('text', css_class='form-group col-md-10'),
                 css_class='form-row'
             ),
+            'source',
             'notes',
             Submit('submit', _('Save'))
         )

@@ -825,6 +825,31 @@ class RelationExampleRelationView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(RelationExampleRelationView, self).form_valid(form)
 
 
+class RelationExampleRelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'relation_example_relation_edit.html'
+    model = RelationExampleRelation
+    form_class = RelationExampleLinkEditForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.example_from = get_object_or_404(RelationExample, pk=kwargs['pk'])
+        return super(RelationExampleRelationEditView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationExampleRelationEditView, self).get_context_data(**kwargs)
+        context['example_from'] = self.object.example_from
+        return context
+
+    def get_title(self):
+        return "%s %s" % (_("Edit example link"), self.object.example_from)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(RelationExampleRelationEditView, self).form_valid(form)
+
+    def get_success_url(self):
+        return self.object.example_from.get_absolute_url()
+
+
 class RelationExampleRelationDeleteView(LexemeDeleteFormMixin):
     template_name = 'example_relation_confirm_delete.html'
     model = RelationExampleRelation

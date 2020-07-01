@@ -98,5 +98,7 @@ urlpatterns = [
     re_path(r'^example/relation/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/',
             views.RelationExampleRelationDeleteView.as_view(),
             name='relation-link-delete'),
+    re_path(r'^example/relation/(?P<lexeme_id>\d+)/edit/(?P<pk>\d+)/$', views.RelationExampleRelationEditView.as_view(),
+            name='relation-link-edit'),
 
 ]

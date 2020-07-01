@@ -328,10 +328,11 @@ class DeleteFormBase(forms.Form):
 
 class ExampleForm(forms.ModelForm):
     text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
     class Meta:
         model = Example
-        fields = ['text']
+        fields = ['text', 'notes']
 
     def __init__(self, *args, **kwargs):
         super(ExampleForm, self).__init__(*args, **kwargs)
@@ -342,16 +343,18 @@ class ExampleForm(forms.ModelForm):
                 Column('text', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
+            'notes',
             Submit('submit', _('Save'))
         )
 
 
 class RelationExampleForm(forms.ModelForm):
     text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
     class Meta:
         model = RelationExample
-        fields = ['text', 'language']
+        fields = ['text', 'language', 'notes']
 
     def __init__(self, *args, **kwargs):
         relation = kwargs.pop('relation')
@@ -369,6 +372,7 @@ class RelationExampleForm(forms.ModelForm):
                 Column('text', css_class='form-group col-md-10'),
                 css_class='form-row'
             ),
+            'notes',
             Submit('submit', _('Save'))
         )
 
@@ -464,10 +468,11 @@ class FlipRelationForm(forms.Form):
 
 class RelationExampleLinkForm(forms.ModelForm):
     example_to = forms.ModelChoiceField(queryset=None, required=True, label=_('To'))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
     class Meta:
         model = RelationExampleRelation
-        fields = ['example_to']
+        fields = ['example_to', 'notes']
 
     def __init__(self, *args, **kwargs):
         example_from = kwargs.pop('example_from')
@@ -486,5 +491,27 @@ class RelationExampleLinkForm(forms.ModelForm):
                 css_class=''
             ),
             'example_to',
+            'notes',
+            Submit('submit', _('Save'))
+        )
+
+
+class RelationExampleLinkEditForm(forms.ModelForm):
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+
+    class Meta:
+        model = RelationExampleRelation
+        fields = ['notes']
+
+    def __init__(self, *args, **kwargs):
+        super(RelationExampleLinkEditForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h4>%s - %s</h4>" % ("{{ object.example_from }}", "{{ object.example_to}}")),
+                css_class=''
+            ),
+            'notes',
             Submit('submit', _('Save'))
         )

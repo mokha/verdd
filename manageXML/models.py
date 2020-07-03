@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils.text import slugify
 from simple_history.models import HistoricalRecords
+from django.core.validators import slug_re
 
 from wiki.semantic_api import SemanticAPI
 from .common import Rhyme
@@ -75,8 +76,11 @@ class Lexeme(models.Model):
         return "{} ({})".format(self.lexeme, self.pos)
 
     def slug(self):
-        _slug = slugify(self.lexeme) if self.lexeme.strip() else 'NA'
-        return _slug if _slug else self.lexeme.strip()
+        _ls = self.lexeme.strip()
+        slug = slugify(_ls)
+        if slug_re.match(slug):
+            return slug
+        return 'NA'
 
     def get_absolute_url(self):
         return reverse('lexeme-detail', kwargs={'pk': self.pk})
@@ -118,7 +122,7 @@ class Lexeme(models.Model):
     def find_akusanat_affiliation(self):
         semAPI = SemanticAPI()
         r1 = semAPI.ask(query=(
-            '[[%s:%s]]' % (self.language.capitalize(), self.lexeme), '?Category', '?POS', '?Lang',
+            '[[%s:%s]]' % (self.language.id.capitalize(), self.lexeme), '?Category', '?POS', '?Lang',
             '?Contlex')
         )
 

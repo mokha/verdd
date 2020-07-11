@@ -14,16 +14,6 @@ from .fields import *
 from .managers import *
 
 
-class DataFile(models.Model):
-    lang_source = models.CharField(max_length=3)
-    lang_target = models.CharField(max_length=3)
-    name = models.CharField(max_length=250)
-    added_date = models.DateTimeField('date published', auto_now_add=True)
-
-    def __str__(self):
-        return "%s (%d)" % (self.name, self.id)
-
-
 class Language(models.Model):
     id = models.CharField(max_length=3, unique=True, primary_key=True)  # ISO 639-3
     name = models.CharField(max_length=250)
@@ -33,6 +23,16 @@ class Language(models.Model):
 
     def __repr__(self):
         return self.id
+
+
+class DataFile(models.Model):
+    lang_source = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='datafile_source')
+    lang_target = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='datafile_target')
+    name = models.CharField(max_length=250)
+    added_date = models.DateTimeField('date published', auto_now_add=True)
+
+    def __str__(self):
+        return "%s (%d)" % (self.name, self.id)
 
 
 class Symbol(models.Model):
@@ -366,9 +366,11 @@ class RelationExample(models.Model):
 
 class LexemeMetadata(models.Model):
     class Meta:
-        unique_together = ('lexeme', 'text',)
+        unique_together = ('lexeme', 'type', 'text',)
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
+    type = models.IntegerField(choices=LEXEME_METADATA_TYPES,
+                               blank=True, null=True, default=None)
     text = models.CharField(max_length=250)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
                                    related_name='lexeme_metadata')
@@ -418,27 +420,30 @@ class Stem(models.Model):
     def _history_user(self, value):
         self.changed_by = value
 
-# class StemAffiliation(models.Model):
-#     class Meta:
-#         unique_together = ('stem',)
-#
-#     stem = models.ForeignKey(Stem, on_delete=models.CASCADE)
-#     title = models.CharField(max_length=250)
-#     link = models.URLField(null=True, default=None)
-#     type = models.IntegerField(choices=AFFILIATION_TYPES,
-#                                blank=True, null=True, default=None)
-#     checked = models.BooleanField(default=False)
-#     notes = models.CharField(max_length=250, blank=True)
-#     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='affiliations')
-#     history = HistoricalRecords()
-#
-#     def get_absolute_url(self):
-#         return reverse('lexeme-detail', kwargs={'pk': self.lexeme.pk})
-#
-#     @property
-#     def _history_user(self):
-#         return self.changed_by
-#
-#     @_history_user.setter
-#     def _history_user(self, value):
-#         self.changed_by = value
+
+class StemMetadata(models.Model):
+    class Meta:
+        unique_together = ('stem', 'type', 'text',)
+
+    stem = models.ForeignKey(Stem, on_delete=models.CASCADE)
+    type = models.IntegerField(choices=STEM_METADATA_TYPES,
+                               blank=True, null=True, default=None)
+    text = models.CharField(max_length=250)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='stem_metadata')
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return "{}".format(self.text)
+
+    def get_absolute_url(self):
+        return reverse('stem-detail',
+                       kwargs={'pk': self.stem.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value

@@ -14,7 +14,7 @@ def add_attributes_to_relation(r: Relation, attributes: list, language: str):
                                                                      type=GENERIC_METADATA)
 
 
-def add_element(e: DixElement, src_lang, tgt_lang):
+def add_element(e: DixElement, src_lang, tgt_lang, datafile):
     if not e:
         return
 
@@ -24,10 +24,20 @@ def add_element(e: DixElement, src_lang, tgt_lang):
     _l, _r = None, None  # the default
 
     if _ll:
-        _l, created = Lexeme.objects.get_or_create(lexeme=_ll, homoId=_ll_homoId, pos=_ll_pos, language=src_lang)
+        try:
+            _l = Lexeme.objects.get(lexeme=_ll, pos=_ll_pos, homoId=_ll_homoId, language=src_lang)
+        except:
+            _l = Lexeme.objects.create(
+                lexeme=_ll, pos=_ll_pos, homoId=_ll_homoId, language=src_lang,
+                imported_from=datafile)
 
     if _rr:
-        _r, created = Lexeme.objects.get_or_create(lexeme=_rr, homoId=_rr_homoId, pos=_rr_pos, language=tgt_lang)
+        try:
+            _r = Lexeme.objects.get(lexeme=_rr, pos=_rr_pos, homoId=_rr_homoId, language=tgt_lang)
+        except:
+            _r = Lexeme.objects.create(
+                lexeme=_rr, pos=_rr_pos, homoId=_rr_homoId, language=tgt_lang,
+                imported_from=datafile)
 
     if e.direction is None or e.direction == "RL":
         r, created = Relation.objects.get_or_create(lexeme_from=_l, lexeme_to=_r)
@@ -63,6 +73,10 @@ class Command(BaseCommand):
         with io.open(file_path, 'r', encoding='utf-8') as fp:
             dix = parse_dix(fp)
 
+        filename = os.path.splitext(os.path.basename(file_path))[0]
+        df = DataFile(lang_source=lang_target, lang_target=lang_source, name=filename)
+        df.save()
+
         for sdef, comment in dix.sdefs.items():
             try:
                 Symbol.objects.get_or_create(name=sdef, comment=comment)
@@ -70,6 +84,6 @@ class Command(BaseCommand):
                 pass
 
         for e in dix.sections['main'].elements:
-            add_element(e, lang_source, lang_target)
+            add_element(e, lang_source, lang_target, df)
 
         self.stdout.write(self.style.SUCCESS('Successfully imported the file.'))

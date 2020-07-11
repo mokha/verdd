@@ -827,8 +827,27 @@ LANGUAGE_TYPES = (
 
 GENERIC_METADATA = 0
 SPECIFICATION = 1
+GENDER = 3
+
 RELATION_METADATA_TYPES = (
     (GENERIC_METADATA, _("Generic")),
     (SPECIFICATION, _('Specification')),
+    (GENDER, _('Gender')),
 )
+
+LEXEME_TYPE = 4
+DEF_NATIVE = 5
+IGNORE_TAG = 6
+LEXEME_METADATA_TYPES = (
+    (GENERIC_METADATA, _("Generic")),
+    (SPECIFICATION, _('Specification')),
+    (GENDER, _('Gender')),
+    (LEXEME_TYPE, _('Type')),
+    (DEF_NATIVE, _('defNative')),
+    (IGNORE_TAG, _('Ignore')),
+)
+STEM_METADATA_TYPES = (
+    (GENERIC_METADATA, _("Generic")),
+)
+
 RELATION_METADATA_TYPES_DICT = dict(RELATION_METADATA_TYPES)

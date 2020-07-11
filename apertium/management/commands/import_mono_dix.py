@@ -6,14 +6,20 @@ from django.conf import settings
 from ._dix_common import *
 
 
-def add_element(e: DixElement, lang):
+def add_element(e: DixElement, lang, datafile):
     lemma = e.attributes['lm'] if 'lm' in e.attributes else ''  # is also in <r>
     lemma, homoId, pos = e.pair.right.lemma_homoId_POS()
     stem, stem_homoId, stem_pos = e.pair.left.lemma_homoId_POS()
     contlext = e.par.attributes['n'].replace('__', '_').upper() if 'n' in e.par.attributes else ''
 
     # find the lexeme or create the instance and return it
-    _l, created = Lexeme.objects.get_or_create(lexeme=lemma, homoId=homoId, pos=pos, language=lang)
+    try:
+        _l = Lexeme.objects.get(lexeme=lemma, pos=pos, homoId=homoId, language=lang)
+    except:
+        _l = Lexeme.objects.create(
+            lexeme=lemma, pos=pos, homoId=homoId, language=lang,
+            imported_from=datafile)
+
     title = _l.find_akusanat_affiliation()
     # link it
     if title:
@@ -45,13 +51,17 @@ class Command(BaseCommand):
         with io.open(file_path, 'r', encoding='utf-8') as fp:
             dix = parse_dix(fp)
 
+        filename = os.path.splitext(os.path.basename(file_path))[0]
+        df = DataFile(lang_source=lang, lang_target='', name=filename)
+        df.save()
+
         for sdef, comment in dix.sdefs.items():
             try:
                 Symbol.objects.get_or_create(name=sdef, comment=comment)
-            except: # exists but with different comment
+            except:  # exists but with different comment
                 pass
 
         for e in dix.sections['main'].elements:
-            add_element(e, lang)
+            add_element(e, lang, df)
 
         self.stdout.write(self.style.SUCCESS('Successfully imported the file.'))

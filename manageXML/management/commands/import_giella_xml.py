@@ -72,7 +72,6 @@ def parseXML(filename, filepos):
                                                             contlex=st.contlex)  # add the stems
         if not _ll:  # shouldn't happen but if it did, then we shouldn't get it there
             continue
-        print(_ll.lexeme)
         for mg in e.get('mg', []):
             l_relations = defaultdict(list)
             for tg in mg.get('tg', []):  # translations
@@ -115,7 +114,7 @@ def parseXML(filename, filepos):
                 pass
 
             for defNative in mg.get('defNative', []):
-                if not defNative.text.strip():
+                if not defNative or not defNative.text:
                     continue
                 _lmd, created = LexemeMetadata.objects.get_or_create(lexeme=_ll, type=DEF_NATIVE,
                                                                      text=defNative.text.strip())

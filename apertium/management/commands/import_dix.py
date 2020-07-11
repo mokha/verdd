@@ -21,6 +21,10 @@ def add_element(e: DixElement, src_lang, tgt_lang, datafile):
     _ll, _ll_homoId, _ll_pos = e.pair.left.lemma_homoId_POS()
     _rr, _rr_homoId, _rr_pos = e.pair.right.lemma_homoId_POS()
 
+    if not _ll and not _rr and e.i:
+        _ll, _ll_homoId, _ll_pos = e.i.lemma_homoId_POS()
+        _rr, _rr_homoId, _rr_pos = e.i.lemma_homoId_POS()
+
     _l, _r = None, None  # the default
 
     if _ll:
@@ -39,12 +43,12 @@ def add_element(e: DixElement, src_lang, tgt_lang, datafile):
                 lexeme=_rr, pos=_rr_pos, homoId=_rr_homoId, language=tgt_lang,
                 imported_from=datafile)
 
-    if e.direction is None or e.direction == "RL":
+    if _l and (e.direction is None or e.direction == "LR"):
         r, created = Relation.objects.get_or_create(lexeme_from=_l, lexeme_to=_r)
         add_attributes_to_relation(r, e.pair.left.symbol, src_lang)
         add_attributes_to_relation(r, e.pair.right.symbol, tgt_lang)
 
-    if e.direction is None or e.direction == "LR":
+    if _r and (e.direction is None or e.direction == "RL"):
         r, created = Relation.objects.get_or_create(lexeme_from=_r, lexeme_to=_l)
         add_attributes_to_relation(r, e.pair.left.symbol, src_lang)
         add_attributes_to_relation(r, e.pair.right.symbol, tgt_lang)

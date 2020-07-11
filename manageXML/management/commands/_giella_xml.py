@@ -56,5 +56,5 @@ class GiellaXML:
             r = GiellaXML.odict2item(x['r'])
             lang = r.attributes.get('xml:lang')
             g_xml = GiellaXML(lang=lang)
-            g_xml.elements = r['e']
+            g_xml.elements = r['e'] if 'e' in r else []
             return g_xml

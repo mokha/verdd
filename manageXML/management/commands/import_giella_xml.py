@@ -149,4 +149,4 @@ class Command(BaseCommand):
             filepos = filename.split('/')[-1].split('_')[:-1]
             parseXML(filename, filepos)
 
-        self.stdout.write(self.style.SUCCESS('Successfully flipped the files.'))
+        self.stdout.write(self.style.SUCCESS('Successfully imported the files.'))

@@ -5,6 +5,8 @@ from manageXML.models import *
 from django.conf import settings
 from ._dix_common import *
 
+ignore_affiliations = False
+
 
 def add_element(e: DixElement, lang, datafile):
     lemma = e.attributes['lm'] if 'lm' in e.attributes else ''  # is also in <r>
@@ -20,11 +22,12 @@ def add_element(e: DixElement, lang, datafile):
             lexeme=lemma, pos=pos, homoId=homoId, language=lang,
             imported_from=datafile)
 
-    title = _l.find_akusanat_affiliation()
-    # link it
-    if title:
-        a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title, type=AKUSANAT,
-                                                       link="{}{}".format(settings.WIKI_URL, title))
+    if not ignore_affiliations:
+        title = _l.find_akusanat_affiliation()
+        # link it
+        if title:
+            a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title, type=AKUSANAT,
+                                                           link="{}{}".format(settings.WIKI_URL, title))
 
     if stem:
         s, created = Stem.objects.get_or_create(lexeme=_l, text=stem, homoId=homoId, contlex=contlext)
@@ -40,9 +43,14 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('-f', '--file', type=str, help='The .DIX file containing the translations.', )
         parser.add_argument('-l', '--language', type=str, help='The language of the monolingual file.', )
+        parser.add_argument('--ignore-affiliations', dest='ignore_affiliations', action='store_true')
+        parser.set_defaults(ignore_affiliations=False)
 
     def handle(self, *args, **options):
+        global ignore_affiliations
+
         file_path = options['file']  # the directory containing the XML files
+        ignore_affiliations = options['ignore_affiliations']
         lang = Language.objects.get(id=options['language'])
 
         if not os.path.isfile(file_path):

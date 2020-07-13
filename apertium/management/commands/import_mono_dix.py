@@ -60,7 +60,7 @@ class Command(BaseCommand):
             dix = parse_dix(fp)
 
         filename = os.path.splitext(os.path.basename(file_path))[0]
-        df = DataFile(lang_source=lang, lang_target='', name=filename)
+        df = DataFile(lang_source=lang, lang_target=None, name=filename)
         df.save()
 
         for sdef, comment in dix.sdefs.items():

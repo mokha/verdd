@@ -1,0 +1,13 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    {% include 'relation_detail_content.html' with object=object.example_from.relation %}
+    <h2>{% trans "Delete Example Relation" %}:</h2>
+    <p><b>{% trans "From" %}:</b> {{ object.example_from }}</p>
+    <p><b>{% trans "To" %}:</b> {{ object.example_to }}</p>
+    {% crispy form %}
+{% endblock %}

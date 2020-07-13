@@ -6,6 +6,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML, Button
 from .constants import *
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Q
 
 
 class LexmeChoiceField(forms.ModelChoiceField):
@@ -327,10 +328,12 @@ class DeleteFormBase(forms.Form):
 
 class ExampleForm(forms.ModelForm):
     text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+    source = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Source')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
     class Meta:
         model = Example
-        fields = ['text']
+        fields = ['text', 'source', 'notes']
 
     def __init__(self, *args, **kwargs):
         super(ExampleForm, self).__init__(*args, **kwargs)
@@ -347,10 +350,12 @@ class ExampleForm(forms.ModelForm):
 
 class RelationExampleForm(forms.ModelForm):
     text = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': _('Example')}))
+    source = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': _('Source')}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
     class Meta:
         model = RelationExample
-        fields = ['text', 'language']
+        fields = ['text', 'language', 'source', 'notes']
 
     def __init__(self, *args, **kwargs):
         relation = kwargs.pop('relation')
@@ -368,6 +373,8 @@ class RelationExampleForm(forms.ModelForm):
                 Column('text', css_class='form-group col-md-10'),
                 css_class='form-row'
             ),
+            'source',
+            'notes',
             Submit('submit', _('Save'))
         )
 
@@ -502,5 +509,56 @@ class SymbolForm(forms.ModelForm):
         self.helper.layout = Layout(
             'name',
             'comment',
+            Submit('submit', _('Save'))
+        )
+
+
+class RelationExampleLinkForm(forms.ModelForm):
+    example_to = forms.ModelChoiceField(queryset=None, required=True, label=_('To'))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+
+    class Meta:
+        model = RelationExampleRelation
+        fields = ['example_to', 'notes']
+
+    def __init__(self, *args, **kwargs):
+        example_from = kwargs.pop('example_from')
+        super(RelationExampleLinkForm, self).__init__(*args, **kwargs)
+
+        filter_ids = list(example_from.example_from_relationexample_set.values_list('example_to', flat=True).all())
+        filter_ids.append(example_from.id)
+
+        self.fields['example_to'].queryset = example_from.relation.relationexample_set.filter(~Q(id__in=filter_ids))
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h4>%s: %s</h4>" % (_("From"), "{{ example_from }}")),
+                css_class=''
+            ),
+            'example_to',
+            'notes',
+            Submit('submit', _('Save'))
+        )
+
+
+class RelationExampleLinkEditForm(forms.ModelForm):
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+
+    class Meta:
+        model = RelationExampleRelation
+        fields = ['notes']
+
+    def __init__(self, *args, **kwargs):
+        super(RelationExampleLinkEditForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    "<h4>%s - %s</h4>" % ("{{ object.example_from }}", "{{ object.example_to}}")),
+                css_class=''
+            ),
+            'notes',
             Submit('submit', _('Save'))
         )

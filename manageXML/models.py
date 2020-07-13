@@ -290,6 +290,8 @@ class Example(models.Model):
 
     lexeme = models.ForeignKey(Lexeme, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
+    source = models.CharField(max_length=250, blank=True)
+    notes = models.CharField(max_length=250, blank=True)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='examples')
     history = HistoricalRecords()
 
@@ -344,16 +346,48 @@ class RelationExample(models.Model):
     relation = models.ForeignKey(Relation, on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
     language = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='relation_examples')
+    source = models.CharField(max_length=250, blank=True)
+    notes = models.CharField(max_length=250, blank=True)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
                                    related_name='relation_examples')
     history = HistoricalRecords()
 
     def __str__(self):
-        return "({}) {}".format(self.language, self.text)
+        return "({}-{}) {}".format(self.id, self.language, self.text)
 
     def get_absolute_url(self):
         return reverse('relation-detail',
                        kwargs={'pk': self.relation.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
+    def linked_examples(self):
+        return self.example_from_relationexample_set.all()
+
+
+class RelationExampleRelation(models.Model):
+    class Meta:
+        unique_together = ('example_from', 'example_to')
+
+    example_from = models.ForeignKey(RelationExample, related_name='example_from_relationexample_set',
+                                     on_delete=models.CASCADE)
+    example_to = models.ForeignKey(RelationExample, related_name='example_to_relationexample_set',
+                                   on_delete=models.CASCADE)
+    notes = models.CharField(max_length=250, blank=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return "{} {}".format(self.example_from, self.example_to)
+
+    def get_absolute_url(self):
+        return reverse('relation-detail',
+                       kwargs={'pk': self.example_from.relation.pk})
 
     @property
     def _history_user(self):

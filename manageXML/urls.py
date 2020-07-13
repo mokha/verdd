@@ -102,6 +102,15 @@ urlpatterns = [
     re_path(r'^relation/switch/(?P<pk>\d+)/', views.switch_relation,
             name='relation-switch'),
 
+    # link two relations
+    re_path(r'^relation/example/(?P<pk>\d+)/link$', views.RelationExampleRelationView.as_view(),
+            name='relation-link'),
+    re_path(r'^example/relation/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/',
+            views.RelationExampleRelationDeleteView.as_view(),
+            name='relation-link-delete'),
+    re_path(r'^example/relation/(?P<lexeme_id>\d+)/edit/(?P<pk>\d+)/$', views.RelationExampleRelationEditView.as_view(),
+            name='relation-link-edit'),
+
     # symbols
     re_path(r'^symbol/list', views.SymbolListView.as_view(), name='symbol-list')
 

@@ -9,6 +9,11 @@ from django.utils import timezone
 from django.db.models import Q
 
 
+class LanguageChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s (%s)" % (obj.name, obj.id)
+
+
 class LexmeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s (%s)" % (obj.lexeme, obj.pos)
@@ -72,8 +77,7 @@ class LexemeForm(forms.ModelForm):
 
 
 class LexemeCreateForm(LexemeForm):
-    language = forms.ChoiceField(choices=LANGUAGE_TYPES, required=True,
-                                 label=_('Languages'))
+    language = LanguageChoiceField(queryset=Language.objects.all(), required=True, label=_('Languages'))
 
     class Meta:
         model = Lexeme
@@ -360,10 +364,9 @@ class RelationExampleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         relation = kwargs.pop('relation')
         super(RelationExampleForm, self).__init__(*args, **kwargs)
-        self.fields['language'] = forms.ChoiceField(
-            label='',
-            choices=((relation.lexeme_to.language, relation.lexeme_to.language),  # show to language first
-                     (relation.lexeme_from.language, relation.lexeme_from.language),)
+        self.fields['language'] = LanguageChoiceField(
+            queryset=Language.objects.filter(id__in=[relation.lexeme_to.language, relation.lexeme_from.language]),
+            label=''
         )
 
         self.helper = FormHelper()
@@ -389,10 +392,9 @@ class RelationMetadataForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         relation = kwargs.pop('relation')
         super(RelationMetadataForm, self).__init__(*args, **kwargs)
-        self.fields['language'] = forms.ChoiceField(
-            label='',
-            choices=((relation.lexeme_to.language, relation.lexeme_to.language),  # show to language first
-                     (relation.lexeme_from.language, relation.lexeme_from.language),)
+        self.fields['language'] = LanguageChoiceField(
+            queryset=Language.objects.filter(id__in=[relation.lexeme_to.language, relation.lexeme_from.language]),
+            label=''
         )
         self.fields['type'] = forms.ChoiceField(choices=RELATION_METADATA_TYPES, required=True, label='')
 

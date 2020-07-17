@@ -151,9 +151,8 @@ class LexemeFilter(django_filters.FilterSet):
         data.setdefault('order', '+lexeme_lang')
         super().__init__(data, *args, **kwargs)
 
-        self.form.fields['language'].choices = set(
-            [(p['language'], p['language']) for p in Lexeme.objects.all().values('language')])
-        self.form.fields['pos'].choices = set([(p['pos'], p['pos']) for p in Lexeme.objects.all().values('pos')])
+        self.form.fields['language'].choices = set(Lexeme.objects.values_list('language', flat=True))
+        self.form.fields['pos'].choices = set(Lexeme.objects.values_list('pos', flat=True))
 
     def filter_range(self, queryset, name, value):
         # transform datetime into timestamp

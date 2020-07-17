@@ -307,15 +307,20 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
 
     def get_around_objects(self, request, object, n=5):
         _filter = LexemeFilter(request.GET)
+        order_by = _filter.qs.query.order_by[0]
+        desc = order_by.startswith('-')
+        order_by = order_by[1:] if order_by[0] in ['-', '+'] else order_by
+        value = getattr(object, order_by)
+
         next_objects, prev_objects = [], []
 
         try:
-            prev_objects = _filter.qs.filter(id__lt=object.id)[:n]
-            next_objects = _filter.qs.filter(id__gt=object.id)[:n]
+            prev_objects = _filter.qs.filter(**{order_by + '__lt': value})[:n]
+            next_objects = _filter.qs.filter(**{order_by + '__gt': value})[:n]
         except Exception as e:
-            pass
+            print(str(e))
 
-        return prev_objects, next_objects
+        return (prev_objects, next_objects,) if not desc else (next_objects, prev_objects,)
 
     def get_context_data(self, **kwargs):
         context = super(LexemeDetailView, self).get_context_data(**kwargs)

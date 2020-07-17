@@ -1038,7 +1038,9 @@ class RelationFilter(django_filters.FilterSet):
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
         super().__init__(data, *args, **kwargs)
-        self.form.fields['pos'].choices = set([(p['pos'], p['pos']) for p in Lexeme.objects.all().values('pos')])
+
+        pos = set(Lexeme.objects.values_list('pos', flat=True).distinct())
+        self.form.fields['pos'].choices = zip(pos, pos)
 
     def filter_lexeme(self, queryset, name, value):
         lexeme_str, lookup_expr = self.form.cleaned_data['lexeme'] if 'lexeme' in self.form.cleaned_data else None

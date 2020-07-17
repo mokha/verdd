@@ -306,18 +306,13 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
     template_name = 'lexeme_detail.html'
 
     def get_around_objects(self, request, object, n=5):
-        filter = LexemeFilter(request.GET, queryset=Lexeme.objects.all())
-        qs_list = list(filter.qs)
-
+        _filter = LexemeFilter(request.GET)
         next_objects, prev_objects = [], []
 
         try:
-            lexeme_position = qs_list.index(object)
-            next_objects = qs_list[lexeme_position + 1:lexeme_position + 1 + n]
-
-            prev_objects_len = max(0, lexeme_position - n)
-            prev_objects = qs_list[prev_objects_len:lexeme_position]
-        except:
+            prev_objects = _filter.qs.filter(id__lt=object.id)[:n]
+            next_objects = _filter.qs.filter(id__gt=object.id)[:n]
+        except Exception as e:
             pass
 
         return prev_objects, next_objects

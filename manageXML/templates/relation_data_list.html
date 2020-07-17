@@ -18,8 +18,8 @@
     {% for object in relations %}
         <tr {% if object.checked %}class="table-success"{% endif %}>
             <td>{{ object.id }}</td>
-            <td>{{ object.lexeme_from.lexeme }}</td>
-            <td>{% if object.lexeme_to %}{{ object.lexeme_to.lexeme }}{% endif %}</td>
+            <td {% if lexeme.id == object.lexeme_from.id %}class="underline"{% endif %}>{{ object.lexeme_from.lexeme }}</td>
+            <td {% if object.lexeme_to and lexeme.id == object.lexeme_to.id %}class="underline"{% endif %}>{% if object.lexeme_to %}{{ object.lexeme_to.lexeme }}{% endif %}</td>
             <td>{{ object.type_str }}</td>
             <td>
                 {% with object.source_set.all as sources %}

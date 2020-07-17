@@ -316,10 +316,12 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
         next_objects, prev_objects = [], []
 
         try:
-            prev_objects = _filter.qs.filter(**{order_by + '__lt': value})[::-1][:n][::-1]
-            next_objects = _filter.qs.filter(**{order_by + '__gt': value})[:n]
+            prev_qs = _filter.qs.filter(**{order_by + '__lt': value}).order_by('-' + order_by if not desc else order_by)
+            next_qs = _filter.qs.filter(**{order_by + '__gt': value})
+            prev_objects = prev_qs[:n][::-1]
+            next_objects = next_qs[:n]
         except Exception as e:
-            print(str(e))
+            pass
 
         return (prev_objects, next_objects,) if not desc else (next_objects, prev_objects,)
 

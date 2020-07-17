@@ -307,7 +307,8 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
 
     def get_around_objects(self, request, object, n=5):
         _filter = LexemeFilter(request.GET)
-        order_by = _filter.qs.query.order_by[0]
+        ordered = _filter.qs.ordered
+        order_by = _filter.qs.query.order_by[0] if ordered else 'id'
         desc = order_by.startswith('-')
         order_by = order_by[1:] if order_by[0] in ['-', '+'] else order_by
         value = getattr(object, order_by)

@@ -151,7 +151,7 @@ class LexemeFilter(django_filters.FilterSet):
         data.setdefault('order', '+lexeme_lang')
         super().__init__(data, *args, **kwargs)
 
-        lang_pos = Lexeme.objects.values('language', 'pos')
+        lang_pos = Lexeme.objects.values('language', 'pos').distinct()
         languages = set([_i['language'] for _i in lang_pos])
         pos = set([_i['pos'] for _i in lang_pos])
         self.form.fields['language'].choices = zip(languages, languages)

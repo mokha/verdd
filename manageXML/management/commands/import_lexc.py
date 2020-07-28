@@ -58,7 +58,7 @@ def parse_file(file_path, lang: Language):
                     a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title, type=AKUSANAT,
                                                                    link="{}{}".format(settings.WIKI_URL, title))
             else:
-                print(line)
+                pass
 
 
 class Command(BaseCommand):

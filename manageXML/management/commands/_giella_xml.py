@@ -1,4 +1,5 @@
 import io
+import re
 from collections import defaultdict, OrderedDict
 
 
@@ -23,7 +24,7 @@ class GiellaXML:
         def __getattr__(self, item):
             item = item.lower()
             if item == 'homoid':
-                return int(self.attributes.get('hid', '1').replace('Hom', '')) - 1
+                return int(re.sub(r'hom', '', self.attributes.get('hid', '1'), flags=re.I)) - 1
             return self.attributes.get(item, '')
 
     @staticmethod

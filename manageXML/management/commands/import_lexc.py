@@ -8,7 +8,7 @@ from collections import defaultdict
 ignore_affiliations = False
 
 lexc_ptrn = re.compile(
-    r'^([^\s]+)(\+v(\d+))?(\+Hom(\d+))?(\+(\w+))?(\+[\w\+\/]+)?:([^\s]+)[\s+]*([\w\_\-\/]+)\s*("(.*)")?\s*?;(.*)$',
+    r'^([\w\d\-\_\,\.\<\>]+)(\+v(\d+))?(\+Hom(\d+))?(\+(\w+))?(\+[\w\+\/]+)?:([^\s]+)[\s+]*([\w\_\-\/]+)\s*("(.*)")?\s*?;(.*)$',
     re.UNICODE)
 
 

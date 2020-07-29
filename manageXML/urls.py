@@ -6,6 +6,7 @@ urlpatterns = [
     re_path(r'^lexeme/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.LexemeDetailView.as_view(),
             name='lexeme-detail'),
     path('download', views.LexemeExportView.as_view(), name='download-csv'),
+    path('download-lexc', views.LexemeExportLexcView.as_view(), name='download-lexc'),
     re_path(r'^lexeme/edit/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.LexemeEditView.as_view(),
             name='lexeme-edit'),
     re_path(r'^relation/(?P<pk>\d+)/$', views.RelationDetailView.as_view(),

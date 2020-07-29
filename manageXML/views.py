@@ -24,11 +24,12 @@ from .forms import *
 from django.shortcuts import get_object_or_404
 from collections import defaultdict
 import csv
+import re
 from .constants import INFLEX_TYPE_OPTIONS
 from manageXML.inflector import Inflector
 import operator
 import logging
-from .utils import *
+from .utils import read_first_ids_from
 from django.conf import settings
 
 logger = logging.getLogger('verdd.manageXML')  # Get an instance of a logger
@@ -1319,3 +1320,30 @@ def switch_relation(request, pk):
             relation.save()
 
     return HttpResponseRedirect(relation.get_absolute_url())
+
+
+class LexemeExportLexcView(LexemeView):
+    def get_queryset(self):
+        queryset = self.model.objects.prefetch_related('stem_set')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+        return self.filterset.qs.distinct()
+
+    def render_to_response(self, context, **response_kwargs):
+        result = [("".join((obj.lexeme,
+                   "+v{}".format(i + 1) if i > 0 else '',
+                   "+Hom{}".format(obj.homoId) if obj.homoId > 0 else '',
+                   "+{}".format(obj.pos),
+                   ":".format(stem.text),
+                   "{}".format(stem.contlex),)),
+                   "\"{}\"".format(stem.notes),
+                   ';')
+                  for obj in self.object_list for i, stem in enumerate(obj.stem_set.all())]
+
+        result = [(re.sub(r'(\s|\.|\<|\>|\,)', r'%\1', _r) for _r in r) for r in result]
+        result = [" ".join(r) for r in result]
+        content = "\n".join(result)
+        filename = "{}-export.lexc".format(datetime.datetime.now().replace(microsecond=0).isoformat())
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+
+        return response

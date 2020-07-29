@@ -1333,8 +1333,8 @@ class LexemeExportLexcView(LexemeView):
                    "+v{}".format(i + 1) if i > 0 else '',
                    "+Hom{}".format(obj.homoId) if obj.homoId > 0 else '',
                    "+{}".format(obj.pos),
-                   ":".format(stem.text),
-                   "{}".format(stem.contlex),)),
+                   ":{}".format(stem.text),)),
+                   "{}".format(stem.contlex),
                    "\"{}\"".format(stem.notes),
                    ';')
                   for obj in self.object_list for i, stem in enumerate(obj.stem_set.all())]

@@ -1324,16 +1324,18 @@ def switch_relation(request, pk):
 
 class LexemeExportLexcView(LexemeView):
     def get_queryset(self):
-        queryset = self.model.objects.prefetch_related('stem_set')
+        queryset = self.model.objects.prefetch_related('stem_set', 'lexememetadata_set')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
         return self.filterset.qs.distinct()
 
     def render_to_response(self, context, **response_kwargs):
         result = [("".join((obj.lexeme,
-                   "+v{}".format(i + 1) if i > 0 else '',
-                   "+Hom{}".format(obj.homoId) if obj.homoId > 0 else '',
-                   "+{}".format(obj.pos),
-                   ":{}".format(stem.text),)),
+                            "+v{}".format(i + 1) if i > 0 else '',
+                            "+Hom{}".format(obj.homoId) if obj.homoId > 0 else '',
+                            "+{}".format("N+{}".format(obj.pos) if obj.pos == 'Prop' else obj.pos),
+                            "".join(["+{}".format(md.text) if re.match(r'prop|np', md.text, re.I) else '' for md in
+                                     obj.lexememetadata_set.all()]),
+                            ":{}".format(stem.text),)),
                    "{}".format(stem.contlex),
                    "\"{}\"".format(stem.notes),
                    ';')

@@ -5,7 +5,7 @@
     {% if stems %}
         <ul>
             {% for obj in stems %}
-                <li>{{ obj.order }} - {{ obj.text }}{% if user.is_authenticated %} (<a href="{% url 'stem-edit' pk=obj.pk %}">{% trans "edit" %}</a>/<a href="{% url 'stem-delete' lexeme_id=object.pk pk=obj.pk %}">{% trans "delete" %}</a>){% endif %}</li>
+                <li>{{ obj.order }} - {{ obj.text }}{% if obj.contlex %} ({{ obj.contlex }}){% endif %}{% if user.is_authenticated %} (<a href="{% url 'stem-edit' pk=obj.pk %}">{% trans "edit" %}</a>/<a href="{% url 'stem-delete' lexeme_id=object.pk pk=obj.pk %}">{% trans "delete" %}</a>){% endif %}</li>
             {% endfor %}
         </ul>
     {% endif %}

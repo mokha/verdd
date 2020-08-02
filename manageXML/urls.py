@@ -113,6 +113,14 @@ urlpatterns = [
             name='relation-link-edit'),
 
     # symbols
-    re_path(r'^symbol/list', views.SymbolListView.as_view(), name='symbol-list')
+    re_path(r'^symbol/list', views.SymbolListView.as_view(), name='symbol-list'),
+
+    # lexeme metadata
+    re_path(r'^metadata/(?P<lexeme_id>\d+)/add$', views.LexemeMetadataCreateView.as_view(),
+            name='lexeme-metadata-add'),
+    re_path(r'^metadata/edit/(?P<pk>\d+)/$', views.LexemeMetadataEditView.as_view(),
+            name='lexeme-metadata-edit'),
+    re_path(r'^metadata/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.LexemeMetadataDeleteView.as_view(),
+            name='lexeme-metadata-delete'),
 
 ]

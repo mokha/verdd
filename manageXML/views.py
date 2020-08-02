@@ -1275,6 +1275,55 @@ class SymbolListView(TitleMixin, ListView):
     title = _('Symbol')
 
 
+class LexemeMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'lexeme_metadata_add.html'
+    model = LexemeMetadata
+    form_class = LexemeMetadataForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LexemeMetadataCreateView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Metadata"), self.lexeme)
+
+    def form_valid(self, form):
+        form.instance.lexeme = self.lexeme
+        form.instance.changed_by = self.request.user
+        return super(LexemeMetadataCreateView, self).form_valid(form)
+
+
+class LexemeMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'lexeme_metadata_edit.html'
+    model = LexemeMetadata
+    form_class = LexemeMetadataForm
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Metadata"), self.object.text, self.object.lexeme)
+
+    def get_context_data(self, **kwargs):
+        context = super(LexemeMetadataEditView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.object.lexeme
+        return context
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(LexemeMetadataEditView, self).form_valid(form)
+
+
+class LexemeMetadataDeleteView(LexemeDeleteFormMixin):
+    template_name = 'lexeme_metadata_confirm_delete.html'
+    model = LexemeMetadata
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Metadata"), self.object,)
+
+
 @login_required
 def approve_lexeme(request, pk):
     lexeme = get_object_or_404(Lexeme, pk=pk)

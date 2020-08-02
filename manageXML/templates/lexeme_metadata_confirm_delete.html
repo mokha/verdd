@@ -1,0 +1,14 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    {% include 'lexeme_short_data.html' with object=object.lexeme %}
+    <h2>{% trans "Delete Metadata" %}:</h2>
+    <p><b>{% trans "Type" %}:</b> {% constant_text 'LEXEME_METADATA_TYPES' object.type %}</p>
+    <p><b>{% trans "Text" %}:</b> {{ object.text }}</p>
+
+    {% crispy form %}
+{% endblock %}

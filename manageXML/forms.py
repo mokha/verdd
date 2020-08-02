@@ -564,3 +564,23 @@ class RelationExampleLinkEditForm(forms.ModelForm):
             'notes',
             Submit('submit', _('Save'))
         )
+
+
+class LexemeMetadataForm(forms.ModelForm):
+    text = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Text')}))
+
+    class Meta:
+        model = LexemeMetadata
+        fields = ['text', 'type']
+
+    def __init__(self, *args, **kwargs):
+        self.type = forms.ChoiceField(choices=LEXEME_METADATA_TYPES, required=True,
+                                      label=_('Type'))
+
+        super(LexemeMetadataForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'text',
+            'type',
+            Submit('submit', _('Save'))
+        )

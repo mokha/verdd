@@ -34,7 +34,7 @@
                 {% if metadata %}
                     <ul>
                         {% for md in metadata %}
-                            <li>{{ md.text }} {% if user.is_authenticated %} (<a href="{% url 'lexeme-metadata-edit' pk=md.pk %}">{% trans "edit" %}</a>/<a href="{% url 'lexeme-metadata-delete' lexeme_id=object.pk pk=md.pk %}">{% trans "delete" %}</a>){% endif %}</li>
+                            <li>{% if md.type %}{% constant_text 'LEXEME_METADATA_TYPES' md.type %}{% endif %}: {{ md.text }} {% if user.is_authenticated %} (<a href="{% url 'lexeme-metadata-edit' pk=md.pk %}">{% trans "edit" %}</a>/<a href="{% url 'lexeme-metadata-delete' lexeme_id=object.pk pk=md.pk %}">{% trans "delete" %}</a>){% endif %}</li>
                         {% endfor %}
                     </ul>
                 {% endif %}

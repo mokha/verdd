@@ -15,7 +15,7 @@ def add_element(e: DixElement, lang, datafile):
     stem, stem_homoId, stem_pos, stem_pos_g = e.pair.left.lemma_homoId_POS()
     if not stem and e.i:
         stem, stem_homoId, stem_pos, stem_pos_g = e.i.lemma_homoId_POS()
-    contlext = e.par.attributes['n'].replace('__', '_').upper() if e.par and 'n' in e.par.attributes else ''
+    contlext = e.par.attributes['n'] if e.par and 'n' in e.par.attributes else ''
 
     # find the lexeme or create the instance and return it
     try:

@@ -2,6 +2,7 @@ from collections import defaultdict
 import re
 from apertium.constants import *
 import xml.etree.ElementTree as ET
+from manageXML.models import Lexeme, LexemeMetadata
 
 
 def parse_text(text):
@@ -38,13 +39,14 @@ class Item(object):
         return "{}__{}".format(self.text, "_".join(self._symbol))
 
     def lemma_homoId_POS(self):
-        pos = ''
+        pos, pos_giella = '', ''
         for attr in list(self.symbol):
             if attr in POS_tags:
-                pos = POS_tags[attr]
+                pos = attr
+                pos_giella = POS_tags[attr]
                 break
         lemma, homoId = parse_text(self.text)
-        return lemma, homoId, pos,
+        return lemma, homoId, pos, pos_giella,
 
 
 class TranslationPair(object):
@@ -161,3 +163,14 @@ def parse_dix(fp):
         dix.sections[section.id] = section
 
     return dix
+
+
+def add_metadata_to_lexeme(lexeme: Lexeme, item: Item):
+    for attr in list(item.symbol):
+        if attr in SYMBOL_MAPS:
+            _type, attr_g = SYMBOL_MAPS[attr]
+            if isinstance(attr_g, list):
+                for _attr_g in attr_g:
+                    md, created = LexemeMetadata.objects.get_or_create(lexeme=lexeme, type=_type, text=_attr_g)
+            else:
+                md, created = LexemeMetadata.objects.get_or_create(lexeme=lexeme, type=_type, text=attr_g)

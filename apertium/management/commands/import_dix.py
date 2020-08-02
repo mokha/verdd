@@ -9,9 +9,8 @@ from ._dix_common import *
 def add_attributes_to_relation(r: Relation, attributes: list, language: str):
     if attributes:
         for attr in attributes:
-            if attr not in POS_tags:
-                md, created = RelationMetadata.objects.get_or_create(relation=r, language=language, text=attr,
-                                                                     type=GENERIC_METADATA)
+            md, created = RelationMetadata.objects.get_or_create(relation=r, language=language, text=attr,
+                                                                 type=GENERIC_METADATA)
 
 
 def add_element(e: DixElement, src_lang, tgt_lang, datafile):
@@ -34,6 +33,7 @@ def add_element(e: DixElement, src_lang, tgt_lang, datafile):
             _l = Lexeme.objects.create(
                 lexeme=_ll, pos=_ll_pos, homoId=_ll_homoId, language=src_lang,
                 imported_from=datafile)
+        add_metadata_to_lexeme(_l, e.pair.left)
 
     if _rr:
         try:
@@ -42,6 +42,7 @@ def add_element(e: DixElement, src_lang, tgt_lang, datafile):
             _r = Lexeme.objects.create(
                 lexeme=_rr, pos=_rr_pos, homoId=_rr_homoId, language=tgt_lang,
                 imported_from=datafile)
+        add_metadata_to_lexeme(_r, e.pair.right)
 
     if _l and (e.direction is None or e.direction == "LR"):
         r, created = Relation.objects.get_or_create(lexeme_from=_l, lexeme_to=_r)

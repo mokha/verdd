@@ -1330,7 +1330,7 @@ class LexemeExportLexcView(LexemeView):
 
     def render_to_response(self, context, **response_kwargs):
         result = [("".join((obj.lexeme,
-                            "+v{}".format(i + 1) if i > 0 else '',
+                            "+v{}".format(i + 1) if i > 0 or len(obj.stem_set.all()) > 1 else '',
                             "+Hom{}".format(obj.homoId) if obj.homoId > 0 else '',
                             "+{}".format("N+{}".format(obj.pos) if obj.pos == 'Prop' else obj.pos),
                             "".join(["+{}".format(md.text) if re.match(r'prop|np', md.text, re.I) else '' for md in

@@ -9,21 +9,23 @@ ignore_affiliations = False
 
 
 def add_element(e: DixElement, lang, datafile):
-    lemma, homoId, pos = e.pair.right.lemma_homoId_POS()
+    lemma, homoId, pos, pos_g = e.pair.right.lemma_homoId_POS()
     if not lemma:
         lemma = e.attributes['lm'] if 'lm' in e.attributes else ''  # is also in <r>
-    stem, stem_homoId, stem_pos = e.pair.left.lemma_homoId_POS()
+    stem, stem_homoId, stem_pos, stem_pos_g = e.pair.left.lemma_homoId_POS()
     if not stem and e.i:
-        stem, stem_homoId, stem_pos = e.i.lemma_homoId_POS()
+        stem, stem_homoId, stem_pos, stem_pos_g = e.i.lemma_homoId_POS()
     contlext = e.par.attributes['n'].replace('__', '_').upper() if e.par and 'n' in e.par.attributes else ''
 
     # find the lexeme or create the instance and return it
     try:
-        _l = Lexeme.objects.get(lexeme=lemma, pos=pos, homoId=homoId, language=lang)
+        _l = Lexeme.objects.get(lexeme=lemma, pos=pos_g, homoId=homoId, language=lang)
     except:
         _l = Lexeme.objects.create(
-            lexeme=lemma, pos=pos, homoId=homoId, language=lang,
+            lexeme=lemma, pos=pos_g, homoId=homoId, language=lang,
             imported_from=datafile)
+
+    add_metadata_to_lexeme(_l, e.pair.right)
 
     if not ignore_affiliations:
         title = _l.find_akusanat_affiliation()

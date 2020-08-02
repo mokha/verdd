@@ -17,30 +17,30 @@ def add_element(e: DixElement, src_lang, tgt_lang, datafile):
     if not e:
         return
 
-    _ll, _ll_homoId, _ll_pos = e.pair.left.lemma_homoId_POS()
-    _rr, _rr_homoId, _rr_pos = e.pair.right.lemma_homoId_POS()
+    _ll, _ll_homoId, _ll_pos, _ll_pos_g = e.pair.left.lemma_homoId_POS()
+    _rr, _rr_homoId, _rr_pos, _rr_pos_g = e.pair.right.lemma_homoId_POS()
 
     if not _ll and not _rr and e.i:
-        _ll, _ll_homoId, _ll_pos = e.i.lemma_homoId_POS()
-        _rr, _rr_homoId, _rr_pos = e.i.lemma_homoId_POS()
+        _ll, _ll_homoId, _ll_pos, _ll_pos_g = e.i.lemma_homoId_POS()
+        _rr, _rr_homoId, _rr_pos, _rr_pos_g = e.i.lemma_homoId_POS()
 
     _l, _r = None, None  # the default
 
     if _ll:
         try:
-            _l = Lexeme.objects.get(lexeme=_ll, pos=_ll_pos, homoId=_ll_homoId, language=src_lang)
+            _l = Lexeme.objects.get(lexeme=_ll, pos=_ll_pos_g, homoId=_ll_homoId, language=src_lang)
         except:
             _l = Lexeme.objects.create(
-                lexeme=_ll, pos=_ll_pos, homoId=_ll_homoId, language=src_lang,
+                lexeme=_ll, pos=_ll_pos_g, homoId=_ll_homoId, language=src_lang,
                 imported_from=datafile)
         add_metadata_to_lexeme(_l, e.pair.left)
 
     if _rr:
         try:
-            _r = Lexeme.objects.get(lexeme=_rr, pos=_rr_pos, homoId=_rr_homoId, language=tgt_lang)
+            _r = Lexeme.objects.get(lexeme=_rr, pos=_rr_pos_g, homoId=_rr_homoId, language=tgt_lang)
         except:
             _r = Lexeme.objects.create(
-                lexeme=_rr, pos=_rr_pos, homoId=_rr_homoId, language=tgt_lang,
+                lexeme=_rr, pos=_rr_pos_g, homoId=_rr_homoId, language=tgt_lang,
                 imported_from=datafile)
         add_metadata_to_lexeme(_r, e.pair.right)
 

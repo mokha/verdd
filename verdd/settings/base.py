@@ -140,6 +140,7 @@ STATICFILES_DIRS = [
 LANGUAGES = (
     ('en-us', _('English')),
     ('fi', _('Finnish')),
+    ('ru', _('Russian')),
 )
 
 # Tell Django where the project's translation files should be.

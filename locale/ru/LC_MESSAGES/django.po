@@ -481,7 +481,7 @@ msgstr "Редактировать пример"
 #, fuzzy
 #| msgid "Delete Relation"
 msgid "Delete Example Relation"
-msgstr "Убрать связь
+msgstr "Убрать связь"
 
 #: manageXML/templates/history_list.html:11
 #: manageXML/templates/lexeme_approval.html:10

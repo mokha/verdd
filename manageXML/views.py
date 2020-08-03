@@ -120,8 +120,25 @@ class LexemeFilter(django_filters.FilterSet):
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
     source = CharFilter(label=_('Source'), method='source_filter')
 
-    order_by = LexemeOrderingFilter(
-        choices=(
+    order_by = LexemeOrderingFilter(fields=ORDER_BY_FIELDS,
+                                    label=_("Order by")
+                                    )
+
+    class Meta:
+        model = Lexeme
+        fields = ['lexeme', 'language', 'pos', 'contlex', 'inflexType', 'range_from', 'range_to', 'source']
+
+    def __init__(self, data, *args, **kwargs):
+        data = data.copy()
+        data.setdefault('order', '+lexeme_lang')
+        super().__init__(data, *args, **kwargs)
+
+        lang_pos = Lexeme.objects.values('language', 'pos').distinct()
+        languages = set([_i['language'] for _i in lang_pos])
+        pos = set([_i['pos'] for _i in lang_pos])
+        self.form.fields['language'].choices = zip(languages, languages)
+        self.form.fields['pos'].choices = zip(pos, pos)
+        self.form.fields['order_by'].choices = (
             ('lexeme_lang', _('Lexeme')),
             ('-lexeme_lang', '%s (%s)' % (_('Lexeme'), _('descending'))),
             ('pos', _('POS')),
@@ -138,25 +155,7 @@ class LexemeFilter(django_filters.FilterSet):
             ('-assonance', '%s (%s)' % (_('Assonance'), _('descending'))),
             ('assonance_rev', _('RevAssonance')),
             ('-assonance_rev', '%s (%s)' % (_('RevAssonance'), _('descending'))),
-        ),
-        fields=ORDER_BY_FIELDS,
-        label=_("Order by")
-    )
-
-    class Meta:
-        model = Lexeme
-        fields = ['lexeme', 'language', 'pos', 'contlex', 'inflexType', 'range_from', 'range_to', 'source']
-
-    def __init__(self, data, *args, **kwargs):
-        data = data.copy()
-        data.setdefault('order', '+lexeme_lang')
-        super().__init__(data, *args, **kwargs)
-
-        lang_pos = Lexeme.objects.values('language', 'pos').distinct()
-        languages = set([_i['language'] for _i in lang_pos])
-        pos = set([_i['pos'] for _i in lang_pos])
-        self.form.fields['language'].choices = zip(languages, languages)
-        self.form.fields['pos'].choices = zip(pos, pos)
+        )
 
     def filter_range(self, queryset, name, value):
         # transform datetime into timestamp

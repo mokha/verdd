@@ -142,6 +142,7 @@ LANGUAGES = (
     ('en-us', _('English')),
     ('fi', _('Finnish')),
     ('ru', _('Russian')),
+    ('es', _('Spanish')),
     ('myv', _('Erzya')),
 )
 

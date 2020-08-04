@@ -180,7 +180,7 @@ msgstr "ID омонимии"
 
 #: manageXML/forms.py:27 manageXML/forms.py:475
 msgid "Continuation Lexicon"
-msgstr "Лексикон морфологического продолжения"
+msgstr "Лексикон продолжения"
 
 #: manageXML/forms.py:29 manageXML/templates/lexeme_data.html:15
 #: manageXML/templates/lexeme_short_data.html:13
@@ -478,10 +478,8 @@ msgstr "Редактировать пример"
 
 #: manageXML/templates/example_relation_confirm_delete.html:9
 #: manageXML/views.py:872
-#, fuzzy
-#| msgid "Delete Relation"
 msgid "Delete Example Relation"
-msgstr "Удалить связь"
+msgstr "Удалить связь примера"
 
 #: manageXML/templates/history_list.html:11
 #: manageXML/templates/lexeme_approval.html:10
@@ -502,10 +500,8 @@ msgid "Instance"
 msgstr "Консонанс"
 
 #: manageXML/templates/history_list.html:39
-#, fuzzy
-#| msgid "Change Password"
 msgid "Changes"
-msgstr "Сменить пароль"
+msgstr "Изминения"
 
 #: manageXML/templates/history_list.html:40
 #: manageXML/templates/lexeme_list.html:100
@@ -616,7 +612,7 @@ msgstr "ID"
 #: manageXML/templates/relation_list.html:82 manageXML/views.py:117
 #: manageXML/views.py:216 manageXML/views.py:1104 manageXML/views.py:1105
 msgid "Contlex"
-msgstr "Лексикон морфологического продолжения"
+msgstr "Лексикон продолжения"
 
 #: manageXML/templates/lexeme_approval.html:81
 #: manageXML/templates/lexeme_list.html:95
@@ -642,8 +638,6 @@ msgstr "Разместить"
 #: manageXML/templates/relation_approval.html:112
 #: manageXML/templates/relation_detail.html:58
 #: manageXML/templates/stem_detail.html:25
-#, fuzzy
-#| msgid "Approved"
 msgid "Approve"
 msgstr "Утверждить"
 
@@ -661,8 +655,6 @@ msgstr "показать"
 #: manageXML/templates/lexeme_data.html:7
 #: manageXML/templates/lexeme_short_data.html:7
 #: manageXML/templates/relation_data.html:5
-#, fuzzy
-#| msgid "Language (ISO 639-2)"
 msgid "Language (ISO 639-3)"
 msgstr "Язык (ISO 639-3)"
 
@@ -670,7 +662,7 @@ msgstr "Язык (ISO 639-3)"
 #: manageXML/templates/lexeme_short_data.html:9
 #: manageXML/templates/stem_detail.html:15
 msgid "Cont"
-msgstr "Лексикон морфологического продолжения"
+msgstr "Лексикон продолжения"
 
 #: manageXML/templates/lexeme_data.html:12
 #: manageXML/templates/lexeme_short_data.html:11
@@ -723,15 +715,11 @@ msgid "Close"
 msgstr "Закрыть"
 
 #: manageXML/templates/lexeme_detail.html:54
-#, fuzzy
-#| msgid "Relations:"
 msgid "Relations"
-msgstr "Связи:"
+msgstr "Связи"
 
 #: manageXML/templates/lexeme_list.html:69
 #: manageXML/templates/relation_list.html:50
-#, fuzzy
-#| msgid "Approved"
 msgid "Bulk Approve"
 msgstr "Утверждить массивно"
 
@@ -756,15 +744,11 @@ msgstr "Добавить метадату"
 #: manageXML/templates/lexeme_metadata_confirm_delete.html:9
 #: manageXML/templates/relation_metadata_confirm_delete.html:9
 #: manageXML/views.py:1324
-#, fuzzy
-#| msgid "Delete Relation"
 msgid "Delete Metadata"
 msgstr "Удалить метедату"
 
 #: manageXML/templates/lexeme_metadata_edit.html:9
 #: manageXML/templates/relation_metadata_edit.html:9 manageXML/views.py:1307
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Edit Metadata"
 msgstr "Редактировать метадату"
 
@@ -782,8 +766,6 @@ msgid "MSD"
 msgstr "Морфо-синтактическое описание"
 
 #: manageXML/templates/relation_add.html:9
-#, fuzzy
-#| msgid "Add Relation from"
 msgid "Add Relation"
 msgstr "Добавить связь"
 
@@ -798,14 +780,10 @@ msgid "link"
 msgstr "связь"
 
 #: manageXML/templates/relation_example_relation_add.html:9
-#, fuzzy
-#| msgid "Examples"
 msgid "Link Examples"
 msgstr "Связять примеры"
 
 #: manageXML/templates/relation_example_relation_edit.html:9
-#, fuzzy
-#| msgid "Edit Example"
 msgid "Edit Examples Link"
 msgstr "Редактировать связь между примеров"
 
@@ -814,14 +792,10 @@ msgid "Add Source"
 msgstr "Добавить источник"
 
 #: manageXML/templates/stem_add.html:9 manageXML/views.py:1243
-#, fuzzy
-#| msgid "Add Source"
 msgid "Add Stem"
 msgstr "Добавить основу"
 
 #: manageXML/templates/stem_confirm_delete.html:9 manageXML/views.py:1269
-#, fuzzy
-#| msgid "Delete Source"
 msgid "Delete Stem"
 msgstr "Удалить основу"
 
@@ -830,8 +804,6 @@ msgid "Stems"
 msgstr "Основы"
 
 #: manageXML/templates/stem_edit.html:9 manageXML/views.py:1257
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Stem"
 msgstr "Редактировать основу"
 
@@ -970,32 +942,22 @@ msgid "Add Data"
 msgstr "Добавить дату"
 
 #: manageXML/views.py:796
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Edit Data"
 msgstr "Редактировать дату"
 
 #: manageXML/views.py:830
-#, fuzzy
-#| msgid "Add Example"
 msgid "Add example from"
-msgstr "Добавить пример"
+msgstr "Добавить пример из"
 
 #: manageXML/views.py:857
-#, fuzzy
-#| msgid "Edit Example"
 msgid "Edit example link"
-msgstr "Редактировать пример"
+msgstr "Редактировать ссылку примера"
 
 #: manageXML/views.py:891
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete Data"
 msgstr "Удалить дату"
 
 #: manageXML/views.py:913
-#, fuzzy
-#| msgid "Search"
 msgid "History Search"
 msgstr "Искать в истории"
 
@@ -1005,28 +967,20 @@ msgid "Empty list and '%(class_name)s.allow_empty' is False."
 msgstr ""
 
 #: manageXML/views.py:1003
-#, fuzzy
-#| msgid "Previous Lexemes"
 msgid "Approving Lexemes"
-msgstr "Предидущие лексемы"
+msgstr "Утверждение лексем"
 
 #: manageXML/views.py:1081
-#, fuzzy
-#| msgid "Relation"
 msgid "Relation Search"
 msgstr "Искать в связях"
 
 #: manageXML/views.py:1104 manageXML/views.py:1105
-#, fuzzy
-#| msgid "Lexeme"
 msgid "Lexeme ID"
 msgstr "ID лексемы"
 
 #: manageXML/views.py:1137
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Approving Relations"
-msgstr "Редактировать связь"
+msgstr "Утверждение связей"
 
 #: templates/allauth/account/email/password_reset_key_message.txt:1
 #, python-format
@@ -1118,8 +1072,6 @@ msgid "Back"
 msgstr "На зад"
 
 #: templates/base.html:46
-#, fuzzy
-#| msgid "Relations:"
 msgid "Search Relations"
 msgstr "Искать в связях:"
 

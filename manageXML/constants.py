@@ -838,6 +838,7 @@ RELATION_METADATA_TYPES = (
 LEXEME_TYPE = 4
 DEF_NATIVE = 5
 IGNORE_TAG = 6
+GEO_TAG = 7
 LEXEME_METADATA_TYPES = (
     (GENERIC_METADATA, _("Generic")),
     (SPECIFICATION, _('Specification')),
@@ -845,6 +846,7 @@ LEXEME_METADATA_TYPES = (
     (LEXEME_TYPE, _('Type')),
     (DEF_NATIVE, _('defNative')),
     (IGNORE_TAG, _('Ignore')),
+    (GEO_TAG, _('Geo')),
 )
 STEM_METADATA_TYPES = (
     (GENERIC_METADATA, _("Generic")),

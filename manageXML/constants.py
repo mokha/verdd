@@ -820,11 +820,6 @@ AFFILIATION_TYPES = (
     (TERMWIKI, _('TermWiki')),  # https://satni.uit.no/termwiki/
 )
 
-LANGUAGE_TYPES = (
-    ('fin', _('Finnish')),
-    ('sms', _('Skolt Sammi'))
-)
-
 GENERIC_METADATA = 0
 SPECIFICATION = 1
 GENDER = 3

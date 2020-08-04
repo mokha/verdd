@@ -142,8 +142,9 @@ LANGUAGES = (
     ('en-us', _('English')),
     ('fi', _('Finnish')),
     ('ru', _('Russian')),
-    ('es', _('Spanish')),
     ('myv', _('Erzya')),
+    ('es', _('Spanish')),
+    ('pt', _('Portuguese')),
 )
 
 # Add support for additional languages

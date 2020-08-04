@@ -652,7 +652,7 @@ msgstr "mostrar"
 #: manageXML/templates/lexeme_short_data.html:7
 #: manageXML/templates/relation_data.html:5
 msgid "Language (ISO 639-3)"
-msgstr "Lengua (ISO 639-2)"
+msgstr "Lengua (ISO 639-3)"
 
 #: manageXML/templates/lexeme_data.html:10
 #: manageXML/templates/lexeme_short_data.html:9

@@ -22,6 +22,14 @@ COMPOUND = 2
 DERIVATION = 3
 VARIATION = 4
 PHRASEOLOGY = 5
+SYNONYM = 6
+ANTONYM = 7
+HYPONYMY = 8
+HYPERONYMY = 9
+HOLONYMY = 10
+MERONYMY = 11
+COHYPONYM = 12
+
 RELATION_TYPE_OPTIONS = (
     (TRANSLATION, _('Translation')),
     (ETYMOLOGY, _('Etymology')),
@@ -29,6 +37,13 @@ RELATION_TYPE_OPTIONS = (
     (DERIVATION, _('Derivation')),
     (VARIATION, _('Variation')),
     (PHRASEOLOGY, _('Phraseology')),
+    (HYPONYMY, _('Hyponymy')),
+    (HYPERONYMY, _('Hyperonymy')),
+    (HOLONYMY, _('Holonymy')),
+    (MERONYMY, _('Meronymy')),
+    (COHYPONYM, _('Co-hyponym')),
+    (SYNONYM, _('Synonym')),
+    (ANTONYM, _('Antonym')),
     (99, _('Other'))
 )
 RELATION_TYPE_OPTIONS_DICT = dict(RELATION_TYPE_OPTIONS)

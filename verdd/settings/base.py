@@ -152,7 +152,7 @@ EXTRA_LANG_INFO = {
         'bidi': False,
         'code': 'myv',
         'name': 'Erzya',
-        'name_local': 'эрзянь кель',
+        'name_local': 'эрзякс',
     },
 }
 

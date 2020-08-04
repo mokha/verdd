@@ -3,9 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
-msgid ""
-msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-08-02 17:13+0000\n"
@@ -106,7 +103,7 @@ msgid "Finnish"
 msgstr "Суоминь кельсэ"
 
 #: manageXML/constants.py:825
-msgid "Skolt Sammi"
+msgid "Skolt Sami"
 msgstr "Скольтсаамонь"
 
 #: manageXML/constants.py:833 manageXML/constants.py:842
@@ -138,11 +135,11 @@ msgstr "Тип"
 
 #: manageXML/constants.py:846
 msgid "defNative"
-msgstr ""
+msgstr "Васень кельсэ чарькодевтема"
 
 #: manageXML/constants.py:847
 msgid "Ignore"
-msgstr ""
+msgstr "А явомс мель"
 
 #: manageXML/forms.py:23 manageXML/forms.py:47 manageXML/forms.py:427
 #: manageXML/templates/lexeme_approval.html:77
@@ -177,7 +174,7 @@ msgstr "Омонимиянь ID"
 
 #: manageXML/forms.py:27 manageXML/forms.py:475
 msgid "Continuation Lexicon"
-msgstr "Морфологиянь поладомань лексикон"
+msgstr "Поладомань лексикон"
 
 #: manageXML/forms.py:29 manageXML/templates/lexeme_data.html:15
 #: manageXML/templates/lexeme_short_data.html:13
@@ -322,8 +319,6 @@ msgid "Relation"
 msgstr "Сюлмавкс"
 
 #: manageXML/forms.py:429
-#, fuzzy
-#| msgid "Mini Paradigms"
 msgid "Mini Paradigm"
 msgstr "Вишка парадигма"
 
@@ -349,8 +344,6 @@ msgid "Stem"
 msgstr "Валлув"
 
 #: manageXML/forms.py:476 manageXML/templates/stem_detail.html:14
-#, fuzzy
-#| msgid "Order by"
 msgid "Order"
 msgstr "Молема лув"
 
@@ -475,8 +468,6 @@ msgstr "Витнемс саемгаксонть"
 
 #: manageXML/templates/example_relation_confirm_delete.html:9
 #: manageXML/views.py:872
-#, fuzzy
-#| msgid "Delete Relation"
 msgid "Delete Example Relation"
 msgstr "Нардамс саемгасюлмавксонть"
 
@@ -499,8 +490,6 @@ msgid "Instance"
 msgstr "Консонанс"
 
 #: manageXML/templates/history_list.html:39
-#, fuzzy
-#| msgid "Change Password"
 msgid "Changes"
 msgstr "Лиякстомтомат"
 
@@ -613,7 +602,7 @@ msgstr "ID"
 #: manageXML/templates/relation_list.html:82 manageXML/views.py:117
 #: manageXML/views.py:216 manageXML/views.py:1104 manageXML/views.py:1105
 msgid "Contlex"
-msgstr "Морфологиянь поладомань лексикон"
+msgstr "Поладомань лексикон"
 
 #: manageXML/templates/lexeme_approval.html:81
 #: manageXML/templates/lexeme_list.html:95
@@ -639,8 +628,6 @@ msgstr "Молема лув"
 #: manageXML/templates/relation_approval.html:112
 #: manageXML/templates/relation_detail.html:58
 #: manageXML/templates/stem_detail.html:25
-#, fuzzy
-#| msgid "Approved"
 msgid "Approve"
 msgstr "Кемекстамс"
 
@@ -658,8 +645,6 @@ msgstr "невтемс"
 #: manageXML/templates/lexeme_data.html:7
 #: manageXML/templates/lexeme_short_data.html:7
 #: manageXML/templates/relation_data.html:5
-#, fuzzy
-#| msgid "Language (ISO 639-2)"
 msgid "Language (ISO 639-3)"
 msgstr "Кель (ISO 639-3)"
 
@@ -667,7 +652,7 @@ msgstr "Кель (ISO 639-3)"
 #: manageXML/templates/lexeme_short_data.html:9
 #: manageXML/templates/stem_detail.html:15
 msgid "Cont"
-msgstr "Морфологиянь поладомань лексикон"
+msgstr "Поладомань лексикон"
 
 #: manageXML/templates/lexeme_data.html:12
 #: manageXML/templates/lexeme_short_data.html:11
@@ -720,15 +705,11 @@ msgid "Close"
 msgstr "Пекстамс"
 
 #: manageXML/templates/lexeme_detail.html:54
-#, fuzzy
-#| msgid "Relations:"
 msgid "Relations"
-msgstr "Сюлмавкст:"
+msgstr "Сюлмавкст"
 
 #: manageXML/templates/lexeme_list.html:69
 #: manageXML/templates/relation_list.html:50
-#, fuzzy
-#| msgid "Approved"
 msgid "Bulk Approve"
 msgstr "Кемекстамс ламонь-ламонь"
 
@@ -753,15 +734,11 @@ msgstr "Поладомс метадата"
 #: manageXML/templates/lexeme_metadata_confirm_delete.html:9
 #: manageXML/templates/relation_metadata_confirm_delete.html:9
 #: manageXML/views.py:1324
-#, fuzzy
-#| msgid "Delete Relation"
 msgid "Delete Metadata"
 msgstr "Нардамс метедатанть"
 
 #: manageXML/templates/lexeme_metadata_edit.html:9
 #: manageXML/templates/relation_metadata_edit.html:9 manageXML/views.py:1307
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Edit Metadata"
 msgstr "Витнемс метадатанть"
 
@@ -779,8 +756,6 @@ msgid "MSD"
 msgstr "Морфо-синтактикань невтема"
 
 #: manageXML/templates/relation_add.html:9
-#, fuzzy
-#| msgid "Add Relation from"
 msgid "Add Relation"
 msgstr "Поладомс сюлмавкс"
 
@@ -795,14 +770,10 @@ msgid "link"
 msgstr "сюлмавкс"
 
 #: manageXML/templates/relation_example_relation_add.html:9
-#, fuzzy
-#| msgid "Examples"
 msgid "Link Examples"
 msgstr "Сюлмамс саемгакст"
 
 #: manageXML/templates/relation_example_relation_edit.html:9
-#, fuzzy
-#| msgid "Edit Example"
 msgid "Edit Examples Link"
 msgstr "Витнемс саемгаксонь сюлмавксонть"
 
@@ -811,14 +782,10 @@ msgid "Add Source"
 msgstr "Поладомс лисьмапря"
 
 #: manageXML/templates/stem_add.html:9 manageXML/views.py:1243
-#, fuzzy
-#| msgid "Add Source"
 msgid "Add Stem"
 msgstr "Поладомс валлув"
 
 #: manageXML/templates/stem_confirm_delete.html:9 manageXML/views.py:1269
-#, fuzzy
-#| msgid "Delete Source"
 msgid "Delete Stem"
 msgstr "Нардамс валлувонть"
 
@@ -827,8 +794,6 @@ msgid "Stems"
 msgstr "Валлувт"
 
 #: manageXML/templates/stem_edit.html:9 manageXML/views.py:1257
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Stem"
 msgstr "Витнемс валлувонть"
 
@@ -967,32 +932,22 @@ msgid "Add Data"
 msgstr "Поладомс дата"
 
 #: manageXML/views.py:796
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Edit Data"
-msgstr "Витнемс сюлмавксонть"
+msgstr "Витнемс датанть"
 
 #: manageXML/views.py:830
-#, fuzzy
-#| msgid "Add Example"
 msgid "Add example from"
 msgstr "Поладомс саемгакс костояк"
 
 #: manageXML/views.py:857
-#, fuzzy
-#| msgid "Edit Example"
 msgid "Edit example link"
-msgstr "Витнемс саемгаксонть"
+msgstr "Витнемс саемгакссюлмавксонть"
 
 #: manageXML/views.py:891
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete Data"
 msgstr "Нардамс датанть"
 
 #: manageXML/views.py:913
-#, fuzzy
-#| msgid "Search"
 msgid "History Search"
 msgstr "Вешнемс эрямопингстэ"
 
@@ -1002,26 +957,18 @@ msgid "Empty list and '%(class_name)s.allow_empty' is False."
 msgstr ""
 
 #: manageXML/views.py:1003
-#, fuzzy
-#| msgid "Previous Lexemes"
 msgid "Approving Lexemes"
 msgstr "Лексемань ваннома-кемекстамо"
 
 #: manageXML/views.py:1081
-#, fuzzy
-#| msgid "Relation"
 msgid "Relation Search"
-msgstr "Сюлмавкссто вешнема"
+msgstr "Вешнемс сюлмавкссто"
 
 #: manageXML/views.py:1104 manageXML/views.py:1105
-#, fuzzy
-#| msgid "Lexeme"
 msgid "Lexeme ID"
 msgstr "Лексемень ID"
 
 #: manageXML/views.py:1137
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Approving Relations"
 msgstr "Сюлмавксонь кемекстамо"
 
@@ -1115,8 +1062,6 @@ msgid "Back"
 msgstr "Потамс"
 
 #: templates/base.html:46
-#, fuzzy
-#| msgid "Relations:"
 msgid "Search Relations"
 msgstr "Вешнемс сюлмавкстнэстэ"
 

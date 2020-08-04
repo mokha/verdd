@@ -115,7 +115,7 @@ msgstr "По скольтско-саамски"
 #: manageXML/constants.py:833 manageXML/constants.py:842
 #: manageXML/constants.py:850
 msgid "Generic"
-msgstr ""
+msgstr "Общий"
 
 #: manageXML/constants.py:834 manageXML/constants.py:843 manageXML/forms.py:24
 #: manageXML/templates/lexeme_data.html:13
@@ -124,7 +124,7 @@ msgstr "Особенность"
 
 #: manageXML/constants.py:835 manageXML/constants.py:844
 msgid "Gender"
-msgstr ""
+msgstr "Пол"
 
 #: manageXML/constants.py:845 manageXML/forms.py:28 manageXML/forms.py:144
 #: manageXML/forms.py:162 manageXML/forms.py:192 manageXML/forms.py:228
@@ -307,7 +307,7 @@ msgstr "Редактировать минипарадигму"
 
 #: manageXML/forms.py:329
 msgid "Delete"
-msgstr "Убрать"
+msgstr "Удалить"
 
 #: manageXML/forms.py:334 manageXML/forms.py:356
 #: manageXML/templates/example_confirm_delete.html:10
@@ -372,7 +372,7 @@ msgstr "Добавить связь"
 
 #: manageXML/templates/affiliation_confirm_delete.html:9 manageXML/views.py:627
 msgid "Delete Affiliation"
-msgstr "Убрать связь"
+msgstr "Удалить связь"
 
 #: manageXML/templates/affiliation_confirm_delete.html:11
 msgid "Link"
@@ -408,7 +408,7 @@ msgstr "Добавить пример"
 #: manageXML/templates/relation_example_confirm_delete.html:9
 #: manageXML/views.py:679 manageXML/views.py:880
 msgid "Delete Example"
-msgstr "Убрать пример"
+msgstr "Удалить пример"
 
 #: manageXML/templates/example_data.html:3
 #: manageXML/templates/relation_data_list.html:11
@@ -468,7 +468,7 @@ msgstr "редактировать"
 #: manageXML/templates/relation_list.html:117
 #: manageXML/templates/stem_data.html:8
 msgid "delete"
-msgstr "убрать"
+msgstr "удалить"
 
 #: manageXML/templates/example_edit.html:9
 #: manageXML/templates/relation_example_edit.html:9 manageXML/views.py:667
@@ -481,7 +481,7 @@ msgstr "Редактировать пример"
 #, fuzzy
 #| msgid "Delete Relation"
 msgid "Delete Example Relation"
-msgstr "Убрать связь"
+msgstr "Удалить связь"
 
 #: manageXML/templates/history_list.html:11
 #: manageXML/templates/lexeme_approval.html:10
@@ -955,15 +955,15 @@ msgstr "Добавить источник"
 
 #: manageXML/views.py:611
 msgid "Delete lexeme"
-msgstr "Убрать лексему"
+msgstr "Удалить лексему"
 
 #: manageXML/views.py:619
 msgid "Delete Relation"
-msgstr "Убрать связь"
+msgstr "Удалить связь"
 
 #: manageXML/views.py:635
 msgid "Delete Source"
-msgstr "Убрать источник"
+msgstr "Удалить источник"
 
 #: manageXML/views.py:735
 msgid "Add Data"
@@ -991,7 +991,7 @@ msgstr "Редактировать пример"
 #, fuzzy
 #| msgid "Delete"
 msgid "Delete Data"
-msgstr "Убрать дату"
+msgstr "Удалить дату"
 
 #: manageXML/views.py:913
 #, fuzzy
@@ -1115,7 +1115,7 @@ msgstr "Veʹrdd"
 
 #: templates/base.html:35
 msgid "Back"
-msgstr "Обратно"
+msgstr "На зад"
 
 #: templates/base.html:46
 #, fuzzy

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 from decouple import config, Csv
+import django.conf.locale
+from django.conf import global_settings
 from django.utils.translation import ugettext_lazy as _  # for translations
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -136,12 +138,24 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "../assets"),
 ]
 
-# Provide a lists of languages which your site supports.
 LANGUAGES = (
     ('en-us', _('English')),
     ('fi', _('Finnish')),
     ('ru', _('Russian')),
+    ('myv', _('Erzya')),
 )
+
+# Add support for additional languages
+EXTRA_LANG_INFO = {
+    'myv': {
+        'bidi': False,
+        'code': 'myv',
+        'name': 'Erzya',
+        'name_local': 'эрзянь кель',
+    },
+}
+
+django.conf.locale.LANG_INFO = {**django.conf.locale.LANG_INFO, **EXTRA_LANG_INFO}
 
 # Tell Django where the project's translation files should be.
 LOCALE_PATHS = (

@@ -661,7 +661,7 @@ msgstr "näytä"
 #, fuzzy
 #| msgid "Language (ISO 639-2)"
 msgid "Language (ISO 639-3)"
-msgstr "Kieli (ISO 639-2)"
+msgstr "Kieli (ISO 639-3)"
 
 #: manageXML/templates/lexeme_data.html:10
 #: manageXML/templates/lexeme_short_data.html:9

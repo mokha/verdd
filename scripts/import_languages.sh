@@ -2,7 +2,7 @@
 
 ### SETTINGS
 APERTIUM_MONO_LANGS="fin deu eng fra por rus"
-GEILLA_LEXC_LANGS="apu izh kca kpv lav liv lut mdf mhr mrj myv mns nio olo skf sme smn sms udm vep vro yrk est"
+GEILLA_LEXC_LANGS="apu izh kca kpv lav liv lut mdf mhr mrj myv mns nio olo skf sme smn sms udm vep vro yrk est-x-plamk"
 APERTIUM_BI_LANGS="myv-mdf myv-fin kpv-koi kpv-fin fin-krl fin-olo krl-olo mrj-fin udm-rus" # udm-kpv
 GEILLA_XML_LANGS="izh kca koi lav liv mdf mhr mrj myv nio olo sms udm vep vro yrk"
 GIELLA_SVN_LANGS="deumyv engmdf engmyv estmyv estudm finudm udmfin koikpv kpvkoi kpvdeu kpvudm lavliv mdfeng mdfrus mhrrus mhrmrj myvdeu myveng myvest myvmdf olorus ruskpv rusmdf rusmyv rusolo rusvep smesmn smefin smnfin udmkpv vroest"
@@ -27,9 +27,10 @@ done
 
 # Import Giella SVN xmls
 GIELLA_SVN_DIR="giella-svn-xml"
+mkdir "$GIELLA_SVN_DIR"
 cd "$GIELLA_SVN_DIR"
 for lang in $GIELLA_SVN_LANGS; do
-  wget -r -A "*.xml" -l1 --no-parent -nH --cut-dirs=6 --reject="index.html*" "https://victorio.uit.no/langtech/trunk/words/dicts/$lang/src/"
+  wget -r --quiet -A "*.xml" -l1 --no-parent -nH --cut-dirs=6 --reject="index.html*" "https://victorio.uit.no/langtech/trunk/words/dicts/$lang/src/"
 done
 cd ..
 
@@ -52,7 +53,8 @@ done
 # Import lexc
 for lang in $GEILLA_LEXC_LANGS; do
   echo "Processing Geilla-lexc ($lang)"
-  python manage.py import_mono_dix -d "$import_dir/lang-$lang/src/fst/stems/" -l "$lang" $IGNORE_AFFILIATIONS
+  readarray -d '-' -t langs <<<"$lang"
+  python manage.py import_mono_dix -d "$import_dir/lang-$lang/src/fst/stems/" -l "${langs[0]}" $IGNORE_AFFILIATIONS
 done
 
 # Import bidix

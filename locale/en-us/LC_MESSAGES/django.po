@@ -106,7 +106,7 @@ msgid "Finnish"
 msgstr ""
 
 #: manageXML/constants.py:825
-msgid "Skolt Sammi"
+msgid "Skolt Sami"
 msgstr ""
 
 #: manageXML/constants.py:833 manageXML/constants.py:842

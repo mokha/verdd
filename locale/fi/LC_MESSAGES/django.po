@@ -84,7 +84,7 @@ msgstr "Variaatio"
 
 #: manageXML/constants.py:31
 msgid "Phraseology"
-msgstr ""
+msgstr "Fraseologia"
 
 #: manageXML/constants.py:32
 msgid "Other"
@@ -107,13 +107,13 @@ msgid "Finnish"
 msgstr "Suomi"
 
 #: manageXML/constants.py:825
-msgid "Skolt Sammi"
+msgid "Skolt Sami"
 msgstr "Koltansaame"
 
 #: manageXML/constants.py:833 manageXML/constants.py:842
 #: manageXML/constants.py:850
 msgid "Generic"
-msgstr ""
+msgstr "Yleistyksellinen"
 
 #: manageXML/constants.py:834 manageXML/constants.py:843 manageXML/forms.py:24
 #: manageXML/templates/lexeme_data.html:13
@@ -122,7 +122,7 @@ msgstr "Tarkennus"
 
 #: manageXML/constants.py:835 manageXML/constants.py:844
 msgid "Gender"
-msgstr ""
+msgstr "Suku"
 
 #: manageXML/constants.py:845 manageXML/forms.py:28 manageXML/forms.py:144
 #: manageXML/forms.py:162 manageXML/forms.py:192 manageXML/forms.py:228
@@ -143,7 +143,7 @@ msgstr ""
 
 #: manageXML/constants.py:847
 msgid "Ignore"
-msgstr ""
+msgstr "Jätä huomiotta"
 
 #: manageXML/forms.py:23 manageXML/forms.py:47 manageXML/forms.py:427
 #: manageXML/templates/lexeme_approval.html:77
@@ -174,7 +174,7 @@ msgstr "Sanaluokka"
 
 #: manageXML/forms.py:26 manageXML/templates/lexeme_data.html:9
 msgid "Homonym ID"
-msgstr ""
+msgstr "Homonymin ID"
 
 #: manageXML/forms.py:27 manageXML/forms.py:475
 msgid "Continuation Lexicon"
@@ -316,7 +316,7 @@ msgstr "Esimerkki"
 #: manageXML/forms.py:386 manageXML/forms.py:570
 #: manageXML/templates/lexeme_metadata_confirm_delete.html:11
 msgid "Text"
-msgstr ""
+msgstr "Teksti"
 
 #: manageXML/forms.py:428 manageXML/templates/relation_data.html:3
 msgid "Relation"
@@ -330,7 +330,7 @@ msgstr "Miniparadigmat"
 
 #: manageXML/forms.py:430
 msgid "Model"
-msgstr ""
+msgstr "Malli"
 
 #: manageXML/forms.py:443 manageXML/templates/history_list.html:27
 #: manageXML/templates/lexeme_approval.html:65
@@ -342,12 +342,12 @@ msgstr "Etsi"
 
 #: manageXML/forms.py:469
 msgid "Switch Direction"
-msgstr ""
+msgstr "Vaihda suuntaa"
 
 #: manageXML/forms.py:474 manageXML/templates/stem_confirm_delete.html:10
 #: manageXML/templates/stem_detail.html:10
 msgid "Stem"
-msgstr ""
+msgstr "Vartalo"
 
 #: manageXML/forms.py:476 manageXML/templates/stem_detail.html:14
 #, fuzzy
@@ -358,11 +358,11 @@ msgstr "Järjestys"
 #: manageXML/forms.py:501 manageXML/templates/symbol_list.html:12
 #: manageXML/views.py:1275
 msgid "Symbol"
-msgstr ""
+msgstr "Symbooli"
 
 #: manageXML/forms.py:502 manageXML/templates/symbol_list.html:13
 msgid "Comment"
-msgstr ""
+msgstr "Muistiinpanoja"
 
 #: manageXML/templates/affiliation_add.html:9 manageXML/views.py:526
 msgid "Add Affiliation"
@@ -476,10 +476,8 @@ msgstr "Muokkaa esimerkkiä"
 
 #: manageXML/templates/example_relation_confirm_delete.html:9
 #: manageXML/views.py:872
-#, fuzzy
-#| msgid "Delete Relation"
 msgid "Delete Example Relation"
-msgstr "Poista relaatio"
+msgstr "Poista esimerkin relaatio"
 
 #: manageXML/templates/history_list.html:11
 #: manageXML/templates/lexeme_approval.html:10
@@ -491,7 +489,7 @@ msgstr "Suodata"
 
 #: manageXML/templates/history_list.html:37
 msgid "History ID"
-msgstr ""
+msgstr "Historian ID"
 
 #: manageXML/templates/history_list.html:38
 #, fuzzy
@@ -500,10 +498,8 @@ msgid "Instance"
 msgstr "Konsonanssi"
 
 #: manageXML/templates/history_list.html:39
-#, fuzzy
-#| msgid "Change Password"
 msgid "Changes"
-msgstr "Vaihda salasana"
+msgstr "Muutoksia"
 
 #: manageXML/templates/history_list.html:40
 #: manageXML/templates/lexeme_list.html:100
@@ -640,10 +636,8 @@ msgstr "Järejestys"
 #: manageXML/templates/relation_approval.html:112
 #: manageXML/templates/relation_detail.html:58
 #: manageXML/templates/stem_detail.html:25
-#, fuzzy
-#| msgid "Approved"
 msgid "Approve"
-msgstr "Hyväksytty"
+msgstr "Hyväksy"
 
 #: manageXML/templates/lexeme_data.html:4
 #: manageXML/templates/lexeme_list.html:118
@@ -659,8 +653,6 @@ msgstr "näytä"
 #: manageXML/templates/lexeme_data.html:7
 #: manageXML/templates/lexeme_short_data.html:7
 #: manageXML/templates/relation_data.html:5
-#, fuzzy
-#| msgid "Language (ISO 639-2)"
 msgid "Language (ISO 639-3)"
 msgstr "Kieli (ISO 639-3)"
 
@@ -693,7 +685,7 @@ msgstr "Viimeisin muokkaus"
 #: manageXML/templates/relation_list.html:70
 #: manageXML/templates/relation_metadata_confirm_delete.html:10
 msgid "Metadata"
-msgstr ""
+msgstr "Metadataa"
 
 #: manageXML/templates/lexeme_detail.html:10
 msgid "Previous Lexemes"
@@ -721,17 +713,13 @@ msgid "Close"
 msgstr "Sulje"
 
 #: manageXML/templates/lexeme_detail.html:54
-#, fuzzy
-#| msgid "Relations:"
 msgid "Relations"
-msgstr "Relaatiot:"
+msgstr "Relaatiot"
 
 #: manageXML/templates/lexeme_list.html:69
 #: manageXML/templates/relation_list.html:50
-#, fuzzy
-#| msgid "Approved"
 msgid "Bulk Approve"
-msgstr "Hyväksytty"
+msgstr "Hyväksy"
 
 #: manageXML/templates/lexeme_list.html:73
 #: manageXML/templates/relation_list.html:53
@@ -754,17 +742,13 @@ msgstr ""
 #: manageXML/templates/lexeme_metadata_confirm_delete.html:9
 #: manageXML/templates/relation_metadata_confirm_delete.html:9
 #: manageXML/views.py:1324
-#, fuzzy
-#| msgid "Delete Relation"
 msgid "Delete Metadata"
-msgstr "Poista relaatio"
+msgstr "Poista metadata"
 
 #: manageXML/templates/lexeme_metadata_edit.html:9
 #: manageXML/templates/relation_metadata_edit.html:9 manageXML/views.py:1307
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Edit Metadata"
-msgstr "Muokkaa relaatiota"
+msgstr "Muokkaa metadataa"
 
 #: manageXML/templates/mini_paradigm_add.html:9
 #: manageXML/templates/mini_paradigm_edit.html:9
@@ -780,10 +764,8 @@ msgid "MSD"
 msgstr "Morfosyntaktinen kuvaus"
 
 #: manageXML/templates/relation_add.html:9
-#, fuzzy
-#| msgid "Add Relation from"
 msgid "Add Relation"
-msgstr "Lisää relaatio toisesta sanasta"
+msgstr "Lisää relaatio"
 
 #: manageXML/templates/relation_data_list.html:10
 #: manageXML/templates/relation_detail.html:9
@@ -793,45 +775,35 @@ msgstr "Lähteet"
 #: manageXML/templates/relation_data_list.html:41
 #: manageXML/templates/relation_detail.html:26
 msgid "link"
-msgstr ""
+msgstr "linkki"
 
 #: manageXML/templates/relation_example_relation_add.html:9
-#, fuzzy
-#| msgid "Examples"
 msgid "Link Examples"
-msgstr "Esimerkit"
+msgstr "Linkitä Esimerkit"
 
 #: manageXML/templates/relation_example_relation_edit.html:9
-#, fuzzy
-#| msgid "Edit Example"
 msgid "Edit Examples Link"
-msgstr "Muokkaa esimerkkiä"
+msgstr "Muokkaa esimerkkien linkkiä"
 
 #: manageXML/templates/source_add.html:9
 msgid "Add Source"
 msgstr "Lisää lähde"
 
 #: manageXML/templates/stem_add.html:9 manageXML/views.py:1243
-#, fuzzy
-#| msgid "Add Source"
 msgid "Add Stem"
-msgstr "Lisää lähde"
+msgstr "Lisää vartalo"
 
 #: manageXML/templates/stem_confirm_delete.html:9 manageXML/views.py:1269
-#, fuzzy
-#| msgid "Delete Source"
 msgid "Delete Stem"
-msgstr "Poista lähde"
+msgstr "Poista vartalo"
 
 #: manageXML/templates/stem_data.html:3
 msgid "Stems"
 msgstr ""
 
 #: manageXML/templates/stem_edit.html:9 manageXML/views.py:1257
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Stem"
-msgstr "Muokkaa"
+msgstr "Muokkaa vartaloa"
 
 #: manageXML/templates/symbol_list.html:11
 msgid "Id"
@@ -968,34 +940,24 @@ msgid "Add Data"
 msgstr ""
 
 #: manageXML/views.py:796
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Edit Data"
-msgstr "Muokkaa relaatiota"
+msgstr "Muokkaa dataa"
 
 #: manageXML/views.py:830
-#, fuzzy
-#| msgid "Add Example"
 msgid "Add example from"
-msgstr "Lisää esimerkki"
+msgstr "Lisää esimerkki jostain"
 
 #: manageXML/views.py:857
-#, fuzzy
-#| msgid "Edit Example"
 msgid "Edit example link"
-msgstr "Muokkaa esimerkkiä"
+msgstr "Muokkaa esimerkkilinkkiä"
 
 #: manageXML/views.py:891
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete Data"
-msgstr "Poista"
+msgstr "Poista data"
 
 #: manageXML/views.py:913
-#, fuzzy
-#| msgid "Search"
 msgid "History Search"
-msgstr "Etsi"
+msgstr "Etsi historiasta"
 
 #: manageXML/views.py:962 manageXML/views.py:978
 #, python-format
@@ -1003,28 +965,20 @@ msgid "Empty list and '%(class_name)s.allow_empty' is False."
 msgstr ""
 
 #: manageXML/views.py:1003
-#, fuzzy
-#| msgid "Previous Lexemes"
 msgid "Approving Lexemes"
-msgstr "Edeltävät lekseemit"
+msgstr "Lekseemien hyväksyntä"
 
 #: manageXML/views.py:1081
-#, fuzzy
-#| msgid "Relation"
 msgid "Relation Search"
-msgstr "Relaatio"
+msgstr "Etsi relaatioista"
 
 #: manageXML/views.py:1104 manageXML/views.py:1105
-#, fuzzy
-#| msgid "Lexeme"
 msgid "Lexeme ID"
-msgstr "Lekseemi"
+msgstr "Lekseemi ID"
 
 #: manageXML/views.py:1137
-#, fuzzy
-#| msgid "Edit Relation"
 msgid "Approving Relations"
-msgstr "Muokkaa relaatiota"
+msgstr "Muokkaa relaatioita"
 
 #: templates/allauth/account/email/password_reset_key_message.txt:1
 #, python-format
@@ -1115,14 +1069,12 @@ msgid "Back"
 msgstr "Takaisin"
 
 #: templates/base.html:46
-#, fuzzy
-#| msgid "Relations:"
 msgid "Search Relations"
-msgstr "Relaatiot:"
+msgstr "Relaatiot"
 
 #: templates/base.html:52
 msgid "Symbols"
-msgstr ""
+msgstr "Symboolit"
 
 #: templates/base.html:68
 msgid "Logout"

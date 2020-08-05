@@ -13,7 +13,7 @@ import_dir=$(mktemp -d)
 current_dir=$(pwd)
 
 # Git Clones
-cd"$import_dir"
+cd "$import_dir"
 
 # Apertium imports
 for lang in $APERTIUM_MONO_LANGS; do
@@ -27,21 +27,21 @@ done
 
 # Import Giella SVN xmls
 GIELLA_SVN_DIR="giella-svn-xml"
-cd"$GIELLA_SVN_DIR"
+cd "$GIELLA_SVN_DIR"
 for lang in $GIELLA_SVN_LANGS; do
   wget -r -A "*.xml" -l1 --no-parent -nH --cut-dirs=6 --reject="index.html*" "https://victorio.uit.no/langtech/trunk/words/dicts/$lang/src/"
 done
-cd..
+cd ..
 
 # All custom imports should go here
 CUSTOM_DIR="custom-xml"
 mkdir "$CUSTOM_DIR"
-cd"$CUSTOM_DIR"
+cd "$CUSTOM_DIR"
 git clone "https://github.com/rueter/kpv.git" "rueter-kpv"
-cd..
+cd ..
 
 # get back to current dir, then run import scripts
-cd"$current_dir"
+cd "$current_dir"
 
 # Import monodix
 for lang in $APERTIUM_MONO_LANGS; do

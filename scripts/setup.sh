@@ -5,6 +5,8 @@ echo -n MySQL Password:
 read -s mysql_password
 echo -n MySQL DB:
 read database_name
+echo -n MySQL DB User:
+read database_db_user
 echo
 
 ### Setup MySQL DB
@@ -13,7 +15,7 @@ mysql --user="$mysql_user" --password="$mysql_password" --database="$database_na
 # create new DB
 mysql --user="$mysql_user" --password="$mysql_password" --database="$database_name" --execute="CREATE DATABASE $database_name DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin;"
 # drop existing DB
-mysql --user="$mysql_user" --password="$mysql_password" --database="$database_name" --execute="GRANT ALL PRIVILEGES ON $database_name.* TO '$mysql_user'@'localhost';"
+mysql --user="$mysql_user" --password="$mysql_password" --database="$database_name" --execute="GRANT ALL PRIVILEGES ON $database_name.* TO '$database_db_user'@'localhost';"
 
 ### Setup Ve'rdd
 python manage.py migrate         # install migrations

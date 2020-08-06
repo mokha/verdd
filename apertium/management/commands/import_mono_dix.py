@@ -8,16 +8,15 @@ from ._dix_common import *
 ignore_affiliations = False
 
 
-def add_element(e: DixElement, lang, datafile):
-    lemma, homoId, pos, pos_g = e.pair.right.lemma_homoId_POS()
-    if not lemma:
-        lemma = e.attributes['lm'] if 'lm' in e.attributes else ''  # is also in <r>
-    stem, stem_homoId, stem_pos, stem_pos_g = e.pair.left.lemma_homoId_POS()
-    if not stem and e.i:
-        stem, stem_homoId, stem_pos, stem_pos_g = e.i.lemma_homoId_POS()
-    contlext = e.par.attributes['n'] if e.par and 'n' in e.par.attributes else ''
-
+def create(itm: Item, lemma, pos_g, homoId, lang, datafile, stem, contlex):
     # find the lexeme or create the instance and return it
+
+    # Handling importing Proper nouns
+    prop = False
+    if pos_g == 'Prop':
+        prop = True
+        pos_g = 'N'
+
     try:
         _l = Lexeme.objects.get(lexeme=lemma, pos=pos_g, homoId=homoId, language=lang)
     except:
@@ -25,7 +24,11 @@ def add_element(e: DixElement, lang, datafile):
             lexeme=lemma, pos=pos_g, homoId=homoId, language=lang,
             imported_from=datafile)
 
-    add_metadata_to_lexeme(_l, e.pair.right)
+    add_metadata_to_lexeme(_l, itm)
+
+    # Handling importing Proper nouns
+    if prop:
+        md, created = LexemeMetadata.objects.get_or_create(lexeme=_l, type=LEXEME_TYPE, text='Prop')
 
     if not ignore_affiliations:
         title = _l.find_akusanat_affiliation()
@@ -35,7 +38,29 @@ def add_element(e: DixElement, lang, datafile):
                                                            link="{}{}".format(settings.WIKI_URL, title))
 
     if stem:
-        s, created = Stem.objects.get_or_create(lexeme=_l, text=stem, homoId=homoId, contlex=contlext)
+        s, created = Stem.objects.get_or_create(lexeme=_l, text=stem, homoId=homoId, contlex=contlex)
+
+
+def add_element(e: DixElement, lang, datafile):
+    lemma, homoId, pos, pos_g = e.pair.right.lemma_homoId_POS()
+    if not lemma:
+        lemma = e.attributes['lm'] if 'lm' in e.attributes else ''  # is also in <r>
+    stem, stem_homoId, stem_pos, stem_pos_g = e.pair.left.lemma_homoId_POS()
+    if not stem and e.i:
+        stem, stem_homoId, stem_pos, stem_pos_g = e.i.lemma_homoId_POS()
+    contlex = e.par.attributes['n'] if e.par and 'n' in e.par.attributes else ''
+    if not pos:
+        for pos_key in CONTLEX_TO_POS.keys():
+            if pos_key in contlex:
+                pos = CONTLEX_TO_POS[pos_key]
+                break
+        if type(pos) is list:
+            for _p in pos:
+                create(e.pair.right, lemma, _p, homoId, lang, datafile, stem, contlex)
+        else:
+            create(e.pair.right, lemma, pos_g, homoId, lang, datafile, stem, contlex)
+    else:
+        create(e.pair.right, lemma, pos_g, homoId, lang, datafile, stem, contlex)
 
 
 class Command(BaseCommand):

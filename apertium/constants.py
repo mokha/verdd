@@ -1,4 +1,5 @@
 from manageXML.constants import LEXEME_TYPE, GENDER
+from collections import OrderedDict
 
 POS_tags = {
     'vblex': 'V',
@@ -20,6 +21,32 @@ POS_tags = {
     'cnjadv': 'CS',
     'qst': 'Pcle',
 }
+
+CONTLEX_TO_POS = OrderedDict({
+    "__adj_adv": ["Adv", "A", ],
+    "__adj_ord": "A",
+    "__vbhaver": "V",
+    "__cnjcoo": "CC",
+    "__cnjsub": "CS",
+    "__cnjadv": "CS",
+    "__preadv": "Adv",
+    "__pprep": "Po",
+    "__vbser": "V",
+    "__vbmod": "V",
+    "__vblex": "V",
+    "__vaux": "V",
+    "__prn": "Pron",
+    "__det": "Det",
+    "__dem": "Det",
+    "__adj": "A",
+    "__num": "Num",
+    "__adv": "Adv",
+    "__atp": "Adv",
+    "__ij": "Interj",
+    "__np": "Prop",  # N
+    "__pr": "Pr",
+    "__n": "N",
+})
 
 # If needed, mappings can be taken from:
 # https://github.com/giellalt/lang-myv/blob/develop/tools/mt/apertium/tagsets/gt2apertium.cg3relabel

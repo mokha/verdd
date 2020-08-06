@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### SETTINGS
-APERTIUM_MONO_LANGS="fin deu eng fra por rus"
+APERTIUM_MONO_LANGS="fin deu eng por rus" # fra
 GEILLA_LEXC_LANGS="apu izh kca kpv lav liv lut mdf mhr mrj myv mns nio olo skf sme smn sms udm vep vro yrk est-x-plamk"
 APERTIUM_BI_LANGS="myv-mdf myv-fin kpv-koi kpv-fin fin-krl fin-olo krl-olo mrj-fin udm-rus" # udm-kpv
 GEILLA_XML_LANGS="izh kca koi lav liv mdf mhr mrj myv nio olo sms udm vep vro yrk"

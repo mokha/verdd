@@ -1,12 +1,12 @@
 #!/bin/bash
-echo -n MySQL Username:
+echo -n "MySQL Username: "
 read mysql_user
-echo -n MySQL Password:
+echo -n "MySQL Password: "
 read -s mysql_password
 echo
-echo -n MySQL DB:
+echo -n "MySQL DB: "
 read database_name
-echo -n MySQL DB User:
+echo -n "MySQL DB User: "
 read database_db_user
 echo
 

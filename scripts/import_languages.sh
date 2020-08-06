@@ -52,16 +52,17 @@ done
 
 # Import lexc
 for lang in $GEILLA_LEXC_LANGS; do
-  echo "Processing Geilla-lexc ($lang)"
   readarray -d '-' -t langs <<<"$lang"
-  python manage.py import_lexc -d "$import_dir/lang-$lang/src/fst/stems/" -l "${langs[0]}" $IGNORE_AFFILIATIONS
+  src_lang=$(echo "${langs[0]}" | tr -d '\n')
+  echo "Processing Geilla-lexc ($lang)"
+  python manage.py import_lexc -d "$import_dir/lang-$lang/src/fst/stems/" -l "$src_lang" $IGNORE_AFFILIATIONS
 done
 
 # Import bidix
 for lang in $APERTIUM_BI_LANGS; do
   readarray -d '-' -t langs <<<"$lang"
-  src_lang="${langs[0]}"
-  tgt_lang="${langs[1]}"
+  src_lang=$(echo "${langs[0]}" | tr -d '\n')
+  tgt_lang=$(echo "${langs[1]}" | tr -d '\n')
   echo "Processing Apertium-bidix ($lang): $src_lang $tgt_lang"
   python manage.py import_dix -f "$import_dir/apertium-$lang/apertium-$lang.$lang.dix" -s "$src_lang" -t "$tgt_lang"
 done

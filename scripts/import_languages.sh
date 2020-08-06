@@ -54,7 +54,7 @@ done
 for lang in $GEILLA_LEXC_LANGS; do
   echo "Processing Geilla-lexc ($lang)"
   readarray -d '-' -t langs <<<"$lang"
-  python manage.py import_mono_dix -d "$import_dir/lang-$lang/src/fst/stems/" -l "${langs[0]}" $IGNORE_AFFILIATIONS
+  python manage.py import_lexc -d "$import_dir/lang-$lang/src/fst/stems/" -l "${langs[0]}" $IGNORE_AFFILIATIONS
 done
 
 # Import bidix

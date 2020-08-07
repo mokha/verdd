@@ -127,32 +127,33 @@ def parseXML(filename, filepos):
         except Exception as err:
             sys.stderr.write('Error @ %s: %s' % (_l[0].text if _l and type(_l[0]) is GiellaXML.Item else '', str(err)))
 
-    class Command(BaseCommand):
-        '''
-        Example: python manage.py import_xml -d ../saame/
-        Add --ignore-affiliations when debugging and want to speed up imports.
-        '''
 
-        help = 'This command imports the content of a all Giella XML documents in a directory.'
+class Command(BaseCommand):
+    '''
+    Example: python manage.py import_xml -d ../saame/
+    Add --ignore-affiliations when debugging and want to speed up imports.
+    '''
 
-        def add_arguments(self, parser):
-            parser.add_argument('-d', '--dir', type=str, help='The directory containing XML files.', )
-            parser.add_argument('--ignore-affiliations', dest='ignore_affiliations', action='store_true')
-            parser.set_defaults(ignore_affiliations=False)
+    help = 'This command imports the content of a all Giella XML documents in a directory.'
 
-        def handle(self, *args, **options):
-            global ignore_affiliations
+    def add_arguments(self, parser):
+        parser.add_argument('-d', '--dir', type=str, help='The directory containing XML files.', )
+        parser.add_argument('--ignore-affiliations', dest='ignore_affiliations', action='store_true')
+        parser.set_defaults(ignore_affiliations=False)
 
-            xml_dir = options['dir']  # the directory containing the XML files
-            ignore_affiliations = options['ignore_affiliations']
+    def handle(self, *args, **options):
+        global ignore_affiliations
 
-            if not os.path.isdir(xml_dir):
-                raise CommandError('Directory "%s" does not exist.' % xml_dir)
+        xml_dir = options['dir']  # the directory containing the XML files
+        ignore_affiliations = options['ignore_affiliations']
 
-            for filename in glob.glob(os.path.join(xml_dir, '*.xml')):  # read each file and parse it
-                filepos = filename.split('/')[-1].split('_')[:-1]
-                try:
-                    parseXML(filename, filepos)
-                except:
-                    self.stderr.write(self.style.ERROR('Error processing %s' % filename))
-            self.stdout.write(self.style.SUCCESS('Successfully imported the files.'))
+        if not os.path.isdir(xml_dir):
+            raise CommandError('Directory "%s" does not exist.' % xml_dir)
+
+        for filename in glob.glob(os.path.join(xml_dir, '*.xml')):  # read each file and parse it
+            filepos = filename.split('/')[-1].split('_')[:-1]
+            try:
+                parseXML(filename, filepos)
+            except:
+                self.stderr.write(self.style.ERROR('Error processing %s' % filename))
+        self.stdout.write(self.style.SUCCESS('Successfully imported the files.'))

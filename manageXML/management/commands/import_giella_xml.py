@@ -125,7 +125,7 @@ def parseXML(filename, filepos):
                 pass
 
         except Exception as err:
-            sys.stderr.write('Error @ %s: %s' % (_l[0].text if _l and type(_l[0]) is GiellaXML.Item else '', str(err)))
+            sys.stderr.write('Error @ %s: %s' % (str(_l[0].text) if _l and len(_l) > 0 else '', str(err)))
 
 
 class Command(BaseCommand):
@@ -154,6 +154,6 @@ class Command(BaseCommand):
             filepos = filename.split('/')[-1].split('_')[:-1]
             try:
                 parseXML(filename, filepos)
-            except:
-                self.stderr.write(self.style.ERROR('Error processing %s' % filename))
+            except Exception as err:
+                self.stderr.write(self.style.ERROR('Error processing %s: %s' % (filename, str(err))))
         self.stdout.write(self.style.SUCCESS('Successfully imported the files.'))

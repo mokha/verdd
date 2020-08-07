@@ -4,7 +4,7 @@
 APERTIUM_MONO_LANGS="fin deu eng por rus" # fra
 GEILLA_LEXC_LANGS="apu izh kca kpv lav liv lut mdf mhr mrj myv mns nio olo skf sme smn sms udm vep vro yrk est-x-plamk"
 APERTIUM_BI_LANGS="myv-mdf myv-fin kpv-koi kpv-fin fin-krl fin-olo krl-olo mrj-fin udm-rus" # udm-kpv
-GEILLA_XML_LANGS="izh kca koi lav liv mdf mhr mrj myv nio olo sms udm vep vro yrk"
+GEILLA_XML_LANGS="izh kca koi lav liv mdf mhr mrj myv nio olo sms vep vro yrk"              # udm
 GIELLA_SVN_LANGS="deumyv engmdf engmyv estmyv estudm finudm udmfin koikpv kpvkoi kpvdeu kpvudm lavliv mdfeng mdfrus mhrrus mhrmrj myvdeu myveng myvest myvmdf olorus ruskpv rusmdf rusmyv rusolo rusvep smesmn smefin smnfin udmkpv vroest"
 IGNORE_AFFILIATIONS="--ignore-affiliations" # speeds up imports as affiliations are not queried from akusanat.com
 
@@ -25,21 +25,27 @@ for lang in $GEILLA_LEXC_LANGS; do
   git clone "https://github.com/giellalt/lang-$lang.git"
 done
 
+for lang in $APERTIUM_BI_LANGS; do
+  git clone "https://github.com/apertium/apertium-$lang.git"
+done
+
 # Import Giella SVN xmls
 GIELLA_SVN_DIR="giella-svn-xml"
-mkdir "$GIELLA_SVN_DIR"
-cd "$GIELLA_SVN_DIR"
+mkdir -p "$import_dir/$GIELLA_SVN_DIR"
+cd "$import_dir/$GIELLA_SVN_DIR"
 for lang in $GIELLA_SVN_LANGS; do
+  lang_dir="$import_dir/$GIELLA_SVN_DIR/$lang/"
+  mkdir -p "$lang_dir"
+  cd "$lang_dir"
   wget -r --quiet -A "*.xml" -l1 --no-parent -nH --cut-dirs=6 --reject="index.html*" "https://victorio.uit.no/langtech/trunk/words/dicts/$lang/src/"
 done
-cd ..
+cd "$import_dir"
 
 # All custom imports should go here
 CUSTOM_DIR="custom-xml"
 mkdir "$CUSTOM_DIR"
 cd "$CUSTOM_DIR"
 git clone "https://github.com/rueter/kpv.git" "rueter-kpv"
-cd ..
 
 # get back to current dir, then run import scripts
 cd "$current_dir"
@@ -74,8 +80,10 @@ for lang in $GEILLA_XML_LANGS; do
 done
 
 # Import Giella SVN xmls
-echo "Processing Geilla-svn-xml ($lang)"
-python manage.py import_giella_xml -d "$import_dir/$GIELLA_SVN_DIR/" $IGNORE_AFFILIATIONS
+for lang in $GIELLA_SVN_LANGS; do
+  echo "Processing Geilla-svn-xml ($lang)"
+  python manage.py import_giella_xml -d "$import_dir/$GIELLA_SVN_DIR/$lang/" $IGNORE_AFFILIATIONS
+done
 
 # Custom imports
 python manage.py import_giella_xml -d "$import_dir/$CUSTOM_DIR/rueter-kpv/" $IGNORE_AFFILIATIONS

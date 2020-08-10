@@ -25,6 +25,11 @@ for lang in $GEILLA_LEXC_LANGS; do
   git clone "https://github.com/giellalt/lang-$lang.git"
 done
 
+# Geilla XML imports
+for lang in $GEILLA_XML_LANGS; do
+  git clone "https://github.com/giellalt/lang-$lang.git"
+done
+
 for lang in $APERTIUM_BI_LANGS; do
   git clone "https://github.com/apertium/apertium-$lang.git"
 done

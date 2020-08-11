@@ -164,6 +164,7 @@ def dictionary_entry(grouped_relation):
             .filter(language=translation.language).order_by('text').all()
 
         content = (translation.lexeme,
+                   translation.specification,
                    pos,
                    ", ".join(inflections),
                    ", ".join(source_specification),
@@ -174,7 +175,7 @@ def dictionary_entry(grouped_relation):
                    )
         content = tuple([tex_escape(c) for c in content])
         dictionary_entry_text.append(
-            "\\translation{%s}{%s}{%s}{%s}{%s}{%s}{%s}{%s}" % content
+            "\\translation{%s}{%s}{%s}{%s}{%s}{%s}{%s}{%s}{%s}" % content
         )
 
     return "\n".join(dictionary_entry_text)

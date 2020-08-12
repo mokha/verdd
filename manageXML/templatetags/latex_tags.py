@@ -88,12 +88,28 @@ def dictionary_entry(grouped_relation):
         }
     }
 
+    translation_lemma_map = {
+        'V': '+Inf',
+        'N': '+N+Sg+Nom',
+        'A': '+Sg+Nom',
+        'Adv': ''
+    }
+
     relations = list(
         sorted(relations, key=lambda r: (r.relationmetadata_set.all().count() != 0, r.lexeme_to.lexeme_lang,))
     )
     for r in relations:
         translation = r.lexeme_to
+        translation_text = translation.lexeme
         pos = '' if translation.pos == lexeme_from.pos else translation.pos
+        if pos in translation_lemma_map:
+            result = uralicApi.generate(translation.lexeme + '+'
+                                        + 'Hom{}+'.format(translation.homoId) if translation.homoId > 0 else ''
+                                        + pos + translation_lemma_map[pos],
+                                        translation.language,
+                                        dictionary_forms=True)
+            if result:
+                translation_text = result[0][0]
 
         # LaTeX escape the content
         inflections = []
@@ -117,7 +133,8 @@ def dictionary_entry(grouped_relation):
                 except:  # POS is empty or no queries
                     pass
             else:  # default (uralicNLP)
-                generated_MP_forms = _inflector.generate(translation.language, translation.lexeme, translation.pos)
+                generated_MP_forms = _inflector.generate_uralicNLP(translation.language, translation.lexeme,
+                                                                   translation.pos, dictionary_forms=True)
 
             if translation.pos in inflection_table:
                 inflection_forms = inflection_table[translation.pos]  # default inflections
@@ -163,7 +180,7 @@ def dictionary_entry(grouped_relation):
         target_example = r.relationexample_set.values_list('text', flat=True) \
             .filter(language=translation.language).order_by('text').all()
 
-        content = (translation.lexeme,
+        content = (translation_text,
                    translation.specification,
                    pos,
                    ", ".join(inflections),

@@ -3115,15 +3115,15 @@ class Inflector:
                       "N+Sg+Abl", "N+Sg+Tra", "N+Sg+Ter", "N+Sg+Com", "N+Pl+Nom", "N+Pl+Gen", "N+Pl+Par", "N+Pl+Ill",
                       "N+Pl+Ine", "N+Pl+Ela", "N+Pl+All", "N+Pl+Ade", "N+Pl+Abl", "N+Pl+Tra", "N+Pl+Ter", "N+Pl+Com"]}
 
-    def generate_uralicNLP(self, lang, lemma, pos):
+    def generate_uralicNLP(self, lang, lemma, pos, *args, **kwargs):
         generated_forms = defaultdict(list)
         if uralicApi.is_language_installed(lang):
             if pos in self.default_forms:
                 poses = self.default_forms[pos]
                 for f in poses:
-                    results = uralicApi.generate(lemma + '+' + f, lang)
+                    results = uralicApi.generate(lemma + '+' + f, lang, **kwargs)
                     for r in results:
-                        generated_forms[f].append(r[0].split('@')[0],)
+                        generated_forms[f].append(r[0].split('@')[0], )
         return generated_forms
 
     def generate(self, lang, lemma, pos):

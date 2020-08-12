@@ -102,10 +102,10 @@ def dictionary_entry(grouped_relation):
         translation = r.lexeme_to
         translation_text = translation.lexeme
         pos = '' if translation.pos == lexeme_from.pos else translation.pos
-        if pos in translation_lemma_map:
+        if translation.postranslation.pos in translation_lemma_map:
             result = uralicApi.generate(translation.lexeme + '+'
                                         + 'Hom{}+'.format(translation.homoId) if translation.homoId > 0 else ''
-                                        + pos + translation_lemma_map[pos],
+                                        + translation.pos + translation_lemma_map[translation.pos],
                                         translation.language,
                                         dictionary_forms=True)
             if result:

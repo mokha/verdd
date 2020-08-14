@@ -1,9 +1,11 @@
 import os
 import csv
 from django.db.models import Model, Count, Max
+from typing import Dict, Tuple, List, Sequence, Type
+from django.db.models.constants import LOOKUP_SEP
 
 
-def read_first_ids_from(file_path, delimiter=',', id_in_col=0, cast=int):
+def read_first_ids_from(file_path: str, delimiter: str = ',', id_in_col: int = 0, cast=int):
     """
     A function that loads a CSV file and returns the {id_in_col}th value of each row as {cast} type.
 
@@ -26,7 +28,7 @@ def read_first_ids_from(file_path, delimiter=',', id_in_col=0, cast=int):
     return list(set(ids))
 
 
-def get_duplicate_objects(model: Model, unique_fields=()):
+def get_duplicate_objects(model: Type[Model], unique_fields: Tuple = ()):
     """
     Finds {model} objects in the database that have identical values of {unique_fields}.
 
@@ -38,7 +40,22 @@ def get_duplicate_objects(model: Model, unique_fields=()):
         .annotate(max_id=Max('id'), count_id=Count('id')).filter(count_id__gt=1)
 
 
-def obj_to_txt(obj: object, delimiter: str = ',', fields=()):
+def get_object_attribute(obj, attribute_query: str, separator: str = LOOKUP_SEP):
+    """
+    Gets an attribute of an object in Django-like fashion (e.g. relation__id)
+    :param obj: The object to get the attribute from
+    :param attribute_query: the attribute name in Django-like format.
+    :param separator: The separator to indicate the recursive query (default is Django's LOOKUP_SEP).
+    :return: Value of the attribute, otherwise None.
+    """
+    _query = attribute_query.split(separator)
+    value = getattr(obj, _query.pop(0), None)
+    while _query and value:
+        value = getattr(value, _query.pop(0), None)
+    return value
+
+
+def obj_to_txt(obj: object, delimiter: str = ',', fields: Tuple = ()):
     """
 
     :param obj: The object to convert its fields into text.
@@ -46,4 +63,18 @@ def obj_to_txt(obj: object, delimiter: str = ',', fields=()):
     :param fields: Field names to get from the object.
     :return str: The content of the passed fields of the object, joined by the delimiter.
     """
-    return delimiter.join([str(getattr(obj, _f)) for _f in fields])
+    return delimiter.join([str(get_object_attribute(obj, _f)) for _f in fields])
+
+
+def row_to_objects(model: Type[Model], row: List[str], fields_length: int = 4, id_in_col: int = 0):
+    """
+    Returns a list of :model objects from a parsed row containing N objects, each with :fields_length values.
+    :param model: Model type.
+    :param row: A CSV parsed row.
+    :param fields_length: The number of values representing each object in the row.
+    :param id_in_col: Index where ID of objects is in.
+    :return: A list of :model objects.
+    """
+    objects = [row[x:x + fields_length] for x in range(0, len(row), fields_length)]
+    objects = [model.objects.get(pk=_o[id_in_col]) for _o in objects if len(_o) == fields_length and _o[id_in_col]]
+    return objects

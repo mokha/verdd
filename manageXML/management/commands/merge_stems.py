@@ -4,7 +4,7 @@ from manageXML.models import *
 from datetime import datetime
 import logging
 from django.db import IntegrityError
-from django.db.models import Count
+from manageXML.utils import row_to_objects
 
 logger = logging.getLogger('verdd')  # Get an instance of a logger
 
@@ -15,31 +15,46 @@ def log_change(lexeme_id, lexeme, edit, note):
     )
 
 
-def merge(main_obj, other_objs=[]):
-    pass
+def merge(main_obj: Stem, other_objs: tuple = ()):
+    for oo in other_objs:
+        if oo.contlex and not main_obj.contlex:
+            main_obj.notes = oo.contlex
+            main_obj.save()
+        oo.delete()  # delete duplicate stem
 
 
 def process(row, fields_length=4):
-    lexemes = [row[x:x + fields_length] for x in range(0, len(row), fields_length)]
     try:
-        lexemes = [Lexeme.objects.get(pk=_l[0]) for _l in lexemes if len(_l) == fields_length and _l[0]]
-        merge(lexemes[0], lexemes[1:])
+        objects = row_to_objects(Stem, row, fields_length, 0)
+        merge(objects[0], tuple(objects[1:]))
+        logger.info("Merged {}".format("\t".join(row)))
     except Exception as ex:
         logger.info("Couldn't merge row {} because '{}'".format("\t".join(row), repr(ex)))
 
 
 class Command(BaseCommand):
     '''
-    Example: python manage.py merge_stems
+    Example: python manage.py merge_stems -f ../data/duplicate-stems.tsv -d '\t' -l 4
     '''
 
-    help = 'This command merges duplicate stems'
+    help = 'This command merges duplicate stems. The first stem in each row is considered the main stem.'
 
     def add_arguments(self, parser):
         pass
 
     def handle(self, *args, **options):
-        lexemes = Lexeme.objects.prefetch_related('stem_set').annotate(stem_count=Count('stem')).filter(stem_count__gt=1)
-        for lexeme in lexemes:
-            dup_stems = lexeme.stem_set.filter
+        file_path = options['file']
+        d = options['delimiter']
+        fields_length = options['length']
+
+        if not os.path.isfile(file_path):
+            raise CommandError('File "%s" does not exist.' % file_path)
+
+        with io.open(file_path, 'r', encoding='utf-8') as fp:
+            reader = csv.reader(fp, delimiter=d)
+            rows = list(reader)
+            rows = [r for r in rows if len(r) > 0]
+            for r in rows:
+                process(r, fields_length)
+
         self.stdout.write(self.style.SUCCESS('Successfully merged all duplicate stems'))

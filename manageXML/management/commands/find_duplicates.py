@@ -1,15 +1,17 @@
 from django.core.management.base import BaseCommand, CommandError
 import io, csv, os
-from manageXML.models import *
+from django.db.models import *
+from django.db.models.functions import *
 from manageXML.utils import get_duplicate_objects, obj_to_txt
 from django.apps import apps
+import ast
 
 
 class Command(BaseCommand):
     """
     This command finds all duplicate items and prints them.
 
-    Usage: python manage.py find_duplicates -m manageXML.Lexeme -d ; --unique lexeme language --fields id lexeme language pos
+    Usage: python manage.py find_duplicates -m manageXML.Lexeme -d ; --unique lexeme language --fields id lexeme language pos --filters language='fin'
 
     """
 
@@ -22,6 +24,7 @@ class Command(BaseCommand):
                             help='The delimiter to use when joining fields of duplicate objects.', )
         parser.add_argument('--unique', type=str, nargs='+', help='The unique field names to find duplicates in.')
         parser.add_argument('--fields', type=str, nargs='+', default=('id',), help='Fields to display.')
+        parser.add_argument('--filters', type=str, nargs='+', default=tuple(), help='Filters to apply on duplicates.')
 
     def handle(self, *args, **options):
         try:
@@ -29,10 +32,17 @@ class Command(BaseCommand):
             delimiter = options['delimiter']
             unique_fields = tuple(options['unique'])
             fields = tuple(options['fields'])
+            filters = tuple(options['filters'])
 
             _model = apps.get_model(app_name, model_name)
 
             duplicates = get_duplicate_objects(model=_model, unique_fields=unique_fields)
+
+            if filters:
+                filters = [_f.split('=') for _f in filters if '=' in _f]  # id__gt=1
+                for _f in filters:
+                    _f[1] = ast.literal_eval(_f[1])
+                duplicates = duplicates.filter(**dict(filters))
 
             output = []
             for dd in duplicates:  # for each duplicate values

@@ -16,12 +16,12 @@ class BinaryCharField(models.CharField):
     def from_db_value(self, value, expression, connection):
         if value is None:
             return value
-        return smart_str(value)  # to support VARBINARY in MySQL databases
+        return smart_str(value, errors='ignore')  # to support VARBINARY in MySQL databases
 
     def to_python(self, value):
         if isinstance(value, str) or value is None:
             return value
-        return smart_str(value)  # to support VARBINARY in MySQL databases
+        return smart_str(value, errors='ignore')  # to support VARBINARY in MySQL databases
 
     def db_type(self, connection):
         if connection.settings_dict['ENGINE'] == 'django.db.backends.mysql':

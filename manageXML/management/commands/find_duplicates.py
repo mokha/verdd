@@ -25,6 +25,8 @@ class Command(BaseCommand):
         parser.add_argument('--unique', type=str, nargs='+', help='The unique field names to find duplicates in.')
         parser.add_argument('--fields', type=str, nargs='+', default=('id',), help='Fields to display.')
         parser.add_argument('--filters', type=str, nargs='+', default=tuple(), help='Filters to apply on duplicates.')
+        parser.add_argument('-s', '--sort', type=str, nargs='?', default='id',
+                            help='Used to sort duplicates.', )
 
     def handle(self, *args, **options):
         try:
@@ -33,6 +35,7 @@ class Command(BaseCommand):
             unique_fields = tuple(options['unique'])
             fields = tuple(options['fields'])
             filters = tuple(options['filters'])
+            order_by = options['sort']
 
             _model = apps.get_model(app_name, model_name)
 
@@ -47,7 +50,9 @@ class Command(BaseCommand):
             output = []
             for dd in duplicates:  # for each duplicate values
                 dup_line = []
-                for _d in _model.objects.filter(**{x: dd[x] for x in unique_fields}):  # get the objects that have them
+                d_objects = _model.objects.filter(**{x: dd[x] for x in unique_fields}) # get the objects that have them
+                d_objects = d_objects.order_by(order_by)
+                for _d in d_objects:
                     dup_line.append(obj_to_txt(_d, fields=fields, delimiter=delimiter))  # convert them to text
                 output.append(delimiter.join(dup_line))  # add duplicate line
 

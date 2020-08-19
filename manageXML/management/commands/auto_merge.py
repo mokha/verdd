@@ -8,20 +8,23 @@ from manageXML.utils import get_duplicate_objects, contlex_to_pos, obj_to_txt
 def handle_lexemes(objects):
     main_object = objects[0]
     last_object = objects[-1]
+
     # try to get the POS
-    pos, metadata = contlex_to_pos(last_object)
-    if pos:
-        # find if there is an existing one with the same POS
-        for obj in objects[:-1]:
-            if obj.pos == pos:
-                merge_lexemes(obj, (last_object,))
-                return True
-        else:
-            last_object.pos = pos
-            last_object.save()
-            for md_type, md_text in metadata:
-                LexemeMetadata.objects.get_or_create(lexeme=last_object, type=md_type, text=md_text)
-        return True
+    stem = Stem.objects.filter(lexeme=last_object).exclude(Q(text='') | Q(text__isnull=True)).first()
+    if stem:
+        pos, metadata = contlex_to_pos(stem.contlex)
+        if pos:
+            # find if there is an existing one with the same POS
+            for obj in objects[:-1]:
+                if obj.pos == pos:
+                    merge_lexemes(obj, (last_object,))
+                    return True
+            else:
+                last_object.pos = pos
+                last_object.save()
+                for md_type, md_text in metadata:
+                    LexemeMetadata.objects.get_or_create(lexeme=last_object, type=md_type, text=md_text)
+            return True
 
     if len(objects) == 2:
         merge_lexemes(main_lexeme=main_object, other_lexemes=tuple(objects[1:]))

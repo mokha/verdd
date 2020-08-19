@@ -1,8 +1,11 @@
 import os
 import csv
+import re
 from django.db.models import Model, Count, Max
 from typing import Dict, Tuple, List, Sequence, Type
 from django.db.models.constants import LOOKUP_SEP
+from collections import OrderedDict
+from manageXML.constants import LEXEME_TYPE
 
 
 def read_first_ids_from(file_path: str, delimiter: str = ',', id_in_col: int = 0, cast=int):
@@ -78,3 +81,45 @@ def row_to_objects(model: Type[Model], row: List[str], fields_length: int = 4, i
     objects = [row[x:x + fields_length] for x in range(0, len(row), fields_length)]
     objects = [model.objects.get(pk=_o[id_in_col]) for _o in objects if len(_o) == fields_length and _o[id_in_col]]
     return objects
+
+
+def contlex_to_pos(contlex: str):
+    """
+    Finds the POS from a contlex.
+    :param contlex:
+    :return: POS and a list
+    """
+    CONTLEX_MAP = OrderedDict({
+        r'_?INTERJ_?': 'Interj',
+        r'_?PRON_?': 'Pron',
+        r'_?PROP_?': 'Prop',
+        r'_?PCLE_?': 'Pcle',
+        r'_?ADV_?': 'Adv',
+        r'_?ADP_?': 'Adp',
+        r'_?NUM_?': 'Num',
+        r'_?DET_?': 'Det',
+        r'_?CC_?': 'CC',
+        r'_?CS_?': 'CS',
+        r'_?IV_?': 'V',
+        r'_?BV_?': 'V',
+        r'_?TV_?': 'V',
+        r'_?PO_?': 'Po',
+        r'_?PR_?': 'Pr',
+        r'_?A_?': 'A',
+        r'_?N_?': 'N',
+        r'_?V_?': 'V',
+    })
+
+    METADATA_MAP = {  # POS, [(METADATA_TYPE, METADATA_TEXT),]
+        'Prop': ('N', [(LEXEME_TYPE, 'Prop'), ]),
+    }
+
+    pos = ''
+    metadata = []
+    for contlex_map in CONTLEX_MAP:
+        if re.search(contlex_map, contlex, flags=re.I | re.U):
+            pos = CONTLEX_MAP[contlex_map]
+            if pos in METADATA_MAP:
+                pos, metadata = METADATA_MAP[pos]
+            break
+    return pos, metadata

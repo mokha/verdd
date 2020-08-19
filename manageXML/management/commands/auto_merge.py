@@ -83,7 +83,8 @@ class Command(BaseCommand):
             for dd in duplicates:  # for each duplicate values
                 d_objects = model.objects.filter(**{x: dd[x] for x in unique_fields})  # get the objects that have them
                 d_objects = list(d_objects.order_by(order_by).all())
-
+                if not d_objects:
+                    continue
                 last_obj = d_objects[-1]  # last object would have the empty occurrence
                 sort_attr = order_by[1:] if order_by.startswith('-') else order_by
 

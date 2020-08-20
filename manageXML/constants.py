@@ -838,11 +838,12 @@ AFFILIATION_TYPES = (
 GENERIC_METADATA = 0
 SPECIFICATION = 1
 GENDER = 3
-
+SEMANTIC_TYPE = 4
 RELATION_METADATA_TYPES = (
     (GENERIC_METADATA, _("Generic")),
     (SPECIFICATION, _('Specification')),
     (GENDER, _('Gender')),
+    (SEMANTIC_TYPE, _('Semantic Type')),
 )
 
 LEXEME_TYPE = 4

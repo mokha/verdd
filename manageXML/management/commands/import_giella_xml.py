@@ -24,7 +24,7 @@ def create_lexeme(ll: GiellaXML.Item, lang: Language, datafile: DataFile = None)
             _metadata_type = GENDER
         elif _k == 'type':
             _metadata_type = LEXEME_TYPE
-        elif _l == 'ignore':
+        elif _k == 'ignore':
             _metadata_type = IGNORE_TAG
         else:
             _v = "{},{}".format(_k, _v.strip())

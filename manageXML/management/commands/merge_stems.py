@@ -34,13 +34,17 @@ def process(row, fields_length=4):
 
 class Command(BaseCommand):
     '''
-    Example: python manage.py merge_stems -f ../data/duplicate-stems.tsv -d '\t' -l 4
+    Example: python manage.py merge_stems -f ../data/duplicate-stems.tsv -d '\t' -l 6
     '''
 
     help = 'This command merges duplicate stems. The first stem in each row is considered the main stem.'
 
     def add_arguments(self, parser):
-        pass
+        parser.add_argument('-f', '--file', type=str, help='The CSV file to import.', )
+        parser.add_argument('-d', '--delimiter', type=str, nargs='?', default=';',
+                            help='The delimiter to use when reading the CSV file.', )
+        parser.add_argument('-l', '--length', type=int, nargs='?', default=4,
+                            help='The number of fields each stem has in the file.')
 
     def handle(self, *args, **options):
         file_path = options['file']

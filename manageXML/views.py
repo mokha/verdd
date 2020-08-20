@@ -337,6 +337,7 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
         context['prev_objects'], context['next_objects'] = self.get_around_objects(request=self.request,
                                                                                    object=last_lexeme,
                                                                                    n=25)
+        context['stems'] = self.object.stem_set.order_by('order').all()
         return context
 
     def get_title(self):
@@ -1387,7 +1388,7 @@ class LexemeExportLexcView(LexemeView):
                    "{}".format(stem.contlex),
                    "\"{}\"".format(stem.notes),
                    ';')
-                  for obj in self.object_list for i, stem in enumerate(obj.stem_set.all())]
+                  for obj in self.object_list for i, stem in enumerate(obj.stem_set.order_by('order').all())]
 
         result = [(re.sub(r'(\s|\.|\<|\>|\,)', r'%\1', _r) for _r in r) for r in result]
         result = [" ".join(r) for r in result]

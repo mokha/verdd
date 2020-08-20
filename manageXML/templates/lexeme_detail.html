@@ -20,7 +20,7 @@
         <div class="col">
             {% include 'lexeme_data.html' with object=object %}
             {% include 'example_data.html' with object=object %}
-            {% include 'stem_data.html' with object=object %}
+            {% include 'stem_data.html' with object=object stems=stems %}
 
             <h2>{% trans "Mini Paradigms" %}{% if user.is_authenticated %} (<a href="{% url 'mini-paradigm-add' lexeme_id=object.pk %}">{% trans "add" %}</a>){% endif %}:</h2>
 

@@ -11,10 +11,16 @@ from django.db.models.functions import Cast, Substr, Upper
 from django.db.models import Prefetch, F, Value, When, Case
 from manageXML.models import *
 from manageXML.utils import *
+import operator
+from functools import reduce
 
 
-def export(src_lang, tgt_lang, directory_path, ignore_file=None):
-    relations = Relation.objects.filter(checked=True, type=TRANSLATION)
+def export_monodix(src_lang, tgt_lang, directory_path, ignore_file=None):
+    raise NotImplementedError("Not implemented yet.")
+
+
+def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
+    relations = Relation.objects.filter(type=TRANSLATION)
     if ignore_file:
         to_ignore_ids = read_first_ids_from(ignore_file)
         relations = relations.exclude(pk__in=to_ignore_ids)
@@ -24,64 +30,41 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None):
         Prefetch('lexeme_from', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
         Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
         'relationexample_set', 'relationmetadata_set') \
-        .filter(lexeme_from__language=src_lang)
-
-    if tgt_lang:
-        relations = relations.filter(lexeme_to__language=tgt_lang)
-    else:
-        tgt_lang = 'X'
-
-    relations = relations \
-        .annotate(
-        pos=Case(
-            When(lexeme_to__contlex__icontains='PROP_', then=Value('N_Prop')),
-            default=F('lexeme_from__pos')),
-        pos_U=Upper('pos')) \
-        .order_by('pos_U') \
+        .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang) \
+        .order_by('lexeme_from__lexeme_lang') \
         .all()
 
-    grouped_relations = groupby(relations, key=lambda r: r.pos_U)
+    # alphabets
+    alphabet = ''
 
-    in_memory = BytesIO()
-    zip_file = ZipFile(in_memory, "a")
+    # sdefs
+    lexemes = Lexeme.objects.filter(Q(language='myv') | Q(language='mdf')).prefetch_related('lexememetadata_set').all()
+    symbols = set(reduce(operator.add, [_l.symbols() for _l in lexemes]))
+    system_symbols = Symbol.all_dict()
+    sdefs = {s: system_symbols[s] for s in symbols if s in system_symbols}
 
-    for key, relations in grouped_relations:
-        grouped_relations_source = groupby(sorted(relations, key=lambda r: r.lexeme_from.id),
-                                           key=lambda r: r.lexeme_from.id)
-        grouped_relations_source = [(k, list(g),) for k, g in grouped_relations_source]
-        grouped_relations_source = list(sorted(grouped_relations_source, key=lambda k: k[1][0].lexeme_from.lexeme_lang))
-        _chapter_html = render_to_string("export/dict_xml.html", {
-            'grouped_relations': grouped_relations_source,
-            'src_lang': src_lang,
-            'tgt_lang': tgt_lang,
-            'pos': key,
-        })
-        zip_file.writestr("{}_{}{}.xml".format(grouped_relations_source[0][1][0].pos, src_lang, tgt_lang),
-                          _chapter_html.encode('utf-8'))
-
-    for _file in zip_file.filelist:
-        _file.create_system = 0
-        zip_file.close()
-
-    _filename = "{}-{}-{}{}-XML-export.zip".format(
-        time.strftime("%Y%m%d-%H%M%S"),
+    # save
+    xml = render_to_string("export/bidix_xml.html", {'alphabet': alphabet, 'sdefs': sdefs, 'relations': relations})
+    _filename = "apertium-{}-{}.{}-{}-{}.dix".format(
         src_lang,
         tgt_lang,
-        str(uuid.uuid4())[:5]
+        src_lang,
+        tgt_lang,
+        time.strftime("%Y%m%d-%H%M")
     )
+    with open("{}/{}".format(directory_path, _filename), 'w') as f:
+        f.write(xml)
 
-    in_memory.seek(0)
 
-    with open("{}/{}".format(directory_path, _filename), 'wb') as f:
-        f.write(in_memory.getvalue())
+def export(src_lang, tgt_lang, directory_path, ignore_file=None):
+    export_fn = export_bidix if tgt_lang else export_monodix
+    return export_fn(src_lang, tgt_lang, directory_path, ignore_file)
 
 
 class Command(BaseCommand):
-    '''
-    This function generates the XML following the format in https://victorio.uit.no/langtech/trunk/words/dicts/finsms/
-    The output is expected to be used in an online dictionary.
-    Example: python manage.py export_xml_dict -d ../xml_src/ -s fin
-    '''
+    """
+
+    """
 
     help = 'Command to export an XML version of the dictionary.'
 

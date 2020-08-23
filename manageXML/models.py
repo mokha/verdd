@@ -39,6 +39,10 @@ class Symbol(models.Model):
     name = BinaryCharField(max_length=250, unique=True)
     comment = models.CharField(max_length=250, blank=True)
 
+    @staticmethod
+    def all_dict():
+        return dict(Symbol.objects.values_list('name', 'comment').all())
+
 
 class Lexeme(models.Model):
     class Meta:
@@ -161,6 +165,17 @@ class Lexeme(models.Model):
     def metadata_str(self, sep='__'):
         _metadata = self.lexememetadata_set.order_by('text').values_list('text', flat=True)
         return sep.join(_metadata) if _metadata else ''
+
+    def symbols(self):
+        from apertium.constants import POS_tags_rev
+        _metadata = list(self.lexememetadata_set.filter(type=GENERIC_METADATA).values_list('text', flat=True))
+        if self.pos in POS_tags_rev:
+            pos = POS_tags_rev[self.pos]
+            if pos == 'n' and self.lexememetadata_set.filter(type=LEXEME_TYPE, text__iexact='Prop').all():
+                _metadata += ['np', ]
+            else:
+                _metadata += [pos, ]
+        return _metadata
 
 
 class Relation(models.Model):

@@ -6,6 +6,7 @@ urlpatterns = [
     re_path(r'^lexeme/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.LexemeDetailView.as_view(),
             name='lexeme-detail'),
     path('download', views.LexemeExportView.as_view(), name='download-csv'),
+    path('download-lexc', views.LexemeExportLexcView.as_view(), name='download-lexc'),
     re_path(r'^lexeme/edit/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.LexemeEditView.as_view(),
             name='lexeme-edit'),
     re_path(r'^relation/(?P<pk>\d+)/$', views.RelationDetailView.as_view(),
@@ -20,6 +21,8 @@ urlpatterns = [
             name='mini-paradigm-add'),
     re_path(r'^mini-paradigm/edit/(?P<pk>\d+)/$', views.MiniParadigmEditView.as_view(),
             name='mini-paradigm-edit'),
+    re_path(r'^stem/(?P<pk>\d+)/$', views.StemDetailView.as_view(),
+            name='stem-detail'),
 
     # adding stuff
     re_path(r'^lexeme/add$', views.LexemeCreateView.as_view(),
@@ -38,6 +41,8 @@ urlpatterns = [
             name='source-add'),
     re_path(r'^relation/(?P<lexeme_id>\d+)/add$', views.RelationCreateView.as_view(),
             name='relation-add'),
+    re_path(r'^stem/(?P<lexeme_id>\d+)/add$', views.StemCreateView.as_view(),
+            name='stem-add'),
 
     # editing
     re_path(r'^affiliation/edit/(?P<pk>\d+)/$', views.AffiliationEditView.as_view(),
@@ -48,6 +53,8 @@ urlpatterns = [
             name='relation-example-edit'),
     re_path(r'^relation-metadata/(?P<lexeme_id>\d+)/edit/(?P<pk>\d+)/$', views.RelationMetadataEditView.as_view(),
             name='relation-metadata-edit'),
+    re_path(r'^stem/edit/(?P<pk>\d+)/$', views.StemEditView.as_view(),
+            name='stem-edit'),
 
     #
     # deleting stuff
@@ -65,6 +72,8 @@ urlpatterns = [
             name='relation-metadata-delete'),
     re_path(r'^source/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.SourceDeleteView.as_view(),
             name='source-delete'),
+    re_path(r'^stem/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.StemDeleteView.as_view(),
+            name='stem-delete'),
 
     # searching
     re_path(r'^lexeme/search$', views.LexemeSearchView.as_view(),
@@ -87,6 +96,8 @@ urlpatterns = [
             name='lexeme-approve'),
     re_path(r'^relation/approve/(?P<pk>\d+)/', views.approve_relation,
             name='relation-approve'),
+    re_path(r'^stem/approve/(?P<pk>\d+)/', views.approve_stem,
+            name='stem-approve'),
 
     # switching the directionality of a relation
     re_path(r'^relation/switch/(?P<pk>\d+)/', views.switch_relation,
@@ -100,5 +111,16 @@ urlpatterns = [
             name='relation-link-delete'),
     re_path(r'^example/relation/(?P<lexeme_id>\d+)/edit/(?P<pk>\d+)/$', views.RelationExampleRelationEditView.as_view(),
             name='relation-link-edit'),
+
+    # symbols
+    re_path(r'^symbol/list', views.SymbolListView.as_view(), name='symbol-list'),
+
+    # lexeme metadata
+    re_path(r'^metadata/(?P<lexeme_id>\d+)/add$', views.LexemeMetadataCreateView.as_view(),
+            name='lexeme-metadata-add'),
+    re_path(r'^metadata/edit/(?P<pk>\d+)/$', views.LexemeMetadataEditView.as_view(),
+            name='lexeme-metadata-edit'),
+    re_path(r'^metadata/(?P<lexeme_id>\d+)/delete/(?P<pk>\d+)/', views.LexemeMetadataDeleteView.as_view(),
+            name='lexeme-metadata-delete'),
 
 ]

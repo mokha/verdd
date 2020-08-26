@@ -54,3 +54,7 @@ ul.dashed > li::before {
     content: "- ";
     margin-left: -15px;
 }
+
+.underline {
+    text-decoration: underline;
+}

@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 import io, csv, os
 from ._private import *
 from manageXML.models import *
+from manageXML.utils import row_to_objects
 from datetime import datetime
 import logging
 from django.db import IntegrityError
@@ -15,7 +16,7 @@ def log_change(lexeme_id, lexeme, edit, note):
     )
 
 
-def merge(main_lexeme, other_lexemes=[]):
+def merge(main_lexeme: Lexeme, other_lexemes: tuple = ()):
     for ol in other_lexemes:
         for relation in ol.lexeme_from_lexeme_set.all():
             try:
@@ -122,14 +123,21 @@ def merge(main_lexeme, other_lexemes=[]):
             except IntegrityError as ex:
                 pass  # do nothing, it already exists
 
+        for s in ol.stem_set.all():
+            try:
+                s.lexeme = main_lexeme
+                s.save()
+            except IntegrityError as ex:
+                pass  # do nothing, it already exists
+
         ol.delete()  # delete lexeme
 
 
 def process(row, fields_length=4):
-    lexemes = [row[x:x + fields_length] for x in range(0, len(row), fields_length)]
     try:
-        lexemes = [Lexeme.objects.get(pk=_l[0]) for _l in lexemes if len(_l) == fields_length and _l[0]]
-        merge(lexemes[0], lexemes[1:])
+        lexemes = row_to_objects(Lexeme, row, fields_length, 0)
+        merge(lexemes[0], tuple(lexemes[1:]))
+        logger.info("Merged {}".format("\t".join(row)))
     except Exception as ex:
         logger.info("Couldn't merge row {} because '{}'".format("\t".join(row), repr(ex)))
 

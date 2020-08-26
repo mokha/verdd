@@ -68,8 +68,17 @@
                 <a class="btn btn-outline-secondary float-right" href="{% url 'lexeme-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
                     {% blocktrans %}Bulk Approve{% endblocktrans %}</a>
             {% endif %}
-            <a class="btn btn-outline-secondary float-right" style="margin-right: 5px;" href="{% url 'download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
-                {% blocktrans %}Download{% endblocktrans %}</a>
+            <div class="dropdown show float-right" style="margin-right: 5px;">
+                <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% blocktrans %}Download{% endblocktrans %}
+                </a>
+                <div class="dropdown-menu">
+                    <a  class="dropdown-item" href="{% url 'download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+                        {% blocktrans %}as CSV{% endblocktrans %}</a>
+                    <a  class="dropdown-item" href="{% url 'download-lexc' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+                            {% blocktrans %}as LEXC{% endblocktrans %}</a>
+                </div>
+            </div>
         </div>
     </form>
 

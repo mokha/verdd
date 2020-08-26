@@ -1,0 +1,1101 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-02 17:13+0000\n"
+"PO-Revision-Date: 2020-08-04 18:12+0300\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2.4\n"
+
+#: manageXML/constants.py:5
+msgid "1"
+msgstr "1"
+
+#: manageXML/constants.py:6
+msgid "2"
+msgstr "2"
+
+#: manageXML/constants.py:7
+msgid "3"
+msgstr "3"
+
+#: manageXML/constants.py:8
+msgid "4"
+msgstr "4"
+
+#: manageXML/constants.py:9
+msgid "5"
+msgstr "5"
+
+#: manageXML/constants.py:10
+msgid "6"
+msgstr "6"
+
+#: manageXML/constants.py:11
+msgid "7"
+msgstr "7"
+
+#: manageXML/constants.py:12
+msgid "8"
+msgstr "8"
+
+#: manageXML/constants.py:13
+msgid "9"
+msgstr "9"
+
+#: manageXML/constants.py:14
+msgid "10"
+msgstr "10"
+
+#: manageXML/constants.py:15
+msgid "X"
+msgstr "X"
+
+#: manageXML/constants.py:26
+msgid "Translation"
+msgstr "Tradução"
+
+#: manageXML/constants.py:27
+msgid "Etymology"
+msgstr "Etimologia"
+
+#: manageXML/constants.py:28
+msgid "Compound"
+msgstr "Palavra composta"
+
+#: manageXML/constants.py:29
+msgid "Derivation"
+msgstr "Derivação"
+
+#: manageXML/constants.py:30
+msgid "Variation"
+msgstr "Variante"
+
+#: manageXML/constants.py:31
+msgid "Phraseology"
+msgstr "Fraseologia"
+
+#: manageXML/constants.py:32
+msgid "Other"
+msgstr "Outro"
+
+#: manageXML/constants.py:818
+msgid "-"
+msgstr "-"
+
+#: manageXML/constants.py:819
+msgid "Akusanat"
+msgstr "Akusanat"
+
+#: manageXML/constants.py:820
+msgid "TermWiki"
+msgstr "TermWiki"
+
+#: manageXML/constants.py:824 verdd/settings/base.py:142
+msgid "Finnish"
+msgstr "Finlandês"
+
+#: manageXML/constants.py:825
+msgid "Skolt Sammi"
+msgstr "Sami skolt"
+
+#: manageXML/constants.py:833 manageXML/constants.py:842
+#: manageXML/constants.py:850
+msgid "Generic"
+msgstr "Genérico"
+
+#: manageXML/constants.py:834 manageXML/constants.py:843 manageXML/forms.py:24
+#: manageXML/templates/lexeme_data.html:13
+msgid "Specification"
+msgstr "Especificação"
+
+#: manageXML/constants.py:835 manageXML/constants.py:844
+msgid "Gender"
+msgstr "Gênero"
+
+#: manageXML/constants.py:845 manageXML/forms.py:28 manageXML/forms.py:144
+#: manageXML/forms.py:162 manageXML/forms.py:192 manageXML/forms.py:228
+#: manageXML/forms.py:578
+#: manageXML/templates/affiliation_confirm_delete.html:12
+#: manageXML/templates/lexeme_data.html:11
+#: manageXML/templates/lexeme_metadata_confirm_delete.html:10
+#: manageXML/templates/lexeme_short_data.html:10
+#: manageXML/templates/relation_data.html:6
+#: manageXML/templates/relation_data_list.html:9
+#: manageXML/templates/source_data.html:6 manageXML/views.py:1037
+msgid "Type"
+msgstr "Tipo"
+
+#: manageXML/constants.py:846
+msgid "defNative"
+msgstr "Definição nativa"
+
+#: manageXML/constants.py:847
+msgid "Ignore"
+msgstr "Pular"
+
+#: manageXML/forms.py:23 manageXML/forms.py:47 manageXML/forms.py:427
+#: manageXML/templates/lexeme_approval.html:77
+#: manageXML/templates/lexeme_data.html:3
+#: manageXML/templates/lexeme_list.html:91
+#: manageXML/templates/lexeme_short_data.html:3
+#: manageXML/templates/relation_approval.html:75
+#: manageXML/templates/relation_approval.html:80
+#: manageXML/templates/relation_list.html:74
+#: manageXML/templates/relation_list.html:79 manageXML/views.py:112
+#: manageXML/views.py:125 manageXML/views.py:126 manageXML/views.py:216
+#: manageXML/views.py:1030 manageXML/views.py:1104 manageXML/views.py:1105
+msgid "Lexeme"
+msgstr "Lexeme"
+
+#: manageXML/forms.py:25 manageXML/templates/lexeme_approval.html:78
+#: manageXML/templates/lexeme_data.html:8
+#: manageXML/templates/lexeme_list.html:92
+#: manageXML/templates/lexeme_short_data.html:8
+#: manageXML/templates/relation_approval.html:77
+#: manageXML/templates/relation_approval.html:82
+#: manageXML/templates/relation_list.html:76
+#: manageXML/templates/relation_list.html:81 manageXML/views.py:115
+#: manageXML/views.py:127 manageXML/views.py:128 manageXML/views.py:216
+#: manageXML/views.py:1032 manageXML/views.py:1104 manageXML/views.py:1105
+msgid "POS"
+msgstr "Classe gramatical"
+
+#: manageXML/forms.py:26 manageXML/templates/lexeme_data.html:9
+msgid "Homonym ID"
+msgstr "ID do homónimo"
+
+#: manageXML/forms.py:27 manageXML/forms.py:475
+msgid "Continuation Lexicon"
+msgstr "Léxico continuado"
+
+#: manageXML/forms.py:29 manageXML/templates/lexeme_data.html:15
+#: manageXML/templates/lexeme_short_data.html:13
+msgid "Lemma ID"
+msgstr "ID do lema"
+
+#: manageXML/forms.py:30
+msgid "Inflex ID"
+msgstr "ID de inflexão"
+
+#: manageXML/forms.py:32 manageXML/templates/lexeme_approval.html:80
+#: manageXML/templates/lexeme_data.html:14
+#: manageXML/templates/lexeme_list.html:94
+#: manageXML/templates/lexeme_short_data.html:12 manageXML/views.py:116
+#: manageXML/views.py:216
+msgid "Inflex Type"
+msgstr "Tipo de inflexão"
+
+#: manageXML/forms.py:33 manageXML/forms.py:117 manageXML/forms.py:137
+#: manageXML/forms.py:165 manageXML/forms.py:195 manageXML/forms.py:219
+#: manageXML/forms.py:243 manageXML/forms.py:336 manageXML/forms.py:358
+#: manageXML/forms.py:477 manageXML/forms.py:520 manageXML/forms.py:549
+#: manageXML/templates/affiliation_confirm_delete.html:14
+#: manageXML/templates/lexeme_approval.html:85
+#: manageXML/templates/lexeme_data.html:30
+#: manageXML/templates/lexeme_list.html:99
+#: manageXML/templates/lexeme_short_data.html:15
+#: manageXML/templates/relation_approval.html:68
+#: manageXML/templates/relation_data.html:8
+#: manageXML/templates/relation_data_list.html:13
+#: manageXML/templates/source_data.html:9
+#: manageXML/templates/stem_detail.html:18
+msgid "Notes"
+msgstr "Notas"
+
+#: manageXML/forms.py:34 manageXML/forms.py:118 manageXML/forms.py:478
+#: manageXML/templates/lexeme_data.html:28
+#: manageXML/templates/relation_data.html:7
+#: manageXML/templates/stem_detail.html:16 manageXML/views.py:120
+#: manageXML/views.py:1036
+msgid "Processed"
+msgstr "Processado"
+
+#: manageXML/forms.py:70 manageXML/forms.py:112 manageXML/forms.py:130
+#: manageXML/forms.py:157 manageXML/forms.py:187 manageXML/forms.py:212
+#: manageXML/forms.py:238 manageXML/forms.py:265 manageXML/forms.py:291
+#: manageXML/forms.py:313 manageXML/forms.py:351 manageXML/forms.py:381
+#: manageXML/forms.py:409 manageXML/forms.py:496 manageXML/forms.py:514
+#: manageXML/forms.py:544 manageXML/forms.py:565 manageXML/forms.py:585
+msgid "Save"
+msgstr "Salvar"
+
+#: manageXML/forms.py:80
+msgid "Languages"
+msgstr "Línguas"
+
+#: manageXML/forms.py:135 manageXML/forms.py:519
+#: manageXML/templates/example_relation_confirm_delete.html:11
+#: manageXML/templates/relation_approval.html:64
+#: manageXML/templates/relation_base_detail.html:8
+#: manageXML/templates/relation_data_list.html:8
+#: manageXML/templates/relation_list.html:66 manageXML/views.py:1034
+#: manageXML/views.py:1101
+msgid "To"
+msgstr "Até"
+
+#: manageXML/forms.py:151 manageXML/forms.py:539
+#: manageXML/templates/example_relation_confirm_delete.html:10
+#: manageXML/templates/relation_approval.html:63
+#: manageXML/templates/relation_base_detail.html:7
+#: manageXML/templates/relation_data_list.html:7
+#: manageXML/templates/relation_list.html:65 manageXML/views.py:1033
+#: manageXML/views.py:1100
+msgid "From"
+msgstr "Desde"
+
+#: manageXML/forms.py:163 manageXML/forms.py:193
+msgid "Name"
+msgstr "Nome"
+
+#: manageXML/forms.py:164 manageXML/forms.py:194
+#: manageXML/templates/history_list.html:76
+#: manageXML/templates/lexeme_approval.html:128
+#: manageXML/templates/lexeme_list.html:137
+#: manageXML/templates/relation_approval.html:124
+#: manageXML/templates/relation_list.html:133
+#: manageXML/templates/source_data.html:7
+#: manageXML/templates/symbol_list.html:34
+msgid "Page"
+msgstr "Página"
+
+#: manageXML/forms.py:177 manageXML/forms.py:335 manageXML/forms.py:357
+#: manageXML/templates/source_data.html:3 manageXML/views.py:121
+#: manageXML/views.py:1035
+msgid "Source"
+msgstr "Fonte"
+
+#: manageXML/forms.py:217
+#: manageXML/templates/affiliation_confirm_delete.html:10
+msgid "Title"
+msgstr "Título"
+
+#: manageXML/forms.py:218
+msgid "URL"
+msgstr "URL"
+
+#: manageXML/forms.py:220 manageXML/forms.py:244
+#: manageXML/templates/affiliation_confirm_delete.html:13
+msgid "Approved"
+msgstr "Aprovado"
+
+#: manageXML/forms.py:270 manageXML/forms.py:296
+#: manageXML/templates/mini_paradigm_data.html:10
+msgid "Word form"
+msgstr "Forma da palavra"
+
+#: manageXML/forms.py:271 manageXML/forms.py:297
+msgid "Morphosyntactic description"
+msgstr "Descrição morfossintática"
+
+#: manageXML/forms.py:283
+msgid "Edit Mini Paradigm"
+msgstr "Edite o paradigma curto"
+
+#: manageXML/forms.py:329
+msgid "Delete"
+msgstr "Excluir"
+
+#: manageXML/forms.py:334 manageXML/forms.py:356
+#: manageXML/templates/example_confirm_delete.html:10
+#: manageXML/templates/relation_example_confirm_delete.html:10
+msgid "Example"
+msgstr "Exemplo"
+
+#: manageXML/forms.py:386 manageXML/forms.py:570
+#: manageXML/templates/lexeme_metadata_confirm_delete.html:11
+msgid "Text"
+msgstr "Texto"
+
+#: manageXML/forms.py:428 manageXML/templates/relation_data.html:3
+msgid "Relation"
+msgstr "Relação"
+
+#: manageXML/forms.py:429
+msgid "Mini Paradigm"
+msgstr "Paradigma curto"
+
+#: manageXML/forms.py:430
+msgid "Model"
+msgstr "Modelo"
+
+#: manageXML/forms.py:443 manageXML/templates/history_list.html:27
+#: manageXML/templates/lexeme_approval.html:65
+#: manageXML/templates/lexeme_list.html:65
+#: manageXML/templates/relation_approval.html:47
+#: manageXML/templates/relation_list.html:46
+msgid "Search"
+msgstr "Pesquisar"
+
+#: manageXML/forms.py:469
+msgid "Switch Direction"
+msgstr "Mudar a direção"
+
+#: manageXML/forms.py:474 manageXML/templates/stem_confirm_delete.html:10
+#: manageXML/templates/stem_detail.html:10
+msgid "Stem"
+msgstr "Raiz"
+
+#: manageXML/forms.py:476 manageXML/templates/stem_detail.html:14
+msgid "Order"
+msgstr "Ordem"
+
+#: manageXML/forms.py:501 manageXML/templates/symbol_list.html:12
+#: manageXML/views.py:1275
+msgid "Symbol"
+msgstr "Símbolo"
+
+#: manageXML/forms.py:502 manageXML/templates/symbol_list.html:13
+msgid "Comment"
+msgstr "Comentário"
+
+#: manageXML/templates/affiliation_add.html:9 manageXML/views.py:526
+msgid "Add Affiliation"
+msgstr "Adicionar afiliação"
+
+#: manageXML/templates/affiliation_confirm_delete.html:9 manageXML/views.py:627
+msgid "Delete Affiliation"
+msgstr "Excluir afiliação"
+
+#: manageXML/templates/affiliation_confirm_delete.html:11
+msgid "Link"
+msgstr "Ligação"
+
+#: manageXML/templates/affiliation_confirm_delete.html:13
+#: manageXML/templates/lexeme_data.html:28
+#: manageXML/templates/relation_data.html:7
+#: manageXML/templates/stem_detail.html:16 manageXML/views.py:85
+#: manageXML/views.py:1013
+msgid "Yes"
+msgstr "Sim"
+
+#: manageXML/templates/affiliation_confirm_delete.html:13
+#: manageXML/templates/lexeme_data.html:28
+#: manageXML/templates/relation_data.html:7
+#: manageXML/templates/stem_detail.html:16 manageXML/views.py:86
+#: manageXML/views.py:1014
+msgid "No"
+msgstr "Não"
+
+#: manageXML/templates/affiliation_edit.html:9 manageXML/views.py:540
+msgid "Edit Affiliation"
+msgstr "Editar afiliação"
+
+#: manageXML/templates/example_add.html:9
+#: manageXML/templates/relation_example_add.html:9 manageXML/views.py:653
+#: manageXML/views.py:703
+msgid "Add Example"
+msgstr "Adicionar exemplo"
+
+#: manageXML/templates/example_confirm_delete.html:9
+#: manageXML/templates/relation_example_confirm_delete.html:9
+#: manageXML/views.py:679 manageXML/views.py:880
+msgid "Delete Example"
+msgstr "Excluir exemplo"
+
+#: manageXML/templates/example_data.html:3
+#: manageXML/templates/relation_data_list.html:11
+#: manageXML/templates/relation_detail.html:21
+msgid "Examples"
+msgstr "Exemplos"
+
+#: manageXML/templates/example_data.html:3
+#: manageXML/templates/lexeme_data.html:17
+#: manageXML/templates/lexeme_data.html:32
+#: manageXML/templates/lexeme_detail.html:25
+#: manageXML/templates/lexeme_detail.html:54
+#: manageXML/templates/relation_data_list.html:32
+#: manageXML/templates/relation_data_list.html:51
+#: manageXML/templates/relation_data_list.html:63
+#: manageXML/templates/relation_detail.html:17
+#: manageXML/templates/relation_detail.html:36
+#: manageXML/templates/relation_detail.html:48
+#: manageXML/templates/stem_data.html:3
+msgid "add"
+msgstr "adicionar"
+
+#: manageXML/templates/example_data.html:8
+#: manageXML/templates/lexeme_data.html:4
+#: manageXML/templates/lexeme_data.html:22
+#: manageXML/templates/lexeme_data.html:37
+#: manageXML/templates/lexeme_list.html:120
+#: manageXML/templates/lexeme_short_data.html:4
+#: manageXML/templates/mini_paradigm_data.html:19
+#: manageXML/templates/relation_data_list.html:29
+#: manageXML/templates/relation_data_list.html:41
+#: manageXML/templates/relation_data_list.html:45
+#: manageXML/templates/relation_data_list.html:60
+#: manageXML/templates/relation_data_list.html:75
+#: manageXML/templates/relation_detail.html:14
+#: manageXML/templates/relation_detail.html:26
+#: manageXML/templates/relation_detail.html:30
+#: manageXML/templates/relation_detail.html:45
+#: manageXML/templates/relation_list.html:116
+#: manageXML/templates/stem_data.html:8 manageXML/templates/stem_detail.html:11
+msgid "edit"
+msgstr "editar"
+
+#: manageXML/templates/example_data.html:8
+#: manageXML/templates/lexeme_data.html:22
+#: manageXML/templates/lexeme_data.html:37
+#: manageXML/templates/lexeme_list.html:121
+#: manageXML/templates/relation_data_list.html:29
+#: manageXML/templates/relation_data_list.html:41
+#: manageXML/templates/relation_data_list.html:45
+#: manageXML/templates/relation_data_list.html:60
+#: manageXML/templates/relation_data_list.html:78
+#: manageXML/templates/relation_detail.html:14
+#: manageXML/templates/relation_detail.html:26
+#: manageXML/templates/relation_detail.html:30
+#: manageXML/templates/relation_detail.html:45
+#: manageXML/templates/relation_list.html:117
+#: manageXML/templates/stem_data.html:8
+msgid "delete"
+msgstr "excluir"
+
+#: manageXML/templates/example_edit.html:9
+#: manageXML/templates/relation_example_edit.html:9 manageXML/views.py:667
+#: manageXML/views.py:766
+msgid "Edit Example"
+msgstr "Editar exemplo"
+
+#: manageXML/templates/example_relation_confirm_delete.html:9
+#: manageXML/views.py:872
+msgid "Delete Example Relation"
+msgstr "Excluir relação de exemplo"
+
+#: manageXML/templates/history_list.html:11
+#: manageXML/templates/lexeme_approval.html:10
+#: manageXML/templates/lexeme_list.html:10
+#: manageXML/templates/relation_approval.html:10
+#: manageXML/templates/relation_list.html:10
+msgid "Filter"
+msgstr "Filtrar"
+
+#: manageXML/templates/history_list.html:37
+msgid "History ID"
+msgstr "ID da história"
+
+#: manageXML/templates/history_list.html:38
+msgid "Instance"
+msgstr "Instância"
+
+#: manageXML/templates/history_list.html:39
+msgid "Changes"
+msgstr "Mudanças"
+
+#: manageXML/templates/history_list.html:40
+#: manageXML/templates/lexeme_list.html:100
+#: manageXML/templates/relation_data_list.html:14
+#: manageXML/templates/relation_list.html:71
+msgid "Actions"
+msgstr "Ações"
+
+#: manageXML/templates/history_list.html:53
+#, python-format
+msgid ""
+"\n"
+"                                    <b>%(field)s</b> changed from \"<i>"
+"%(old)s</i>\" to \"<i>%(new)s</i>\n"
+"                                    \""
+msgstr ""
+"\n"
+"                                    <b>%(field)s</b> foi alterado de \"<i>"
+"%(old)s</i>\" a \"<i>%(new)s</i>\n"
+"                                    \""
+
+#: manageXML/templates/history_list.html:61
+msgid "view current"
+msgstr "mostrar o objeto atual"
+
+#: manageXML/templates/history_list.html:70
+#: manageXML/templates/lexeme_approval.html:122
+#: manageXML/templates/lexeme_list.html:131
+#: manageXML/templates/relation_approval.html:118
+#: manageXML/templates/relation_list.html:127
+#: manageXML/templates/symbol_list.html:28
+msgid "First"
+msgstr "Primeiro"
+
+#: manageXML/templates/history_list.html:72
+#: manageXML/templates/lexeme_approval.html:124
+#: manageXML/templates/lexeme_list.html:133
+#: manageXML/templates/relation_approval.html:120
+#: manageXML/templates/relation_list.html:129
+#: manageXML/templates/symbol_list.html:30
+msgid "Previous"
+msgstr "Anterior"
+
+#: manageXML/templates/history_list.html:76
+#: manageXML/templates/lexeme_approval.html:128
+#: manageXML/templates/lexeme_list.html:137
+#: manageXML/templates/relation_approval.html:124
+#: manageXML/templates/relation_list.html:133
+#: manageXML/templates/symbol_list.html:34
+msgid "of"
+msgstr "de"
+
+#: manageXML/templates/history_list.html:80
+#: manageXML/templates/lexeme_approval.html:132
+#: manageXML/templates/lexeme_list.html:141
+#: manageXML/templates/relation_approval.html:128
+#: manageXML/templates/relation_list.html:137
+#: manageXML/templates/symbol_list.html:38
+msgid "Next"
+msgstr "Segue"
+
+#: manageXML/templates/history_list.html:82
+#: manageXML/templates/lexeme_approval.html:134
+#: manageXML/templates/lexeme_list.html:143
+#: manageXML/templates/relation_approval.html:130
+#: manageXML/templates/relation_list.html:139
+#: manageXML/templates/symbol_list.html:40
+msgid "Last"
+msgstr "Último"
+
+#: manageXML/templates/history_list.html:86
+#: manageXML/templates/lexeme_approval.html:138
+#: manageXML/templates/lexeme_list.html:147
+#: manageXML/templates/relation_approval.html:134
+#: manageXML/templates/relation_list.html:143
+#: manageXML/templates/symbol_list.html:44
+msgid "Total"
+msgstr "Total"
+
+#: manageXML/templates/history_list.html:86
+#: manageXML/templates/lexeme_approval.html:138
+#: manageXML/templates/lexeme_list.html:147
+#: manageXML/templates/relation_approval.html:134
+#: manageXML/templates/relation_list.html:143
+#: manageXML/templates/symbol_list.html:44
+msgid "Showing"
+msgstr "Mostrando"
+
+#: manageXML/templates/lexeme_add.html:8 manageXML/views.py:286
+#: templates/base.html:49
+msgid "Add Lexeme"
+msgstr "Adicionar lexeme"
+
+#: manageXML/templates/lexeme_approval.html:76
+#: manageXML/templates/lexeme_data.html:6
+#: manageXML/templates/lexeme_list.html:90
+#: manageXML/templates/lexeme_short_data.html:6
+#: manageXML/templates/mini_paradigm_data.html:8
+#: manageXML/templates/relation_approval.html:62
+#: manageXML/templates/relation_data_list.html:6
+#: manageXML/templates/relation_list.html:64
+#: manageXML/templates/stem_detail.html:13 manageXML/views.py:216
+#: manageXML/views.py:1103
+msgid "ID"
+msgstr "ID"
+
+#: manageXML/templates/lexeme_approval.html:79
+#: manageXML/templates/lexeme_list.html:93
+#: manageXML/templates/relation_approval.html:78
+#: manageXML/templates/relation_approval.html:83
+#: manageXML/templates/relation_list.html:77
+#: manageXML/templates/relation_list.html:82 manageXML/views.py:117
+#: manageXML/views.py:216 manageXML/views.py:1104 manageXML/views.py:1105
+msgid "Contlex"
+msgstr "Léxico continuado"
+
+#: manageXML/templates/lexeme_approval.html:81
+#: manageXML/templates/lexeme_list.html:95
+#: manageXML/templates/relation_approval.html:76
+#: manageXML/templates/relation_approval.html:81
+#: manageXML/templates/relation_list.html:75
+#: manageXML/templates/relation_list.html:80 manageXML/views.py:114
+#: manageXML/views.py:216 manageXML/views.py:1104 manageXML/views.py:1105
+msgid "Language"
+msgstr "Língua"
+
+#: manageXML/templates/lexeme_approval.html:83
+#: manageXML/templates/lexeme_list.html:97
+#: manageXML/templates/relation_approval.html:66
+#: manageXML/templates/relation_list.html:68 manageXML/views.py:218
+msgid "Ordered By"
+msgstr "Ordem"
+
+#: manageXML/templates/lexeme_approval.html:88
+#: manageXML/templates/lexeme_approval.html:114
+#: manageXML/templates/lexeme_detail.html:67
+#: manageXML/templates/relation_approval.html:71
+#: manageXML/templates/relation_approval.html:112
+#: manageXML/templates/relation_detail.html:58
+#: manageXML/templates/stem_detail.html:25
+msgid "Approve"
+msgstr "Aprovar"
+
+#: manageXML/templates/lexeme_data.html:4
+#: manageXML/templates/lexeme_list.html:118
+#: manageXML/templates/lexeme_short_data.html:4
+#: manageXML/templates/relation_data_list.html:29
+#: manageXML/templates/relation_data_list.html:71
+#: manageXML/templates/relation_detail.html:14
+#: manageXML/templates/relation_list.html:114
+#: manageXML/templates/stem_detail.html:11
+msgid "view"
+msgstr "mostrar"
+
+#: manageXML/templates/lexeme_data.html:7
+#: manageXML/templates/lexeme_short_data.html:7
+#: manageXML/templates/relation_data.html:5
+msgid "Language (ISO 639-3)"
+msgstr "Kieli (ISO 639-2)"
+
+#: manageXML/templates/lexeme_data.html:10
+#: manageXML/templates/lexeme_short_data.html:9
+#: manageXML/templates/stem_detail.html:15
+msgid "Cont"
+msgstr "Léxico continuado"
+
+#: manageXML/templates/lexeme_data.html:12
+#: manageXML/templates/lexeme_short_data.html:11
+msgid "Inflex Id"
+msgstr "ID de inflexão"
+
+#: manageXML/templates/lexeme_data.html:17
+msgid "Affiliations"
+msgstr "Afiliações"
+
+#: manageXML/templates/lexeme_data.html:29
+#: manageXML/templates/lexeme_short_data.html:14
+#: manageXML/templates/relation_data.html:9
+#: manageXML/templates/source_data.html:8
+#: manageXML/templates/stem_detail.html:17
+msgid "Last edit"
+msgstr "Alterado recentemente"
+
+#: manageXML/templates/lexeme_data.html:32
+#: manageXML/templates/relation_data_list.html:12
+#: manageXML/templates/relation_detail.html:40
+#: manageXML/templates/relation_list.html:70
+#: manageXML/templates/relation_metadata_confirm_delete.html:10
+msgid "Metadata"
+msgstr "Metadados"
+
+#: manageXML/templates/lexeme_detail.html:10
+msgid "Previous Lexemes"
+msgstr "Lexemes anteriores"
+
+#: manageXML/templates/lexeme_detail.html:14
+msgid "Next Lexemes"
+msgstr "Lexemes seguintes"
+
+#: manageXML/templates/lexeme_detail.html:25
+msgid "Mini Paradigms"
+msgstr "Paradigmas curtos"
+
+#: manageXML/templates/lexeme_detail.html:30
+msgid "See all mini paradigms"
+msgstr "Mostrar paradigmas curtos"
+
+#: manageXML/templates/lexeme_detail.html:39
+msgid "All Mini Paradigms"
+msgstr "Todos os paradigmas curtos"
+
+#: manageXML/templates/lexeme_detail.html:40
+#: manageXML/templates/lexeme_detail.html:48
+msgid "Close"
+msgstr "Fechar"
+
+#: manageXML/templates/lexeme_detail.html:54
+msgid "Relations"
+msgstr "Relações"
+
+#: manageXML/templates/lexeme_list.html:69
+#: manageXML/templates/relation_list.html:50
+msgid "Bulk Approve"
+msgstr "Aprovar tudo"
+
+#: manageXML/templates/lexeme_list.html:73
+#: manageXML/templates/relation_list.html:53
+msgid "Download"
+msgstr "Baixar"
+
+#: manageXML/templates/lexeme_list.html:77
+msgid "as CSV"
+msgstr "CSV"
+
+#: manageXML/templates/lexeme_list.html:79
+msgid "as LEXC"
+msgstr "LEXC"
+
+#: manageXML/templates/lexeme_metadata_add.html:9
+#: manageXML/templates/relation_metadata_add.html:9 manageXML/views.py:1293
+msgid "Add Metadata"
+msgstr "Adicionar metadados"
+
+#: manageXML/templates/lexeme_metadata_confirm_delete.html:9
+#: manageXML/templates/relation_metadata_confirm_delete.html:9
+#: manageXML/views.py:1324
+msgid "Delete Metadata"
+msgstr "Excluir metadados"
+
+#: manageXML/templates/lexeme_metadata_edit.html:9
+#: manageXML/templates/relation_metadata_edit.html:9 manageXML/views.py:1307
+msgid "Edit Metadata"
+msgstr "Editar metadados"
+
+#: manageXML/templates/mini_paradigm_add.html:9
+#: manageXML/templates/mini_paradigm_edit.html:9
+msgid "Existing Mini Paradigms"
+msgstr "Paradigmas curtos existentes"
+
+#: manageXML/templates/mini_paradigm_add.html:11
+msgid "Add Mini Paradigms"
+msgstr "Adicionar paradigma curto"
+
+#: manageXML/templates/mini_paradigm_data.html:9
+msgid "MSD"
+msgstr "Descrição morfossintática"
+
+#: manageXML/templates/relation_add.html:9
+msgid "Add Relation"
+msgstr "Adicionar relação"
+
+#: manageXML/templates/relation_data_list.html:10
+#: manageXML/templates/relation_detail.html:9
+msgid "Sources"
+msgstr "Fontes"
+
+#: manageXML/templates/relation_data_list.html:41
+#: manageXML/templates/relation_detail.html:26
+msgid "link"
+msgstr "ligação"
+
+#: manageXML/templates/relation_example_relation_add.html:9
+msgid "Link Examples"
+msgstr "Vincular exemplos"
+
+#: manageXML/templates/relation_example_relation_edit.html:9
+msgid "Edit Examples Link"
+msgstr "Editar ligação de exemplo"
+
+#: manageXML/templates/source_add.html:9
+msgid "Add Source"
+msgstr "Adicionar fonte"
+
+#: manageXML/templates/stem_add.html:9 manageXML/views.py:1243
+msgid "Add Stem"
+msgstr "Adicionar raiz"
+
+#: manageXML/templates/stem_confirm_delete.html:9 manageXML/views.py:1269
+msgid "Delete Stem"
+msgstr "Excluir raiz"
+
+#: manageXML/templates/stem_data.html:3
+msgid "Stems"
+msgstr "Raízes"
+
+#: manageXML/templates/stem_edit.html:9 manageXML/views.py:1257
+msgid "Edit Stem"
+msgstr "Editar raiz"
+
+#: manageXML/templates/symbol_list.html:11
+msgid "Id"
+msgstr "ID"
+
+#: manageXML/views.py:100 manageXML/views.py:1018
+msgid "Exact"
+msgstr "É idêntico"
+
+#: manageXML/views.py:101 manageXML/views.py:1019
+msgid "iExact"
+msgstr "É idêntico (insensível a maiúsculas)"
+
+#: manageXML/views.py:102 manageXML/views.py:1020
+msgid "Contains"
+msgstr "Contém"
+
+#: manageXML/views.py:103 manageXML/views.py:1021
+msgid "iContains"
+msgstr "Contém (insensível a maiúsculas)"
+
+#: manageXML/views.py:104 manageXML/views.py:1022
+msgid "Starts with"
+msgstr "Inicia"
+
+#: manageXML/views.py:105 manageXML/views.py:1023
+msgid "iStarts with"
+msgstr "Inicia (insensível a maiúsculas)"
+
+#: manageXML/views.py:106 manageXML/views.py:1024
+msgid "Ends with"
+msgstr "Termina"
+
+#: manageXML/views.py:107 manageXML/views.py:1025
+msgid "iEnds with"
+msgstr "Termina (insensível a maiúsculas)"
+
+#: manageXML/views.py:108 manageXML/views.py:1026
+msgid "Regex"
+msgstr "Expressão regular"
+
+#: manageXML/views.py:109 manageXML/views.py:1027
+msgid "iRegex"
+msgstr "Expressão regular (insensível a maiúsculas)"
+
+#: manageXML/views.py:118
+msgid "Range from"
+msgstr "Desde"
+
+#: manageXML/views.py:119
+msgid "Range to"
+msgstr "Até"
+
+#: manageXML/views.py:126 manageXML/views.py:128 manageXML/views.py:130
+#: manageXML/views.py:132 manageXML/views.py:134 manageXML/views.py:136
+#: manageXML/views.py:138 manageXML/views.py:140
+msgid "descending"
+msgstr "Decrescente"
+
+#: manageXML/views.py:129 manageXML/views.py:130
+msgid "ContLex"
+msgstr "Léxico continuado"
+
+#: manageXML/views.py:131 manageXML/views.py:132
+msgid "inflexType"
+msgstr "Tipo de inflexão"
+
+#: manageXML/views.py:133 manageXML/views.py:134
+msgid "Consonance"
+msgstr "Consonância"
+
+#: manageXML/views.py:135 manageXML/views.py:136
+msgid "revConsonance"
+msgstr "Consonância (inverso)"
+
+#: manageXML/views.py:137 manageXML/views.py:138
+msgid "Assonance"
+msgstr "Assonância"
+
+#: manageXML/views.py:139 manageXML/views.py:140
+msgid "RevAssonance"
+msgstr "Assonância (inverso)"
+
+#: manageXML/views.py:143
+msgid "Order by"
+msgstr "Ordem"
+
+#: manageXML/views.py:196
+msgid "Homepage"
+msgstr "Pagina inicial"
+
+#: manageXML/views.py:353
+msgid "Edit"
+msgstr "Editar"
+
+#: manageXML/views.py:395
+msgid "Edit Relation"
+msgstr "Editar relação"
+
+#: manageXML/views.py:419
+msgid "Edit source"
+msgstr "Editar fonte"
+
+#: manageXML/views.py:442
+msgid "Edit mini paradigm"
+msgstr "Editar paradigma curto"
+
+#: manageXML/views.py:467
+msgid "Add mini paradigm"
+msgstr "Adicionar paradigma curto"
+
+#: manageXML/views.py:499
+msgid "Add Relation from"
+msgstr "Adicionar relação desde"
+
+#: manageXML/views.py:567
+msgid "Add source"
+msgstr "Adicionar fonte"
+
+#: manageXML/views.py:611
+msgid "Delete lexeme"
+msgstr "Excluir lexeme"
+
+#: manageXML/views.py:619
+msgid "Delete Relation"
+msgstr "Excluir relação"
+
+#: manageXML/views.py:635
+msgid "Delete Source"
+msgstr "Excluir fonte"
+
+#: manageXML/views.py:735
+msgid "Add Data"
+msgstr "Adicionar dados"
+
+#: manageXML/views.py:796
+msgid "Edit Data"
+msgstr "Editar dados"
+
+#: manageXML/views.py:830
+msgid "Add example from"
+msgstr "Adicionar exemplo desde"
+
+#: manageXML/views.py:857
+msgid "Edit example link"
+msgstr "Editar ligação de exemplo"
+
+#: manageXML/views.py:891
+msgid "Delete Data"
+msgstr "Excluir dados"
+
+#: manageXML/views.py:913
+msgid "History Search"
+msgstr "Pesquisar no histórico"
+
+#: manageXML/views.py:962 manageXML/views.py:978
+#, python-format
+msgid "Empty list and '%(class_name)s.allow_empty' is False."
+msgstr "Lista vazia e'%(class_name)s.allow_empty' é falso."
+
+#: manageXML/views.py:1003
+msgid "Approving Lexemes"
+msgstr "Aprovar lexemes"
+
+#: manageXML/views.py:1081
+msgid "Relation Search"
+msgstr "Pesquisa de relação"
+
+#: manageXML/views.py:1104 manageXML/views.py:1105
+msgid "Lexeme ID"
+msgstr "ID de lexeme"
+
+#: manageXML/views.py:1137
+msgid "Approving Relations"
+msgstr "Aprovar relações"
+
+#: templates/allauth/account/email/password_reset_key_message.txt:1
+#, python-format
+msgid ""
+"Hello from %(site_name)s!\n"
+"\n"
+"You're receiving this e-mail because you or someone else has requested a "
+"password for your user account.\n"
+"It can be safely ignored if you did not request a password reset. Click the "
+"link below to reset your password."
+msgstr ""
+"Olá, enviamos uma mensagem de %(site_name)s!\n"
+"\n"
+"Você está recebendo este e-mail, porque alguém pediu para redefinir sua "
+"senha.\n"
+"Se você não quiser alterar sua senha, poderá excluir esta mensagem \n"
+"Para redefinir sua senha, clique aqui:"
+
+#: templates/allauth/account/email/password_reset_key_message.txt:8
+#, python-format
+msgid "In case you forgot, your username is %(username)s."
+msgstr "Seu nome de usuário é %(username)s."
+
+#: templates/allauth/account/email/password_reset_key_message.txt:10
+#, python-format
+msgid ""
+"Thank you for using %(site_name)s!\n"
+"%(site_domain)s"
+msgstr ""
+"Obrigado por usar %(site_name)s!\n"
+"%(site_domain)s"
+
+#: templates/allauth/account/password_change.html:12
+#: templates/allauth/account/password_change.html:15
+#: templates/allauth/account/password_change.html:20
+#: templates/allauth/account/password_reset_from_key.html:12
+#: templates/allauth/account/password_reset_from_key.html:15
+#: templates/allauth/account/password_reset_from_key_done.html:12
+#: templates/allauth/account/password_reset_from_key_done.html:15
+msgid "Change Password"
+msgstr "Mudar senha"
+
+#: templates/allauth/account/password_reset.html:11
+#: templates/allauth/account/password_reset_done.html:12
+#: templates/allauth/account/password_reset_done.html:15
+msgid "Password Reset"
+msgstr "Restaurar senha"
+
+#: templates/allauth/account/password_reset.html:17
+msgid "Reset My Password"
+msgstr "Restaurar senha"
+
+#: templates/allauth/account/password_reset_done.html:21
+msgid ""
+"We have sent you an e-mail. Please contact us if you do not receive it "
+"within a few minutes."
+msgstr "Enviamos um e-mail."
+
+#: templates/allauth/account/password_reset_from_key.html:15
+msgid "Bad Token"
+msgstr "Token errado"
+
+#: templates/allauth/account/password_reset_from_key.html:19
+#, python-format
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please\n"
+"            request a <a href=\"%(passwd_reset_url)s\">new password reset</"
+"a>."
+msgstr ""
+"O link expirou\n"
+"            redefina <a href=\"%(passwd_reset_url)s\">sua senha</a> "
+"novamente."
+
+#: templates/allauth/account/password_reset_from_key.html:26
+msgid "change password"
+msgstr "mudar senha"
+
+#: templates/allauth/account/password_reset_from_key.html:29
+#: templates/allauth/account/password_reset_from_key_done.html:16
+msgid "Your password is now changed."
+msgstr "Sua senha foi alterada."
+
+#: templates/base.html:19 templates/base.html:59 templates/base.html:97
+msgid "Verdd"
+msgstr "Veʹrdd"
+
+#: templates/base.html:35
+msgid "Back"
+msgstr "Retornar"
+
+#: templates/base.html:46
+msgid "Search Relations"
+msgstr "Relações"
+
+#: templates/base.html:52
+msgid "Symbols"
+msgstr "Símbolos"
+
+#: templates/base.html:68
+msgid "Logout"
+msgstr "Sair"
+
+#: templates/base.html:71 users/forms.py:79
+msgid "Signup"
+msgstr "Criar uma conta"
+
+#: templates/base.html:73 users/forms.py:37
+msgid "Sign In"
+msgstr "Acessar"
+
+#: users/forms.py:57 users/forms.py:58
+msgid "First name"
+msgstr "Nome"
+
+#: users/forms.py:59 users/forms.py:60
+msgid "Last name"
+msgstr "Sobrenome"
+
+#: verdd/settings/base.py:141
+msgid "English"
+msgstr "Inglês"

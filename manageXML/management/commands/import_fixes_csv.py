@@ -9,6 +9,7 @@ from manageXML.constants import VARIATION, TRANSLATION
 from datetime import datetime
 import logging
 from copy import deepcopy
+from django.conf import settings
 
 logger = logging.getLogger('verdd')  # Get an instance of a logger
 
@@ -76,7 +77,8 @@ def process(rows):
                                    imported_from=df)
                 title = _l.find_akusanat_affiliation()
                 if title:
-                    a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title)
+                    a, created = Affiliation.objects.get_or_create(lexeme=_l, title=title, type=AKUSANAT,
+                                                                   link="{}{}".format(settings.WIKI_URL, title))
                 log_change(_l.id, _l.lexeme, "CREATE_LEX",
                            "Created lexeme %s" % (_l.lexeme))
 

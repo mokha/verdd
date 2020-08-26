@@ -1,0 +1,20 @@
+{% with object=grouped_relation.1.0.lexeme_from translations=grouped_relation.1 %}
+    <e>
+        <lg>
+            <l pos="{{ object.pos }}"{% if pos|upper == 'N_PROP' %} type="Prop"{% endif %}>{{ object.lexeme }}</l>
+            <stg>
+                <st/>
+            </stg>
+        </lg>
+        {% for translation in translations %}
+            <mg relID="{{ forloop.counter0 }}">
+                <tg xml:lang="{{ translation.lexeme_to.language }}"> {% for specific in translation.relationmetadata_set.all %}
+                        {% if specific.language == object.language  and specific.type == 1 %}
+                    <re>{{ specific.text }}</re>{% endif %}{% endfor %}
+                    <t Contlex="{{ translation.lexeme_to.contlex }}"
+                       pos="{{ translation.lexeme_to.pos }}">{{ translation.lexeme_to.lexeme }}</t>
+                </tg>
+            </mg>
+        {% endfor %}
+    </e>
+{% endwith %}

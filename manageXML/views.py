@@ -24,11 +24,13 @@ from .forms import *
 from django.shortcuts import get_object_or_404
 from collections import defaultdict
 import csv
+import re
 from .constants import INFLEX_TYPE_OPTIONS
 from manageXML.inflector import Inflector
 import operator
 import logging
-from .utils import *
+from .utils import read_first_ids_from
+from django.conf import settings
 
 logger = logging.getLogger('verdd.manageXML')  # Get an instance of a logger
 _inflector = Inflector()
@@ -118,8 +120,25 @@ class LexemeFilter(django_filters.FilterSet):
     checked = ChoiceFilter(choices=STATUS_CHOICES, label=_('Processed'))
     source = CharFilter(label=_('Source'), method='source_filter')
 
-    order_by = LexemeOrderingFilter(
-        choices=(
+    order_by = LexemeOrderingFilter(fields=ORDER_BY_FIELDS,
+                                    label=_("Order by")
+                                    )
+
+    class Meta:
+        model = Lexeme
+        fields = ['lexeme', 'language', 'pos', 'contlex', 'inflexType', 'range_from', 'range_to', 'source']
+
+    def __init__(self, data, *args, **kwargs):
+        data = data.copy()
+        data.setdefault('order', '+lexeme_lang')
+        super().__init__(data, *args, **kwargs)
+
+        lang_pos = Lexeme.objects.values('language', 'pos').distinct()
+        languages = set([_i['language'] for _i in lang_pos])
+        pos = set([_i['pos'] for _i in lang_pos])
+        self.form.fields['language'].choices = zip(languages, languages)
+        self.form.fields['pos'].choices = zip(pos, pos)
+        self.form.fields['order_by'].choices = (
             ('lexeme_lang', _('Lexeme')),
             ('-lexeme_lang', '%s (%s)' % (_('Lexeme'), _('descending'))),
             ('pos', _('POS')),
@@ -136,23 +155,7 @@ class LexemeFilter(django_filters.FilterSet):
             ('-assonance', '%s (%s)' % (_('Assonance'), _('descending'))),
             ('assonance_rev', _('RevAssonance')),
             ('-assonance_rev', '%s (%s)' % (_('RevAssonance'), _('descending'))),
-        ),
-        fields=ORDER_BY_FIELDS,
-        label=_("Order by")
-    )
-
-    class Meta:
-        model = Lexeme
-        fields = ['lexeme', 'language', 'pos', 'contlex', 'inflexType', 'range_from', 'range_to', 'source']
-
-    def __init__(self, data, *args, **kwargs):
-        data = data.copy()
-        data.setdefault('order', '+lexeme_lang')
-        super().__init__(data, *args, **kwargs)
-
-        self.form.fields['language'].choices = set(
-            [(p['language'], p['language']) for p in Lexeme.objects.all().values('language')])
-        self.form.fields['pos'].choices = set([(p['pos'], p['pos']) for p in Lexeme.objects.all().values('pos')])
+        )
 
     def filter_range(self, queryset, name, value):
         # transform datetime into timestamp
@@ -292,7 +295,8 @@ class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         title = self.object.find_akusanat_affiliation()
         # link it
         if title:
-            a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title)
+            a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title, type=AKUSANAT,
+                                                           link="{}{}".format(settings.WIKI_URL, title))
         form.instance.changed_by = self.request.user
         return HttpResponseRedirect(self.get_success_url())
 
@@ -302,21 +306,24 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
     template_name = 'lexeme_detail.html'
 
     def get_around_objects(self, request, object, n=5):
-        filter = LexemeFilter(request.GET, queryset=Lexeme.objects.all())
-        qs_list = list(filter.qs)
+        _filter = LexemeFilter(request.GET)
+        ordered = _filter.qs.ordered
+        order_by = _filter.qs.query.order_by[0] if ordered else 'id'
+        desc = order_by.startswith('-')
+        order_by = order_by[1:] if order_by[0] in ['-', '+'] else order_by
+        value = getattr(object, order_by)
 
         next_objects, prev_objects = [], []
 
         try:
-            lexeme_position = qs_list.index(object)
-            next_objects = qs_list[lexeme_position + 1:lexeme_position + 1 + n]
-
-            prev_objects_len = max(0, lexeme_position - n)
-            prev_objects = qs_list[prev_objects_len:lexeme_position]
-        except:
+            prev_qs = _filter.qs.filter(**{order_by + '__lt': value}).order_by('-' + order_by if not desc else order_by)
+            next_qs = _filter.qs.filter(**{order_by + '__gt': value})
+            prev_objects = prev_qs[:n][::-1]
+            next_objects = next_qs[:n]
+        except Exception as e:
             pass
 
-        return prev_objects, next_objects
+        return (prev_objects, next_objects,) if not desc else (next_objects, prev_objects,)
 
     def get_context_data(self, **kwargs):
         context = super(LexemeDetailView, self).get_context_data(**kwargs)
@@ -330,6 +337,7 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
         context['prev_objects'], context['next_objects'] = self.get_around_objects(request=self.request,
                                                                                    object=last_lexeme,
                                                                                    n=25)
+        context['stems'] = self.object.stem_set.order_by('order').all()
         return context
 
     def get_title(self):
@@ -359,7 +367,8 @@ class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
             title = self.object.find_akusanat_affiliation()
             # link it
             if title:
-                a, created = Affiliation.objects.get_or_create(lexeme=form.instance, title=title)
+                a, created = Affiliation.objects.get_or_create(lexeme=self.object, title=title, type=AKUSANAT,
+                                                               link="{}{}".format(settings.WIKI_URL, title))
         form.instance.changed_by = self.request.user
         return super(LexemeEditView, self).form_valid(form)
 
@@ -373,7 +382,8 @@ class RelationDetailView(TitleMixin, DetailView):
         return context
 
     def get_title(self):
-        return "%s (%s)" % (self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
+        return "%s (%s)" % (self.object.lexeme_from.lexeme,
+                            self.object.lexeme_to.lexeme if self.object.lexeme_to else '')
 
 
 class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
@@ -382,7 +392,8 @@ class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     form_class = RelationForm
 
     def get_title(self):
-        return "%s: %s (%s)" % (_("Edit Relation"), self.object.lexeme_from.lexeme, self.object.lexeme_to.lexeme)
+        return "%s: %s (%s)" % (_("Edit Relation"), self.object.lexeme_from.lexeme,
+                                self.object.lexeme_to.lexeme if self.object.lexeme_to else '')
 
     def form_valid(self, form):
         form.instance.changed_by = self.request.user
@@ -478,7 +489,10 @@ class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
 
         if form.is_valid():
             data = form.cleaned_data
-            form.instance.lexeme_to = Lexeme.objects.get(pk=data.get('lexeme_to'))
+
+            lexeme_to_id = data.get('lexeme_to', None)
+            if lexeme_to_id:
+                form.instance.lexeme_to = Lexeme.objects.get(pk=lexeme_to_id)
         return form
 
     def get_title(self):
@@ -889,7 +903,7 @@ class LexemeSearchView(generics.ListAPIView):
             filter_Q = Q(lexeme__icontains=query)
             if query.isdigit() and int(query) > 0:
                 filter_Q |= Q(id=query)
-            return Lexeme.objects.filter(filter_Q)
+            return Lexeme.objects.filter(filter_Q).order_by('lexeme_lang')
         return Lexeme.objects.none()
 
 
@@ -1025,7 +1039,9 @@ class RelationFilter(django_filters.FilterSet):
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
         super().__init__(data, *args, **kwargs)
-        self.form.fields['pos'].choices = set([(p['pos'], p['pos']) for p in Lexeme.objects.all().values('pos')])
+
+        pos = set(Lexeme.objects.values_list('pos', flat=True).distinct())
+        self.form.fields['pos'].choices = zip(pos, pos)
 
     def filter_lexeme(self, queryset, name, value):
         lexeme_str, lookup_expr = self.form.cleaned_data['lexeme'] if 'lexeme' in self.form.cleaned_data else None
@@ -1201,6 +1217,113 @@ def download_dictionary_tex(request):
     return response
 
 
+class StemDetailView(TitleMixin, DetailView):
+    model = Stem
+    template_name = 'stem_detail.html'
+
+    def get_title(self):
+        return "%s (%s)" % (self.object.text, self.object.lexeme.lexeme)
+
+
+class StemCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'stem_add.html'
+    model = Stem
+    form_class = StemForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(StemCreateView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Stem"), self.lexeme)
+
+    def form_valid(self, form):
+        form.instance.lexeme = self.lexeme
+        form.instance.changed_by = self.request.user
+        return super(StemCreateView, self).form_valid(form)
+
+
+class StemEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'stem_edit.html'
+    model = Stem
+    form_class = StemForm
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Stem"), self.object.text, self.object.lexeme)
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(StemEditView, self).form_valid(form)
+
+
+class StemDeleteView(LexemeDeleteFormMixin):
+    template_name = 'stem_confirm_delete.html'
+    model = Stem
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Stem"), self.object,)
+
+
+class SymbolListView(TitleMixin, ListView):
+    model = Symbol
+    template_name = 'symbol_list.html'
+    title = _('Symbol')
+
+
+class LexemeMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = 'lexeme_metadata_add.html'
+    model = LexemeMetadata
+    form_class = LexemeMetadataForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lexeme = get_object_or_404(Lexeme, pk=kwargs['lexeme_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LexemeMetadataCreateView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.lexeme
+        return context
+
+    def get_title(self):
+        return "%s: %s" % (_("Add Metadata"), self.lexeme)
+
+    def form_valid(self, form):
+        form.instance.lexeme = self.lexeme
+        form.instance.changed_by = self.request.user
+        return super(LexemeMetadataCreateView, self).form_valid(form)
+
+
+class LexemeMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name = 'lexeme_metadata_edit.html'
+    model = LexemeMetadata
+    form_class = LexemeMetadataForm
+
+    def get_title(self):
+        return "%s: %s (%s)" % (_("Edit Metadata"), self.object.text, self.object.lexeme)
+
+    def get_context_data(self, **kwargs):
+        context = super(LexemeMetadataEditView, self).get_context_data(**kwargs)
+        context['lexeme'] = self.object.lexeme
+        return context
+
+    def form_valid(self, form):
+        form.instance.changed_by = self.request.user
+        return super(LexemeMetadataEditView, self).form_valid(form)
+
+
+class LexemeMetadataDeleteView(LexemeDeleteFormMixin):
+    template_name = 'lexeme_metadata_confirm_delete.html'
+    model = LexemeMetadata
+
+    def get_title(self):
+        return "%s: %s" % (_("Delete Metadata"), self.object,)
+
+
 @login_required
 def approve_lexeme(request, pk):
     lexeme = get_object_or_404(Lexeme, pk=pk)
@@ -1224,6 +1347,17 @@ def approve_relation(request, pk):
 
 
 @login_required
+def approve_stem(request, pk):
+    stem = get_object_or_404(Stem, pk=pk)
+    if request.method == 'POST':
+        stem.checked = True
+        stem.changed_by = request.user
+        stem.save()
+
+    return HttpResponseRedirect(stem.get_absolute_url())
+
+
+@login_required
 def switch_relation(request, pk):
     relation = get_object_or_404(Relation, pk=pk)
 
@@ -1235,3 +1369,32 @@ def switch_relation(request, pk):
             relation.save()
 
     return HttpResponseRedirect(relation.get_absolute_url())
+
+
+class LexemeExportLexcView(LexemeView):
+    def get_queryset(self):
+        queryset = self.model.objects.prefetch_related('stem_set', 'lexememetadata_set')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+        return self.filterset.qs.distinct()
+
+    def render_to_response(self, context, **response_kwargs):
+        result = [("".join((obj.lexeme,
+                            "+v{}".format(stem.order + 1) if i > 0 or len(obj.stem_set.all()) > 1 else '',
+                            "+Hom{}".format(obj.homoId) if obj.homoId > 0 else '',
+                            "+{}".format("N+{}".format(obj.pos) if obj.pos == 'Prop' else obj.pos),
+                            "".join(["+{}".format(md.text) if re.match(r'prop|np', md.text, re.I) else '' for md in
+                                     obj.lexememetadata_set.all()]),
+                            ":{}".format(stem.text),)),
+                   "{}".format(stem.contlex),
+                   "\"{}\"".format(stem.notes),
+                   ';')
+                  for obj in self.object_list for i, stem in enumerate(obj.stem_set.order_by('order').all())]
+
+        result = [(re.sub(r'(\s|\.|\<|\>|\,)', r'%\1', _r) for _r in r) for r in result]
+        result = [" ".join(r) for r in result]
+        content = "\n".join(result)
+        filename = "{}-export.lexc".format(datetime.datetime.now().replace(microsecond=0).isoformat())
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+
+        return response

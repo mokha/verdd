@@ -4,7 +4,7 @@
         href="{% url 'lexeme-detail' pk=object.pk slug=object.slug %}?{% query_transform request %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'lexeme-edit' pk=object.pk slug=object.slug %}">{% trans "edit" %}</a>{% endif %})</h1>
 <div id="lexeme-details">
     <p><b>{% trans "ID" %}:</b> {{ object.id }}</p>
-    <p><b>{% trans "Language (ISO 639-2)" %}:</b> {{ object.language }}</p>
+    <p><b>{% trans "Language (ISO 639-3)" %}:</b> {{ object.language }}</p>
     <p><b>{% trans "POS" %}:</b> {{ object.pos }}</p>
     <p><b>{% trans "Homonym ID" %}:</b> {{ object.homoId }}</p>
     <p><b>{% trans "Cont" %}:</b> {{ object.contlex }}</p>
@@ -28,4 +28,16 @@
     <p><b>{% trans "Processed" %}:</b> {% if object.checked %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</p>
     <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
     <p><b>{% trans "Notes" %}:</b> {{ object.notes|linebreaksbr }}</p>
+    <div>
+            <b>{% trans "Metadata" %}{% if user.is_authenticated %} (<a href="{% url 'lexeme-metadata-add' lexeme_id=object.pk %}">{% trans "add" %}</a>){% endif %}:</b>
+            {% with object.lexememetadata_set.all as metadata %}
+                {% if metadata %}
+                    <ul>
+                        {% for md in metadata %}
+                            <li>{% if md.type %}{% constant_text 'LEXEME_METADATA_TYPES' md.type %}{% endif %}: {{ md.text }} {% if user.is_authenticated %} (<a href="{% url 'lexeme-metadata-edit' pk=md.pk %}">{% trans "edit" %}</a>/<a href="{% url 'lexeme-metadata-delete' lexeme_id=object.pk pk=md.pk %}">{% trans "delete" %}</a>){% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </div>
 </div>

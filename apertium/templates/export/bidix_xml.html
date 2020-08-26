@@ -1,0 +1,12 @@
+{% autoescape off %}
+<?xml version="1.0" encoding="UTF-8"?>
+<dictionary>
+    <alphabet>{{ alphabet }}</alphabet>
+    <sdefs>{% for text, comment in sdefs.items %}
+            <sdef n="{{ text }}"    c="{{ comment }}"/>{% endfor %}
+    </sdefs>
+    <section id="main" type="standard">{% for relation in relations %}
+        <e><p><l>{{ relation.lexeme_from.lexeme }}{% for symbol in relation.lexeme_from.symbols %}<s n="{{ symbol }}"/>{% endfor %}</l>{% if relation.lexeme_to %}<r>{{ relation.lexeme_to.lexeme }}{% for symbol in relation.lexeme_to.symbols %}<s n="{{ symbol }}"/>{% endfor %}</r>{% else %}<r/>{% endif %}</p></e>{% endfor %}
+    </section>
+</dictionary>
+{% endautoescape %}

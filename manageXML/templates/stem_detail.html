@@ -1,0 +1,30 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    {% include 'lexeme_short_data.html' with object=object.lexeme %}
+
+    <h1>{% trans "Stem" %}: {{ object.text }} (<a
+            href="{% url 'stem-detail' pk=object.pk %}?{% query_transform request %}">{% trans "view" %}</a>{% if user.is_authenticated %}/<a href="{% url 'stem-edit' pk=object.pk %}">{% trans "edit" %}</a>{% endif %})</h1>
+    <div id="stem-details">
+        <p><b>{% trans "ID" %}:</b> {{ object.id }}</p>
+        <p><b>{% trans "Order" %}:</b> {{ object.order }}</p>
+        <p><b>{% trans "Cont" %}:</b> {{ object.contlex }}</p>
+        <p><b>{% trans "Processed" %}:</b> {% if object.checked %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</p>
+        <p><b>{% trans "Last edit" %}:</b> {{ object.history.first.history_date }}</p>
+        <p><b>{% trans "Notes" %}:</b> {{ object.notes|linebreaksbr }}</p>
+    </div>
+
+    {% if user.is_authenticated and not object.checked %}
+        <form action="{% url 'stem-approve' pk=object.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+                {% trans "Approve" %}
+            </button>
+        </form>
+    {% endif %}
+
+{% endblock %}

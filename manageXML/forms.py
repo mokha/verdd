@@ -9,6 +9,11 @@ from django.utils import timezone
 from django.db.models import Q
 
 
+class LanguageChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s (%s)" % (obj.name, obj.id)
+
+
 class LexmeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s (%s)" % (obj.lexeme, obj.pos)
@@ -72,8 +77,7 @@ class LexemeForm(forms.ModelForm):
 
 
 class LexemeCreateForm(LexemeForm):
-    language = forms.ChoiceField(choices=LANGUAGE_TYPES, required=True,
-                                 label=_('Languages'))
+    language = LanguageChoiceField(queryset=Language.objects.all(), required=True, label=_('Languages'))
 
     class Meta:
         model = Lexeme
@@ -128,7 +132,7 @@ class RelationForm(forms.ModelForm):
 
 
 class RelationCreateForm(forms.ModelForm):
-    lexeme_to = forms.CharField(required=True, label=_('To'),
+    lexeme_to = forms.CharField(required=False, label=_('To'),
                                 widget=forms.Select(attrs={'class': 'lexeme-autocomplete', }))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
 
@@ -344,8 +348,6 @@ class ExampleForm(forms.ModelForm):
                 Column('text', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
-            'source',
-            'notes',
             Submit('submit', _('Save'))
         )
 
@@ -362,10 +364,9 @@ class RelationExampleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         relation = kwargs.pop('relation')
         super(RelationExampleForm, self).__init__(*args, **kwargs)
-        self.fields['language'] = forms.ChoiceField(
-            label='',
-            choices=((relation.lexeme_to.language, relation.lexeme_to.language),  # show to language first
-                     (relation.lexeme_from.language, relation.lexeme_from.language),)
+        self.fields['language'] = LanguageChoiceField(
+            queryset=Language.objects.filter(id__in=[relation.lexeme_to.language, relation.lexeme_from.language]),
+            label=''
         )
 
         self.helper = FormHelper()
@@ -391,10 +392,9 @@ class RelationMetadataForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         relation = kwargs.pop('relation')
         super(RelationMetadataForm, self).__init__(*args, **kwargs)
-        self.fields['language'] = forms.ChoiceField(
-            label='',
-            choices=((relation.lexeme_to.language, relation.lexeme_to.language),  # show to language first
-                     (relation.lexeme_from.language, relation.lexeme_from.language),)
+        self.fields['language'] = LanguageChoiceField(
+            queryset=Language.objects.filter(id__in=[relation.lexeme_to.language, relation.lexeme_from.language]),
+            label=''
         )
         self.fields['type'] = forms.ChoiceField(choices=RELATION_METADATA_TYPES, required=True, label='')
 
@@ -470,6 +470,51 @@ class FlipRelationForm(forms.Form):
         )
 
 
+class StemForm(forms.ModelForm):
+    text = forms.CharField(label=_('Stem'), required=True, widget=forms.TextInput(attrs={'placeholder': _('Stem')}))
+    contlex = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))
+    order = forms.IntegerField(required=True, label=_('Order'), initial=0)
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
+    checked = forms.BooleanField(required=False, label=_('Processed'))
+
+    class Meta:
+        model = Stem
+        fields = ['text', 'contlex', 'order', 'notes', 'checked', ]
+
+    def __init__(self, *args, **kwargs):
+        super(StemForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('text', css_class='form-group col-md-4 mb-0'),
+                Column('contlex', css_class='form-group col-md-4 mb-0'),
+                Column('order', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
+            'notes',
+            'checked',
+            Submit('submit', _('Save'))
+        )
+
+
+class SymbolForm(forms.ModelForm):
+    name = forms.CharField(label=_('Symbol'), required=True, widget=forms.TextInput(attrs={'placeholder': _('Symbol')}))
+    comment = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Comment')}))
+
+    class Meta:
+        model = Stem
+        fields = ['name', 'comment', ]
+
+    def __init__(self, *args, **kwargs):
+        super(SymbolForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'name',
+            'comment',
+            Submit('submit', _('Save'))
+        )
+
+
 class RelationExampleLinkForm(forms.ModelForm):
     example_to = forms.ModelChoiceField(queryset=None, required=True, label=_('To'))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': _('Notes')}))
@@ -517,5 +562,25 @@ class RelationExampleLinkEditForm(forms.ModelForm):
                 css_class=''
             ),
             'notes',
+            Submit('submit', _('Save'))
+        )
+
+
+class LexemeMetadataForm(forms.ModelForm):
+    text = forms.CharField(widget=forms.TextInput(attrs={'placeholder': _('Text')}))
+
+    class Meta:
+        model = LexemeMetadata
+        fields = ['text', 'type']
+
+    def __init__(self, *args, **kwargs):
+        self.type = forms.ChoiceField(choices=LEXEME_METADATA_TYPES, required=True,
+                                      label=_('Type'))
+
+        super(LexemeMetadataForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'text',
+            'type',
             Submit('submit', _('Save'))
         )

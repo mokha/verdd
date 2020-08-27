@@ -21,24 +21,42 @@ def export_monodix(src_lang, tgt_lang, directory_path, ignore_file=None):
 
 def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
     relations = Relation.objects.filter(type=TRANSLATION)
+    tgt_relations = Relation.objects.filter(type=TRANSLATION)
     if ignore_file:
         to_ignore_ids = read_first_ids_from(ignore_file)
         relations = relations.exclude(pk__in=to_ignore_ids)
+        tgt_relations = tgt_relations.exclude(pk__in=to_ignore_ids)
 
     relations = relations \
+        .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang) \
         .prefetch_related(
         Prefetch('lexeme_from', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
         Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
         'relationexample_set', 'relationmetadata_set') \
-        .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang) \
-        .order_by('pos', 'lexeme_from__lexeme_lang') \
+        .order_by('lexeme_from__pos', 'lexeme_from__lexeme_lang') \
         .all()
+
+    tgt_relations = tgt_relations \
+        .filter(lexeme_from__language=tgt_lang, lexeme_to__language=src_lang) \
+        .values_list('lexeme_to', 'lexeme_from').all()
+    tgt_relations = set(tgt_relations)
+    src_relations = set(relations.values_list('lexeme_from', 'lexeme_to'))
+    ltr = src_relations - tgt_relations
+    rtl = tgt_relations - src_relations
+
+    for r in relations:
+        _key = (r.lexeme_from.id, r.lexeme_to.id,)
+        if _key in ltr:
+            r.dir = 'LR'
+        elif _key in rtl:
+            r.dir = 'RL'
 
     # alphabets
     alphabet = ''
 
     # sdefs
-    lexemes = Lexeme.objects.filter(Q(language='myv') | Q(language='mdf')).prefetch_related('lexememetadata_set').all()
+    lexemes = Lexeme.objects.filter(Q(language=src_lang) | Q(language=tgt_lang)).prefetch_related(
+        'lexememetadata_set').all()
     symbols = set(reduce(operator.add, [_l.symbols() for _l in lexemes]))
     system_symbols = Symbol.all_dict()
     sdefs = {s: system_symbols[s] for s in symbols if s in system_symbols}

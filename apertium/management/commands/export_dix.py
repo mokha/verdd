@@ -31,7 +31,7 @@ def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
         Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
         'relationexample_set', 'relationmetadata_set') \
         .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang) \
-        .order_by('lexeme_from__lexeme_lang') \
+        .order_by('pos', 'lexeme_from__lexeme_lang') \
         .all()
 
     # alphabets

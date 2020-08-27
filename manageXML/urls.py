@@ -89,8 +89,6 @@ urlpatterns = [
     path('relation/download', views.RelationExportView.as_view(), name='relation-download-csv'),
     path('relation/approval', views.RelationApprovalView.as_view(), name='relation-approval'),
 
-    path('download/latex', views.download_dictionary_tex, name='download-tex'),
-
     # approving lexemes and relations from view page
     re_path(r'^lexeme/approve/(?P<pk>\d+)/', views.approve_lexeme,
             name='lexeme-approve'),

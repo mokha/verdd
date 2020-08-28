@@ -28,15 +28,14 @@ def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
         tgt_relations = tgt_relations.exclude(pk__in=to_ignore_ids)
 
     relations = relations \
-        .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang) \
-        .prefetch_related(
-        Prefetch('lexeme_from', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
-        Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
-        'relationexample_set', 'relationmetadata_set') \
         .filter(
             (Q(lexeme_from__language=src_lang) & Q(lexeme_to__language=tgt_lang)) |
             (Q(lexeme_from__language=tgt_lang) & Q(lexeme_to__language=src_lang))
         ) \
+        .prefetch_related(
+        Prefetch('lexeme_from', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
+        Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
+        'relationexample_set', 'relationmetadata_set') \
         .order_by('lexeme_from__pos', 'lexeme_from__lexeme_lang') \
         .all()
 

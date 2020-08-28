@@ -49,8 +49,6 @@ def get_relations(src_lang, tgt_lang, ignore_file=None):
 
     covered_relations = []
     for r in relations:
-        if r.lexeme_from.language == tgt_lang:
-            r.lexeme_from, r.lexeme_to = r.lexeme_to, r.lexeme_from
         _key = (r.lexeme_from.id, r.lexeme_to.id,)
         if _key in covered_relations:
             continue

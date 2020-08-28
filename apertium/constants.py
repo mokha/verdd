@@ -22,7 +22,8 @@ POS_tags = {
     'qst': 'Pcle',
 }
 
-POS_tags_rev = {v: k for k, v in POS_tags.items()}
+POS_tags_rev = {'V': 'vblex', 'N': 'n', 'Adv': 'adv', 'A': 'adj', 'Interj': 'ij', 'Po': 'post', 'Num': 'num',
+                'CC': 'cnjcoo', 'Pron': 'prn', 'Pcle': 'qst', 'V+AUX': 'vaux', 'CS': 'cnjadv'}
 
 CONTLEX_TO_POS = OrderedDict({
     "__adj_adv": ["Adv", "A", ],

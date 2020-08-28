@@ -19,7 +19,7 @@ def export_monodix(src_lang, tgt_lang, directory_path, ignore_file=None):
     raise NotImplementedError("Not implemented yet.")
 
 
-def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
+def get_relations(src_lang, tgt_lang, ignore_file=None):
     relations = Relation.objects.filter(type=TRANSLATION)
     tgt_relations = Relation.objects.filter(type=TRANSLATION)
     if ignore_file:
@@ -29,9 +29,9 @@ def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
 
     relations = relations \
         .filter(
-            (Q(lexeme_from__language=src_lang) & Q(lexeme_to__language=tgt_lang)) |
-            (Q(lexeme_from__language=tgt_lang) & Q(lexeme_to__language=src_lang))
-        ) \
+        (Q(lexeme_from__language=src_lang) & Q(lexeme_to__language=tgt_lang)) |
+        (Q(lexeme_from__language=tgt_lang) & Q(lexeme_to__language=src_lang))
+    ) \
         .prefetch_related(
         Prefetch('lexeme_from', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
         Prefetch('lexeme_to', queryset=Lexeme.objects.prefetch_related('miniparadigm_set')),
@@ -47,13 +47,23 @@ def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
     ltr = src_relations - tgt_relations
     rtl = tgt_relations - src_relations
 
+    covered_relations = []
     for r in relations:
+        if r.lexeme_from.language == tgt_lang:
+            r.lexeme_from, r.lexeme_to = r.lexeme_to, r.lexeme_from
         _key = (r.lexeme_from.id, r.lexeme_to.id,)
+        if _key in covered_relations:
+            continue
         if _key in ltr:
             r.dir = 'LR'
         elif _key in rtl:
             r.dir = 'RL'
+        covered_relations.append(_key)
+        yield r
 
+
+def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
+    relations = list(get_relations(src_lang, tgt_lang, ignore_file))
     # alphabets
     alphabet = ''
 

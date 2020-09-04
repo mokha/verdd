@@ -145,6 +145,7 @@ LANGUAGES = (
     ('myv', _('Erzya')),
     ('es', _('Spanish')),
     ('pt', _('Portuguese')),
+    ('ar', _('Arabic')),
 )
 
 # Add support for additional languages

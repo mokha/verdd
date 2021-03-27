@@ -159,7 +159,7 @@ msgstr ""
 #: manageXML/views.py:125 manageXML/views.py:126 manageXML/views.py:216
 #: manageXML/views.py:1030 manageXML/views.py:1104 manageXML/views.py:1105
 msgid "Lexeme"
-msgstr "Лексема"
+msgstr "Лексем"
 
 #: manageXML/forms.py:25 manageXML/templates/lexeme_approval.html:78
 #: manageXML/templates/lexeme_data.html:8

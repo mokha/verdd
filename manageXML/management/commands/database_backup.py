@@ -31,17 +31,16 @@ def mysql_db_backup(db_settings, out_path):
            '--no-create-info', '--skip-add-drop-table', '--quick',
            database]
 
-    p = Popen(list2cmdline(cmd),
-              stdout=PIPE, stderr=PIPE,
-              universal_newlines=True,
-              shell=True)
-    stdout, stderr = p.communicate()
-
-    if stderr:
-        return False
-
     with open(out_path, 'w', encoding='utf-8') as output_file:
-        output_file.write(stdout.strip())
+        p = Popen(list2cmdline(cmd),
+                  stdout=output_file, stderr=PIPE,
+                  universal_newlines=True,
+                  shell=True)
+
+        _, stderr = p.communicate()
+
+        if stderr:
+            return False
 
     return True
 

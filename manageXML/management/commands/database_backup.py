@@ -28,7 +28,7 @@ def mysql_db_backup(db_settings, out_path):
     cmd = ['mysqldump',
            '-h', host, '-P', port,
            '-u', username, '-p%s' % password,
-           '--no-create-info', '--skip-add-drop-table',
+           '--no-create-info', '--skip-add-drop-table', '--quick',
            database]
 
     p = Popen(list2cmdline(cmd),

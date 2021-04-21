@@ -68,7 +68,9 @@ def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
     # sdefs
     lexemes = Lexeme.objects.filter(Q(language=src_lang) | Q(language=tgt_lang)).prefetch_related(
         'lexememetadata_set').all()
-    symbols = set(reduce(operator.add, [_l.symbols() for _l in lexemes]))
+    symbols = set()
+    for _l in lexemes.iterator():
+        symbols |= set(_l.symbols())
     system_symbols = Symbol.all_dict()
     sdefs = {s: system_symbols[s] for s in symbols if s in system_symbols}
 

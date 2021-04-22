@@ -35,8 +35,8 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None):
         .annotate(
         pos=Case(
             When(lexeme_to__contlex__icontains='PROP_', then=Value('N_Prop')),
-            default=F('lexeme_from__pos')),
-        pos_U=Upper('pos')) \
+            default=F('lexeme_from__pos'))) \
+        .annotate(pos_U=Upper('pos')) \
         .order_by('pos_U') \
         .all()
 
@@ -63,7 +63,7 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None):
         _file.create_system = 0
         zip_file.close()
 
-    _filename = "{}-{}-{}{}-XML-export.zip".format(
+    _filename = "{}-{}-{}-{}-XML-export.zip".format(
         time.strftime("%Y%m%d-%H%M%S"),
         src_lang,
         tgt_lang,

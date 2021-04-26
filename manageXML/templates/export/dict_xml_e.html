@@ -1,17 +1,16 @@
 {% with object=grouped_relation.1.0.lexeme_from translations=grouped_relation.1 %}
     <e>
         <lg>
-            <l pos="{{ object.pos }}"{% if pos|upper == 'N_PROP' %} type="Prop"{% endif %}>{{ object.lexeme }}</l>
+            <l pos="{{ object.pos }}"{% if pos|upper == 'N_PROP' %} type="Prop"{% endif %} {% if object.homoId > 0 %} hid="Hom{{ object.homoId|add:1 }}"{% endif %}>{{ object.lexeme }}</l>
             <stg>
-                <st/>
+                {% for stem in object.stem_set.all|dictsort:"order" %}<st Contlex="{{ object.contlex }}">{{ object.text }}</st>{% endfor %}
             </stg>
         </lg>
         <mg>{% regroup translations by lexeme_to.language as translations_by_lang %}
             {% for lang in translations_by_lang %}
                 <tg xml:lang="{{ lang.grouper }}">
                     {% for translation in lang.list %}
-                        <t Contlex="{{ translation.lexeme_to.contlex }}"
-                           pos="{{ translation.lexeme_to.pos }}">{{ translation.lexeme_to.lexeme }}</t>
+                        <t pos="{{ translation.lexeme_to.pos }}">{{ translation.lexeme_to.lexeme }}</t>
                     {% endfor %}</tg>
             {% endfor %}</mg>
     </e>

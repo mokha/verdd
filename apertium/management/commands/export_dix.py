@@ -13,15 +13,26 @@ from manageXML.models import *
 from manageXML.utils import *
 import operator
 from functools import reduce
+from distutils.util import strtobool
 
 
-def export_monodix(src_lang, tgt_lang, directory_path, ignore_file=None):
+def export_monodix(src_lang, tgt_lang, directory_path, ignore_file=None, *args, **kwargs):
     raise NotImplementedError("Not implemented yet.")
 
 
-def get_relations(src_lang, tgt_lang, ignore_file=None):
+def get_relations(src_lang, tgt_lang, ignore_file=None, *args, **kwargs):
+    checked = kwargs.get('approved', None)
+
     relations = Relation.objects.filter(type=TRANSLATION)
+
+    if checked is not None:
+        relations = relations.filter(checked=checked)
+
     tgt_relations = Relation.objects.filter(type=TRANSLATION)
+
+    if checked is not None:
+        tgt_relations = tgt_relations.filter(checked=checked)
+
     if ignore_file:
         to_ignore_ids = read_first_ids_from(ignore_file)
         relations = relations.exclude(pk__in=to_ignore_ids)
@@ -60,8 +71,8 @@ def get_relations(src_lang, tgt_lang, ignore_file=None):
         yield r
 
 
-def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
-    relations = list(get_relations(src_lang, tgt_lang, ignore_file))
+def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None, *args, **kwargs):
+    relations = list(get_relations(src_lang, tgt_lang, ignore_file, *args, **kwargs))
     # alphabets
     alphabet = ''
 
@@ -87,9 +98,9 @@ def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None):
         f.write(xml)
 
 
-def export(src_lang, tgt_lang, directory_path, ignore_file=None):
+def export(src_lang, tgt_lang, directory_path, ignore_file=None, *args, **kwargs):
     export_fn = export_bidix if tgt_lang else export_monodix
-    return export_fn(src_lang, tgt_lang, directory_path, ignore_file)
+    return export_fn(src_lang, tgt_lang, directory_path, ignore_file, *args, **kwargs)
 
 
 class Command(BaseCommand):
@@ -108,6 +119,8 @@ class Command(BaseCommand):
                             help='A file containing relations to be ignored. '
                                  'The first value must be the ID of the relation.', )
 
+        parser.add_argument('--approved', type=lambda v: bool(strtobool(v)), nargs='?', const=True, default=None, )
+
     def success_info(self, info):
         return self.stdout.write(self.style.SUCCESS(info))
 
@@ -125,4 +138,4 @@ class Command(BaseCommand):
         elif ignore_file and not os.path.isfile(ignore_file):
             return self.error_info("The ignore file doesn't exist.")
 
-        export(src_lang, tgt_lang, dir_path, ignore_file)
+        export(src_lang, tgt_lang, dir_path, ignore_file, **options)

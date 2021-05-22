@@ -11,12 +11,16 @@ from django.db.models.functions import Cast, Substr, Upper
 from django.db.models import Prefetch, F, Value, When, Case
 from manageXML.models import *
 from manageXML.utils import *
+from distutils.util import strtobool
 
 
 def export(src_lang, tgt_lang, directory_path, ignore_file=None, *args, **kwargs):
-    checked = kwargs.get('approved', False)
+    checked = kwargs.get('approved', None)
+    relations = Relation.objects.filter(type=TRANSLATION)
 
-    relations = Relation.objects.filter(checked=checked, type=TRANSLATION)
+    if checked is not None:
+        relations = relations.filter(checked=checked)
+
     if ignore_file:
         to_ignore_ids = read_first_ids_from(ignore_file)
         relations = relations.exclude(pk__in=to_ignore_ids)
@@ -96,8 +100,7 @@ class Command(BaseCommand):
                             help='A file containing relations to be ignored. '
                                  'The first value must be the ID of the relation.', )
 
-        parser.add_argument('--approved', dest='approved', action="store_true")
-        parser.set_defaults(approved=False)
+        parser.add_argument('--approved', type=lambda v: bool(strtobool(v)), nargs='?', const=True, default=None, )
 
     def success_info(self, info):
         return self.stdout.write(self.style.SUCCESS(info))

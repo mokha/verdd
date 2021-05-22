@@ -94,7 +94,7 @@ def export_bidix(src_lang, tgt_lang, directory_path, ignore_file=None, *args, **
         tgt_lang,
         time.strftime("%Y%m%d-%H%M")
     )
-    with open("{}/{}".format(directory_path, _filename), 'w') as f:
+    with open("{}/{}".format(directory_path, _filename), 'w', encoding='utf-8') as f:
         f.write(xml)
 
 

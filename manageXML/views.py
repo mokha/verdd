@@ -1308,7 +1308,7 @@ def reverse_relation(request, pk):
     relation = get_object_or_404(Relation, pk=pk)
 
     if request.method == 'POST':
-        form = FlipRelationForm(request.POST, relation=relation)
+        form = ReverseRelationForm(request.POST, relation=relation)
         if form.is_valid():
             try:
                 relation = Relation.objects.get(lexeme_from=relation.lexeme_to, lexeme_to=relation.lexeme_from)

@@ -401,11 +401,10 @@ class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(RelationEditView, self).get_context_data(**kwargs)
-        context['switch_form'] = FlipRelationForm(relation=self.object)
-
         try:
             _ = Relation.objects.get(lexeme_from=self.object.lexeme_to, lexeme_to=self.object.lexeme_from)
         except Relation.DoesNotExist:
+            context['switch_form'] = FlipRelationForm(relation=self.object)
             context['reverse_form'] = ReverseRelationForm(relation=self.object)
         return context
 

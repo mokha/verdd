@@ -6,20 +6,20 @@
 {% include 'relation_base_detail.html' with object=object %}
     {% if object.lexeme_to %}
         <div class="center-block text-center">
-            <div class="row mb-3">
-                <div class="col-12">
-                    {% if switch_form %}
+            {% if switch_form %}
+                <div class="row mb-3">
+                    <div class="col-12">
                         {% crispy switch_form %}
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-12">
-                    {% if reverse_form %}
+            {% endif %}
+            {% if reverse_form %}
+                <div class="row mb-3">
+                    <div class="col-12">
                         {% crispy reverse_form %}
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     {% endif %}
 {% include 'relation_data.html' with object=object %}

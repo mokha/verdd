@@ -4,9 +4,22 @@
 {% load widget_tweaks %}
 
 {% include 'relation_base_detail.html' with object=object %}
-    {% if object.lexeme_to and switch_form %}
+    {% if object.lexeme_to %}
         <div class="center-block text-center">
-            {% crispy switch_form %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    {% if switch_form %}
+                        {% crispy switch_form %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    {% if switch_form %}
+                        {% crispy reverse_form %}
+                    {% endif %}
+                </div>
+            </div>
         </div>
     {% endif %}
 {% include 'relation_data.html' with object=object %}

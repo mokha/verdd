@@ -402,6 +402,11 @@ class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(RelationEditView, self).get_context_data(**kwargs)
         context['switch_form'] = FlipRelationForm(relation=self.object)
+
+        try:
+            _ = Relation.objects.get(lexeme_from=self.object.lexeme_to, lexeme_to=self.object.lexeme_from)
+        except Relation.DoesNotExist:
+            context['reverse_form'] = ReverseRelationForm(relation=self.object)
         return context
 
 
@@ -1294,6 +1299,24 @@ def switch_relation(request, pk):
             relation.lexeme_from, relation.lexeme_to = relation.lexeme_to, relation.lexeme_from
             relation.changed_by = request.user
             relation.save()
+
+    return HttpResponseRedirect(relation.get_absolute_url())
+
+
+@login_required
+def reverse_relation(request, pk):
+    relation = get_object_or_404(Relation, pk=pk)
+
+    if request.method == 'POST':
+        form = FlipRelationForm(request.POST, relation=relation)
+        if form.is_valid():
+            try:
+                relation = Relation.objects.get(lexeme_from=relation.lexeme_to, lexeme_to=relation.lexeme_from)
+            except Relation.DoesNotExist:
+                relation.pk = None
+                relation.lexeme_from, relation.lexeme_to = relation.lexeme_to, relation.lexeme_from
+                relation.changed_by = request.user
+                relation.save()
 
     return HttpResponseRedirect(relation.get_absolute_url())
 

@@ -100,6 +100,8 @@ urlpatterns = [
     # switching the directionality of a relation
     re_path(r'^relation/switch/(?P<pk>\d+)/', views.switch_relation,
             name='relation-switch'),
+    re_path(r'^relation/reverse/(?P<pk>\d+)/', views.reverse_relation,
+            name='relation-reverse'),
 
     # link two relations
     re_path(r'^relation/example/(?P<pk>\d+)/link$', views.RelationExampleRelationView.as_view(),

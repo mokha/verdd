@@ -470,6 +470,21 @@ class FlipRelationForm(forms.Form):
         )
 
 
+class ReverseRelationForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        relation = kwargs.pop('relation')
+
+        super(ReverseRelationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'reverse-relation-form'
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('reverse-switch', kwargs={'pk': relation.id})
+
+        self.helper.layout = Layout(
+            CustomBtn('submit', _('Reverse Direction'), type='secondary')
+        )
+
+
 class StemForm(forms.ModelForm):
     text = forms.CharField(label=_('Stem'), required=True, widget=forms.TextInput(attrs={'placeholder': _('Stem')}))
     contlex = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': _('Continuation Lexicon')}))

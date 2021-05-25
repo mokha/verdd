@@ -481,7 +481,7 @@ class ReverseRelationForm(forms.Form):
         self.helper.form_action = reverse('relation-reverse', kwargs={'pk': relation.id})
 
         self.helper.layout = Layout(
-            CustomBtn('submit', _('Reverse Direction'), type='secondary')
+            CustomBtn('submit', _('Add Reverse'), type='secondary')
         )
 
 

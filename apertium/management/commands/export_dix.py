@@ -41,11 +41,15 @@ def export_bidix(left_lang, right_lang, directory_path, ignore_file=None, *args,
     left_relations = left_relations.annotate(lexeme_from_to_str=Concat('lexeme_from', Value('_'), 'lexeme_to'))
     right_relations = right_relations.annotate(lexeme_from_to_str=Concat('lexeme_to', Value('_'), 'lexeme_from'))
 
-    _lr = left_relations.values_list('lexeme_from_to_str', flat=True)
-    _rr = right_relations.values_list('lexeme_from_to_str', flat=True)
-    common_ids = set(_lr) & set(_rr)
-    common_ids_rev = {'_'.join(_l.split('_')[::-1]) for _l in common_ids}
-    right_relations = right_relations.exclude(lexeme_from_to_str__in=common_ids_rev)
+    _lr = dict(left_relations.values_list('lexeme_from_to_str', 'id'))
+    _rr = dict(right_relations.values_list('lexeme_from_to_str', 'id'))
+    common_ids = set(_lr.keys()) & set(_rr.keys())
+    left_common_ids = [_lr[_k] for _k in common_ids]
+    right_common_ids = [_rr[_k] for _k in common_ids]
+
+    right_relations = right_relations.exclude(pk__in=right_common_ids)
+    common_ids = left_common_ids + right_common_ids
+
     l_ids = list(left_relations.values_list('pk', flat=True))
     r_ids = list(right_relations.values_list('pk', flat=True))
     _ids = l_ids + r_ids
@@ -64,6 +68,7 @@ def export_bidix(left_lang, right_lang, directory_path, ignore_file=None, *args,
     symbols = set()
 
     for r in relations:
+        r.dir = ''
         if r.pk not in common_ids:  # not bidirectional
             if r.pk in r_ids:
                 r.lexeme_from, r.lexeme_to = r.lexeme_to, r.lexeme_from  # swap them

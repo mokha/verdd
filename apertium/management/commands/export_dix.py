@@ -44,7 +44,7 @@ def export_bidix(left_lang, right_lang, directory_path, ignore_file=None, *args,
     _lr = left_relations.values_list('lexeme_from_to_str', flat=True)
     _rr = right_relations.values_list('lexeme_from_to_str', flat=True)
     common_ids = set(_lr) & set(_rr)
-    common_ids_rev = {'_'.join(_l.split('_').reverse()) for _l in common_ids}
+    common_ids_rev = {'_'.join(_l.split('_')[::-1]) for _l in common_ids}
     right_relations = right_relations.exclude(lexeme_from_to_str__in=common_ids_rev)
     l_ids = list(left_relations.values_list('pk', flat=True))
     r_ids = list(right_relations.values_list('pk', flat=True))

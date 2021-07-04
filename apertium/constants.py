@@ -22,8 +22,9 @@ POS_tags = {
     'qst': 'Pcle',
 }
 
-POS_tags_rev = {'V': 'vblex', 'N': 'n', 'Adv': 'adv', 'A': 'adj', 'Interj': 'ij', 'Po': 'post', 'Num': 'num',
-                'CC': 'cnjcoo', 'Pron': 'prn', 'Pcle': 'qst', 'V+AUX': 'vaux', 'CS': 'cnjadv'}
+POS_tags_rev = {'V': 'vblex', 'N': 'n', 'ADV': 'adv', 'A': 'adj', 'IMTERK': 'ij', 'PO': 'post', 'NUM': 'num',
+                'CC': 'cnjcoo', 'PRON': 'prn', 'PCLE': 'qst', 'V+AUX': 'vaux', 'CS': 'cnjadv',
+                'PR': 'pr'}  # keys are capitalized
 
 CONTLEX_TO_POS = OrderedDict({
     "__adj_adv": ["Adv", "A", ],

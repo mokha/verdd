@@ -169,8 +169,9 @@ class Lexeme(models.Model):
     def symbols(self):
         from apertium.constants import POS_tags_rev
         _metadata = list(self.lexememetadata_set.filter(type=GENERIC_METADATA).values_list('text', flat=True))
-        if self.pos in POS_tags_rev:
-            pos = POS_tags_rev[self.pos]
+        pos_c = self.pos.upper()
+        if pos_c in POS_tags_rev:
+            pos = POS_tags_rev[pos_c]
             if pos == 'n' and self.lexememetadata_set.filter(type=LEXEME_TYPE, text__iexact='Prop').all():
                 _metadata += ['np', ]
             else:

@@ -3,6 +3,7 @@ import csv
 import re
 from django.db.models import Model, Count, Max, Value
 import django.db.models.functions as model_functions
+from django.db.models.functions import *
 from typing import Dict, Tuple, List, Sequence, Type
 from django.db.models.constants import LOOKUP_SEP
 from collections import OrderedDict
@@ -42,13 +43,14 @@ def annotate_objects(model: Type[Model], annotations: Tuple = ()):
         re.I | re.U)
     _annotations = [_a.split('=') for _a in annotations if '=' in _a]
 
-    _checked_annotations = dict()
-    for _f in _annotations:
-        matched = annotation_re.match(_f[1])
+    model_objects = model.objects
+    for _a in _annotations:
+        matched = annotation_re.match(_a[1])
         if matched and matched.groups()[0] in possible_annotations:
-            _checked_annotations[_f[0]] = eval(_f[1])
+            _a[1] = eval(_a[1])
+            model_objects = model_objects.annotate(**dict(_a))
 
-    return model.objects.annotate(**_checked_annotations)
+    return model_objects
 
 
 def get_duplicate_objects(model: Type[Model], annotations: Tuple = (), unique_fields: Tuple = ()):

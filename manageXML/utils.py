@@ -2,6 +2,7 @@ import os
 import csv
 import re
 from django.db.models import Model, Count, Max
+import django.db.models.functions as model_functions
 from typing import Dict, Tuple, List, Sequence, Type
 from django.db.models.constants import LOOKUP_SEP
 from collections import OrderedDict
@@ -31,15 +32,34 @@ def read_first_ids_from(file_path: str, delimiter: str = ',', id_in_col: int = 0
     return list(set(ids))
 
 
-def get_duplicate_objects(model: Type[Model], unique_fields: Tuple = ()):
+def annotate_objects(model: Type[Model], annotations: Tuple = ()):
+    if not annotations:
+        return model.objects
+
+    possible_annotations = dir(model_functions)
+    annotation_re = re.compile(r'\w+(\()(\'|")([\w_]+)(\'|")(\))', re.I | re.U)
+    _annotations = [_a.split('=') for _a in annotations if '=' in _a]
+
+    _checked_annotations = dict()
+    for _f in _annotations:
+        matched = annotation_re.match(_f[1])
+        if matched and matched.groups()[0] in possible_annotations:
+            _checked_annotations[_f[0]] = eval(_f[1])
+
+    return model.objects.annotate(**_checked_annotations)
+
+
+def get_duplicate_objects(model: Type[Model], annotations: Tuple = (), unique_fields: Tuple = ()):
     """
     Finds {model} objects in the database that have identical values of {unique_fields}.
 
     :param model: Django model.
+    :param annotations: Annotations to apply before finding duplicates.
     :param unique_fields: A tuple containing the name of the unique fields.
     :return Model:
     """
-    return model.objects.values(*unique_fields).order_by() \
+    annotated_objects = annotate_objects(model, annotations)
+    return annotated_objects.values(*unique_fields).order_by() \
         .annotate(max_id=Max('id'), count_id=Count('id')).filter(count_id__gt=1)
 
 

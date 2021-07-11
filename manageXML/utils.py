@@ -34,22 +34,24 @@ def read_first_ids_from(file_path: str, delimiter: str = ',', id_in_col: int = 0
 
 
 def annotate_objects(model: Type[Model], annotations: Tuple = ()):
-    if not annotations:
-        return model.objects
-
     possible_annotations = dir(model_functions)
     annotation_re = re.compile(
-        r'\w+(\()(\'|")([\w_]+)(\'|")((,)?\s*(Value)?(\()(\'|")([\w_]+)(\'|")(\)))?((,)?\s*(Value)?(\()(\'|")([\w_]+)(\'|")(\)))?(\))',
+        r'(\w+)\((\'|")(.+)(\'|")\)',
         re.I | re.U)
-    _annotations = [_a.split('=') for _a in annotations if '=' in _a]
+    _annotations = [[_a[:_a.find('=')], _a[_a.find('=') + 1:], ] for _a in annotations if '=' in _a]
 
     model_objects = model.objects
     for _a in _annotations:
         matched = annotation_re.match(_a[1])
         if matched and matched.groups()[0] in possible_annotations:
-            _a[1] = eval(_a[1])
-            model_objects = model_objects.annotate(**dict(_a))
-
+            func_name, _, _values, _, = matched.groups()
+            _values = _values.split('##')
+            for _i, _v in enumerate(_values):
+                if _i == 0:
+                    continue
+                _values[_i] = Value(_v)
+            _a[1] = getattr(model_functions, func_name)(*_values)
+            model_objects = model_objects.annotate(**{_a[0]: _a[1]})
     return model_objects
 
 

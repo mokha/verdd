@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 import io, csv, os
 from django.db.models import *
 from django.db.models.functions import *
-from manageXML.utils import get_duplicate_objects, obj_to_txt
+from manageXML.utils import get_duplicate_objects, annotate_objects, obj_to_txt
 from django.apps import apps
 import ast
 
@@ -46,13 +46,17 @@ class Command(BaseCommand):
             if filters:
                 filters = [_f.split('=') for _f in filters if '=' in _f]  # id__gt=1
                 for _f in filters:
-                    _f[1] = ast.literal_eval(_f[1])
+                    try:
+                        _f[1] = ast.literal_eval(_f[1])
+                    except:  # if failed, treat it as a string
+                        pass
                 duplicates = duplicates.filter(**dict(filters))
 
             output = []
             for dd in duplicates:  # for each duplicate values
                 dup_line = []
-                d_objects = _model.objects.filter(**{x: dd[x] for x in unique_fields})  # get the objects that have them
+                d_objects = annotate_objects(_model, annotations).filter(
+                    **{x: dd[x] for x in unique_fields})  # get the objects that have them
                 d_objects = d_objects.order_by(order_by)
                 for _d in d_objects:
                     dup_line.append(obj_to_txt(_d, fields=fields, delimiter=delimiter))  # convert them to text

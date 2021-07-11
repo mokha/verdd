@@ -1,7 +1,7 @@
 import os
 import csv
 import re
-from django.db.models import Model, Count, Max
+from django.db.models import Model, Count, Max, Value
 import django.db.models.functions as model_functions
 from typing import Dict, Tuple, List, Sequence, Type
 from django.db.models.constants import LOOKUP_SEP
@@ -37,7 +37,9 @@ def annotate_objects(model: Type[Model], annotations: Tuple = ()):
         return model.objects
 
     possible_annotations = dir(model_functions)
-    annotation_re = re.compile(r'\w+(\()(\'|")([\w_]+)(\'|")(\))', re.I | re.U)
+    annotation_re = re.compile(
+        r'\w+(\()(\'|")([\w_]+)(\'|")((,)?\s*(Value)?(\()(\'|")([\w_]+)(\'|")(\)))?((,)?\s*(Value)?(\()(\'|")([\w_]+)(\'|")(\)))?(\))',
+        re.I | re.U)
     _annotations = [_a.split('=') for _a in annotations if '=' in _a]
 
     _checked_annotations = dict()

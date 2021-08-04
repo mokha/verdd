@@ -32,7 +32,7 @@ def export(src_lang, directory_path, *args, **kwargs):
 
     relation_output = StringIO()
     relation_csv = csv.writer(relation_output, )
-    relation_csv.writerow(['from_id', 'to_id'])
+    relation_csv.writerow(['id', 'from_id', 'to_id'])
     relation_csv.writerows(relations_data)
     zip_file.writestr("relations.csv", relation_output.getvalue())
 

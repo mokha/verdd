@@ -1,28 +1,21 @@
 from django.core.management.base import BaseCommand, CommandError
-import io, csv, os
-from django.db.models import *
-from django.db.models.functions import *
-from manageXML.utils import get_duplicate_objects, annotate_objects, obj_to_txt
-from django.apps import apps
-import ast
 from django.db.models import Prefetch, F, Value, When, Case, Q
-import csv, io
 from manageXML.models import *
 from distutils.util import strtobool
 import networkx as nx
 from networkx import *
-import io, csv, time, uuid
+import io, time, uuid
 from tqdm import tqdm
 
 
 def predict(src_lang, tgt_lang, approved=None):
-    src_lexemes = Lexeme.objects.filter(language=src_lang, checked=approved) \
-        .values_list('id', 'lexeme', 'pos', 'homoId').all()
-    tgt_lexemes = Lexeme.objects.filter(language=tgt_lang, checked=approved) \
-        .values_list('id', 'lexeme', 'pos', 'homoId').all()
+    src_lexemes = Lexeme.objects.filter(language=src_lang) \
+        .values_list('id', 'language', 'lexeme', 'pos', 'homoId').all()
+    tgt_lexemes = Lexeme.objects.filter(language=tgt_lang) \
+        .values_list('id', 'language', 'lexeme', 'pos', 'homoId').all()
 
     relations = Relation.objects.prefetch_related(Prefetch('lexeme_from'), Prefetch('lexeme_to')) \
-        .filter(type=TRANSLATION) \
+        .filter(type=TRANSLATION, checked=approved) \
         .filter(
         Q(lexeme_from__language=src_lang) | Q(lexeme_from__language=tgt_lang) |
         Q(lexeme_to__language=src_lang) | Q(lexeme_to__language=tgt_lang)
@@ -68,7 +61,7 @@ class Command(BaseCommand):
     help = 'This command finds all duplicate items and prints them.'
 
     def add_arguments(self, parser):
-        parser.add_argument('-d', '--dir', type=str, help='The directory path where to store the CSV file in.', )
+        parser.add_argument('-d', '--dir', type=str, help='The directory path where to store the TSV file in.', )
         parser.add_argument('-s', '--source', type=str, help='Three letter code of source language.', )
         parser.add_argument('-t', '--target', type=str, help='Three letter code of target language.', )
         parser.add_argument('--approved', type=lambda v: bool(strtobool(v)), nargs='?', const=True, default=None, )
@@ -78,7 +71,7 @@ class Command(BaseCommand):
             preds = predict(src_lang=options['source'], tgt_lang=options['target'],
                             approved=options.get('approved', None))
 
-            _filename = "{}-{}-predictions-{}-{}.csv".format(
+            _filename = "{}-{}-predictions-{}-{}.tsv".format(
                 options['source'],
                 options['target'],
                 time.strftime("%Y%m%d-%H%M%S"),

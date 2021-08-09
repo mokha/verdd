@@ -497,3 +497,27 @@ class StemMetadata(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+
+
+class LanguageParadigm(models.Model):
+    class Meta:
+        unique_together = ('language', 'pos', 'form',)
+
+    language = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='paradigms')
+    pos = models.CharField(max_length=25)
+    form = models.CharField(max_length=250, blank=True)
+    mini = models.BooleanField(default=False)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='stem_metadata')
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return "{}".format(self.form)
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value

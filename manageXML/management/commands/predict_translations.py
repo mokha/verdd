@@ -10,27 +10,33 @@ from tqdm import tqdm
 
 def predict(src_lang, tgt_lang, approved=None):
     src_lexemes = Lexeme.objects.filter(language=src_lang) \
-        .values_list('id', 'language', 'lexeme', 'pos', 'homoId').all()
+        .values('id', 'language', 'lexeme', 'pos', 'homoId').all()
     tgt_lexemes = Lexeme.objects.filter(language=tgt_lang) \
-        .values_list('id', 'language', 'lexeme', 'pos', 'homoId').all()
+        .values('id', 'language', 'lexeme', 'pos', 'homoId').all()
 
     relations = Relation.objects.prefetch_related(Prefetch('lexeme_from'), Prefetch('lexeme_to')) \
-        .filter(type=TRANSLATION, checked=approved) \
+        .filter(type=TRANSLATION) \
         .filter(
         Q(lexeme_from__language=src_lang) | Q(lexeme_from__language=tgt_lang) |
         Q(lexeme_to__language=src_lang) | Q(lexeme_to__language=tgt_lang)
-    ).all()
+    )
+    if approved is not None:
+        relations = relations.filter(checked=approved)
 
-    src_ids = dict([(_l[0], _l) for _l in src_lexemes])
-    tgt_ids = dict([(_l[0], _l) for _l in tgt_lexemes])
+    relations = relations.all()
+
+    src_ids = dict([(str(_l['id']), _l) for _l in src_lexemes])
+    tgt_ids = dict([(str(_l['id']), _l) for _l in tgt_lexemes])
     all_nodes = {**src_ids, **tgt_ids}
 
     G = nx.Graph()
 
     for r in tqdm(relations):
-        G.add_node(r.lexeme_from.id)
-        G.add_node(r.lexeme_to.id)
-        G.add_edge(r.lexeme_from.id, r.lexeme_to.id)
+        if not r.lexeme_from or not r.lexeme_to:
+            continue
+        G.add_node(str(r.lexeme_from.id))
+        G.add_node(str(r.lexeme_to.id))
+        G.add_edge(str(r.lexeme_from.id), str(r.lexeme_to.id))
 
     to_predict = []
     for node in src_ids:
@@ -77,8 +83,17 @@ class Command(BaseCommand):
                 time.strftime("%Y%m%d-%H%M%S"),
                 str(uuid.uuid4())[:5]
             )
-            with io.open("{}/{}".format(options['dir'], _filename), 'w', encoding='utf-8') as f:
+            output_path = "{}/{}".format(options['dir'], _filename)
+            with io.open(output_path, 'w', encoding='utf-8') as f:
+                lines = []
                 for u, v, p in preds:
-                    f.write("\t".join(u + v + (str(p),)))
+                    lines.append("\t".join([
+                        str(u['id']), u['language'], u['lexeme'], u['pos'], str(u['homoId']),
+                        str(v['id']), v['language'], v['lexeme'], v['pos'], str(v['homoId']),
+                        str(p)
+                    ]))
+                f.write("\n".join(lines))
+            self.stdout.write(
+                self.style.SUCCESS('Successfully predicted translations into the file: {}.'.format(output_path)))
         except Exception as e:
             self.stderr.write(self.style.ERROR(str(e)))

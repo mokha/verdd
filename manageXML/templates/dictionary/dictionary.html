@@ -1,4 +1,4 @@
-{% extends 'template.html' %}
+{% extends 'dictionary/template.html' %}
 {% load i18n %}
 {% load custom_tags %}
 {% load widget_tweaks_extras %}
@@ -6,10 +6,9 @@
 
 {% block main_content %}
     <form method="get">
-        <div class="well">
-            <h4 style="margin-top: 0">{% trans "Filter" %}</h4>
+        <div class="well mt-3">
             <div class="row">
-                <div class="form-group col-sm-12 col-md-12">
+                <div class="form-group col-sm-6 col-md-6">
                     {{ filterset.form.lexeme.label_tag }}
                     <div class="row">
                         <div class="col-sm-8 col-md-8">
@@ -20,8 +19,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="form-group col-sm-2 col-md-2">
                     {{ filterset.form.language.label_tag }}
                     {% render_field filterset.form.language class="form-control" %}
@@ -31,96 +28,39 @@
                     {% render_field filterset.form.pos class="form-control" %}
                 </div>
                 <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.inflexType.label_tag }}
-                    {% render_field filterset.form.inflexType class="form-control" %}
-                </div>
-                <div class="form-group col-sm-6 col-md-6">
-                    {{ filterset.form.source.label_tag }}
-                    {% render_field filterset.form.source class="form-control" %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.range_from.label_tag }}
-                    {% render_field filterset.form.range_from class="form-control" %}
-                </div>
-                <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.range_to.label_tag }}
-                    {% render_field filterset.form.range_to class="form-control" %}
-                </div>
-                <div class="form-group col-sm-2 col-md-2">
-                    {{ filterset.form.checked.label_tag }}
-                    {% render_field filterset.form.checked class="form-control" %}
-                </div>
-                <div class="form-group col-sm-3 col-md-3">
-                    {{ filterset.form.contlex.label_tag }}
-                    {% render_field filterset.form.contlex class="form-control" %}
-                </div>
-                <div class="form-group col-sm-3 col-md-3">
                     {{ filterset.form.order_by.label_tag }}
                     {% render_field filterset.form.order_by class="form-control" %}
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary btn-lg btn-block">
                 <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
             </button>
-            {% if user.is_authenticated %}
-                <a class="btn btn-outline-secondary float-right" href="{% url 'lexeme-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
-                    {% blocktrans %}Bulk Approve{% endblocktrans %}</a>
-            {% endif %}
-            <div class="dropdown show float-right" style="margin-right: 5px;">
-                <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {% blocktrans %}Download{% endblocktrans %}
-                </a>
-                <div class="dropdown-menu">
-                    <a  class="dropdown-item" href="{% url 'download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
-                        {% blocktrans %}as CSV{% endblocktrans %}</a>
-                    <a  class="dropdown-item" href="{% url 'download-lexc' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
-                            {% blocktrans %}as LEXC{% endblocktrans %}</a>
-                </div>
-            </div>
         </div>
     </form>
 
     <br/>
 
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>{% trans "ID" %}</th>
-            <th>{% trans "Lexeme" %}</th>
-            <th>{% trans "POS" %}</th>
-            <th>{% trans "Contlex" %}</th>
-            <th>{% trans "Inflex Type" %}</th>
-            <th>{% trans "Language" %}</th>
-            {% if order_by %}
-                <th>{% trans "Ordered By" %}</th>
-            {% endif %}
-            <th>{% trans "Notes" %}</th>
-            <th>{% trans "Actions" %}</th>
-        </tr>
-        </thead>
+    <table class="table">
         <tbody>
         {% for obj in object_list %}
-            <tr {% if obj.checked %}class="table-success"{% endif %}>
-                <td>{{ obj.id }}</td>
-                <td>{{ obj.lexeme }}</td>
-                <td>{{ obj.pos }}</td>
-                <td>{{ obj.contlex }}</td>
-                <td>{{ obj.inflexType_str }}</td>
-                <td>{{ obj.language }}</td>
-                {% if order_by %}
-                    <td>{{ obj|getattr:order_by }}</td>
-                {% endif %}
-                <td>{{ obj.notes|linebreaksbr }}</td>
+            <tr id="lexeme-{{ obj.id }}">
                 <td>
+                    <b><a href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{{ obj.lexeme }}</a></b> <i>{{ obj.pos|lower }}.</i> ({{ obj.language }})
                     <ul>
-                        <li><a href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{% trans "view" %}</a></li>
-                        {% if user.is_authenticated %}
-                            <li><a href="{% url 'lexeme-edit' pk=obj.pk slug=obj.slug %}">{% trans "edit" %}</a></li>
-                            <li><a href="{% url 'lexeme-delete' pk=obj.pk %}">{% trans "delete" %}</a></li>
-                        {% endif %}
+                    {% for relation in obj.get_translations.all %}
+                        <li><b><a href="{% url 'lexeme-detail' pk=relation.lexeme_to.pk slug=relation.lexeme_to.slug %}?{% query_transform request lastlexeme=relation.lexeme_to.pk %}">{{ relation.lexeme_to.lexeme }}</a></b></b> <i>{{ relation.lexeme_to.pos|lower }}.</i> ({{ relation.lexeme_to.language }})</li>
+                    {% endfor %}
                     </ul>
+                    {% with examples=obj.example_set.all %}
+                        {% if examples %}
+                            <i>{% trans "Examples" %}:</i>
+                            <ul>
+                            {% for example in examples %}
+                                <li>{{ example }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
                 </td>
             </tr>
         {% endfor %}

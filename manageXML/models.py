@@ -104,6 +104,9 @@ class Lexeme(models.Model):
     def get_relations(self):
         return Relation.objects.filter(Q(lexeme_from=self) | Q(lexeme_to=self))
 
+    def get_translations(self):
+        return Relation.objects.filter(lexeme_from=self, type=TRANSLATION)
+
     def inflexType_str(self):
         return INFLEX_TYPE_OPTIONS_DICT[self.inflexType] if self.inflexType in INFLEX_TYPE_OPTIONS_DICT else ''
 
@@ -508,7 +511,7 @@ class LanguageParadigm(models.Model):
     form = models.CharField(max_length=250, blank=True)
     mini = models.BooleanField(default=False)
     changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
-                                   related_name='stem_metadata')
+                                   related_name='language_paradigms')
     history = HistoricalRecords()
 
     def __str__(self):

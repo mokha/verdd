@@ -25,6 +25,11 @@ def predict(src_lang, tgt_lang, approved=None):
 
     relations = relations.all()
 
+    existing_relations = Relation.objects.filter(type=TRANSLATION) \
+        .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang) \
+        .values_list('lexeme_from__id', 'lexeme_to__id')
+    existing_relations = [(str(_er[0]), str(_er[1]),) for _er in existing_relations]
+
     src_ids = dict([(str(_l['id']), _l) for _l in src_lexemes])
     tgt_ids = dict([(str(_l['id']), _l) for _l in tgt_lexemes])
     all_nodes = {**src_ids, **tgt_ids}
@@ -47,6 +52,7 @@ def predict(src_lang, tgt_lang, approved=None):
             for _n in G.neighbors(n):
                 if _n in tgt_ids:
                     to_predict.append((node, _n))
+    to_predict = list(set(to_predict) - set(existing_relations))
 
     preds = jaccard_coefficient(G, to_predict)
     preds = list(set(preds))

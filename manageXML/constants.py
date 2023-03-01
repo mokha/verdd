@@ -851,6 +851,7 @@ DEF_NATIVE = 5
 IGNORE_TAG = 6
 GEO_TAG = 7
 MWE_TAG = 8
+MSD_TAG = 9
 LEXEME_METADATA_TYPES = (
     (GENERIC_METADATA, _("Generic")),
     (SPECIFICATION, _('Specification')),
@@ -860,6 +861,7 @@ LEXEME_METADATA_TYPES = (
     (IGNORE_TAG, _('Ignore')),
     (GEO_TAG, _('Geo')),
     (MWE_TAG, _('MWE')),
+    (MSD_TAG, _('MSD')),
 )
 STEM_METADATA_TYPES = (
     (GENERIC_METADATA, _("Generic")),

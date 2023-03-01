@@ -6,24 +6,25 @@ POS_tags = {
     'n': 'N',
     'adv': 'Adv',
     'adj': 'A',
+    'det': 'Det',
     'ij': 'Interj',
     'post': 'Po',
     'num': 'Num',
     'cnjcoo': 'CC',
     'prn': 'Pron',
     'np': 'N',  # add Prop to metadata
-    'part': 'Pcle',
     'vbmod': 'V+AUX',
     'vaux': 'V+AUX',
+    'vblex': 'V',
     'vbser': 'V',
     'vbhaver': 'V',
     'cnjsub': 'CS',
     'cnjadv': 'CS',
-    'qst': 'Pcle',
+    'pcle': 'Pcle',
 }
 
-POS_tags_rev = {'V': 'vblex', 'N': 'n', 'ADV': 'adv', 'A': 'adj', 'IMTERK': 'ij', 'PO': 'post', 'NUM': 'num',
-                'CC': 'cnjcoo', 'PRON': 'prn', 'PCLE': 'qst', 'V+AUX': 'vaux', 'CS': 'cnjadv',
+POS_tags_rev = {'V': 'vblex', 'N': 'n', 'ADV': 'adv', 'A': 'adj', 'INTERJ': 'ij', 'PO': 'post', 'NUM': 'num',
+                'CC': 'cnjcoo', 'PRON': 'prn', 'PCLE': 'pcle', 'V+AUX': 'vaux', 'CS': 'cnjsub', 'DET': 'det',
                 'PR': 'pr'}  # keys are capitalized
 
 CONTLEX_TO_POS = OrderedDict({

@@ -1,0 +1,34 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Ve'rdd
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Khalid
+    family-names: Alnajjar
+  - given-names: Mika
+    family-names: Hämäläinen
+  - given-names: Jack
+    family-names: Rueter
+  - given-names: Niko
+    family-names: Partanen
+repository-code: 'https://github.com/mokha/verdd'
+date-released: '2020-10-16'
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Alnajjar"
+    given-names: "Khalid"
+  - family-names: "Hämäläinen"
+    given-names: "Mika"
+  - family-names: "Rueter"
+    given-names: "Jack"
+  - family-names: "Partanen"
+    given-names: "Niko"
+  journal: "Proceedings of the 28th International Conference on Computational Linguistics: System Demonstrations"
+  title: "Ve'rdd. Narrowing the Gap between Paper Dictionaries, Low-Resource NLP and Community Involvement."
+  year: 2020

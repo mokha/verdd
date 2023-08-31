@@ -46,8 +46,8 @@
         <tr id="lexeme-{{ obj.id }}">
             <td>
                 <b><a
-                        href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{{
-                        obj.lexeme }}</a></b> <i>{{ obj.pos|lower }}.</i> ({{ obj.language }})
+                        href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{{ obj.lexeme }}</a></b>
+                <i>{{ obj.pos|lower }}.</i> ({{ obj.language }})
                 <ul>
                     {% for relation in obj.get_translations.all %}
                     {% if relation.lexeme_to %}

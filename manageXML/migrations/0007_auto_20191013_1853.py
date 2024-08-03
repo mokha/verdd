@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0006_auto_20191013_1824'),
+        ("manageXML", "0006_auto_20191013_1824"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='affiliation',
-            unique_together={('lexeme', 'title', 'link', 'type')},
+            name="affiliation",
+            unique_together={("lexeme", "title", "link", "type")},
         ),
     ]

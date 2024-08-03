@@ -7,16 +7,24 @@ import manageXML.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0023_auto_20200622_1329'),
+        ("manageXML", "0023_auto_20200622_1329"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Symbol',
+            name="Symbol",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', manageXML.fields.BinaryCharField(max_length=250, unique=True)),
-                ('comment', models.CharField(blank=True, max_length=250)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", manageXML.fields.BinaryCharField(max_length=250, unique=True)),
+                ("comment", models.CharField(blank=True, max_length=250)),
             ],
         ),
     ]

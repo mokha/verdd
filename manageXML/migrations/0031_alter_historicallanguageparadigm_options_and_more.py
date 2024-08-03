@@ -6,37 +6,76 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0030_merge_20240803_2144'),
+        ("manageXML", "0030_merge_20240803_2144"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='historicallanguageparadigm',
-            options={'get_latest_by': ('history_date', 'history_id'), 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical language paradigm', 'verbose_name_plural': 'historical language paradigms'},
+            name="historicallanguageparadigm",
+            options={
+                "get_latest_by": ("history_date", "history_id"),
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical language paradigm",
+                "verbose_name_plural": "historical language paradigms",
+            },
         ),
         migrations.AlterField(
-            model_name='historicallanguageparadigm',
-            name='history_date',
+            model_name="historicallanguageparadigm",
+            name="history_date",
             field=models.DateTimeField(db_index=True),
         ),
         migrations.AlterField(
-            model_name='historicallanguageparadigm',
-            name='id',
-            field=models.BigIntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID'),
+            model_name="historicallanguageparadigm",
+            name="id",
+            field=models.BigIntegerField(
+                auto_created=True, blank=True, db_index=True, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='historicallexememetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender'), (4, 'Type'), (5, 'defNative'), (6, 'Ignore'), (7, 'Geo'), (8, 'MWE'), (9, 'MSD')], default=None, null=True),
+            model_name="historicallexememetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[
+                    (0, "Generic"),
+                    (1, "Specification"),
+                    (3, "Gender"),
+                    (4, "Type"),
+                    (5, "defNative"),
+                    (6, "Ignore"),
+                    (7, "Geo"),
+                    (8, "MWE"),
+                    (9, "MSD"),
+                ],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='languageparadigm',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="languageparadigm",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='lexememetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender'), (4, 'Type'), (5, 'defNative'), (6, 'Ignore'), (7, 'Geo'), (8, 'MWE'), (9, 'MSD')], default=None, null=True),
+            model_name="lexememetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[
+                    (0, "Generic"),
+                    (1, "Specification"),
+                    (3, "Gender"),
+                    (4, "Type"),
+                    (5, "defNative"),
+                    (6, "Ignore"),
+                    (7, "Geo"),
+                    (8, "MWE"),
+                    (9, "MSD"),
+                ],
+                default=None,
+                null=True,
+            ),
         ),
     ]

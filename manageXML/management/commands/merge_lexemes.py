@@ -7,12 +7,19 @@ from datetime import datetime
 import logging
 from django.db import IntegrityError
 
-logger = logging.getLogger('verdd')  # Get an instance of a logger
+logger = logging.getLogger("verdd")  # Get an instance of a logger
 
 
 def log_change(lexeme_id, lexeme, edit, note):
     logger.info(
-        "%s (%d): [%s] %s on %s" % (lexeme, lexeme_id, edit, note, datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
+        "%s (%d): [%s] %s on %s"
+        % (
+            lexeme,
+            lexeme_id,
+            edit,
+            note,
+            datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"),
+        )
     )
 
 
@@ -24,8 +31,11 @@ def merge(main_lexeme: Lexeme, other_lexemes: tuple = ()):
                 relation.save()
             except IntegrityError as ex:
                 relation_changed = False
-                main_relation = Relation.objects.get(lexeme_from=relation.lexeme_from, lexeme_to=relation.lexeme_to,
-                                                     type=relation.type)
+                main_relation = Relation.objects.get(
+                    lexeme_from=relation.lexeme_from,
+                    lexeme_to=relation.lexeme_to,
+                    type=relation.type,
+                )
 
                 for source in relation.source_set.all():
                     try:
@@ -50,7 +60,9 @@ def merge(main_lexeme: Lexeme, other_lexemes: tuple = ()):
 
                 if relation.notes:
                     if main_relation.notes:
-                        main_relation.notes = main_relation.notes + '\n' + relation.notes
+                        main_relation.notes = (
+                            main_relation.notes + "\n" + relation.notes
+                        )
                     else:
                         main_relation.notes = relation.notes
                     relation_changed = True
@@ -66,8 +78,11 @@ def merge(main_lexeme: Lexeme, other_lexemes: tuple = ()):
                 relation.save()
             except IntegrityError as ex:
                 relation_changed = False
-                main_relation = Relation.objects.get(lexeme_from=relation.lexeme_from, lexeme_to=relation.lexeme_to,
-                                                     type=relation.type)
+                main_relation = Relation.objects.get(
+                    lexeme_from=relation.lexeme_from,
+                    lexeme_to=relation.lexeme_to,
+                    type=relation.type,
+                )
 
                 for source in relation.source_set.all():
                     try:
@@ -92,7 +107,9 @@ def merge(main_lexeme: Lexeme, other_lexemes: tuple = ()):
 
                 if relation.notes:
                     if main_relation.notes:
-                        main_relation.notes = main_relation.notes + '\n' + relation.notes
+                        main_relation.notes = (
+                            main_relation.notes + "\n" + relation.notes
+                        )
                     else:
                         main_relation.notes = relation.notes
                     relation_changed = True
@@ -139,37 +156,60 @@ def process(row, fields_length=4):
         merge(lexemes[0], tuple(lexemes[1:]))
         logger.info("Merged {}".format("\t".join(row)))
     except Exception as ex:
-        logger.info("Couldn't merge row {} because '{}'".format("\t".join(row), repr(ex)))
+        logger.info(
+            "Couldn't merge row {} because '{}'".format("\t".join(row), repr(ex))
+        )
 
 
 class Command(BaseCommand):
-    '''
+    """
     Example: python manage.py merge_lexemes -f ../data/duplicate-lexemes.tsv -d '\t' -l 4
-    '''
+    """
 
-    help = 'This command merges duplicate lexemes, where the first lexeme in each row is considered as the main lexeme. ' \
-           'The first field of each lexeme must be the lexeme\'s ID'
+    help = (
+        "This command merges duplicate lexemes, where the first lexeme in each row is considered as the main lexeme. "
+        "The first field of each lexeme must be the lexeme's ID"
+    )
 
     def add_arguments(self, parser):
-        parser.add_argument('-f', '--file', type=str, help='The CSV file to import.', )
-        parser.add_argument('-d', '--delimiter', type=str, nargs='?', default=';',
-                            help='The delimiter to use when reading the CSV file.', )
-        parser.add_argument('-l', '--length', type=int, nargs='?', default=4,
-                            help='The number of fields each lexeme has in the file.')
+        parser.add_argument(
+            "-f",
+            "--file",
+            type=str,
+            help="The CSV file to import.",
+        )
+        parser.add_argument(
+            "-d",
+            "--delimiter",
+            type=str,
+            nargs="?",
+            default=";",
+            help="The delimiter to use when reading the CSV file.",
+        )
+        parser.add_argument(
+            "-l",
+            "--length",
+            type=int,
+            nargs="?",
+            default=4,
+            help="The number of fields each lexeme has in the file.",
+        )
 
     def handle(self, *args, **options):
-        file_path = options['file']
-        d = options['delimiter']
-        fields_length = options['length']
+        file_path = options["file"]
+        d = options["delimiter"]
+        fields_length = options["length"]
 
         if not os.path.isfile(file_path):
             raise CommandError('File "%s" does not exist.' % file_path)
 
-        with io.open(file_path, 'r', encoding='utf-8') as fp:
+        with io.open(file_path, "r", encoding="utf-8") as fp:
             reader = csv.reader(fp, delimiter=d)
             rows = list(reader)
             rows = [r for r in rows if len(r) > 0]
             for r in rows:
                 process(r, fields_length)
 
-        self.stdout.write(self.style.SUCCESS('Successfully processed the file "%s"' % (file_path,)))
+        self.stdout.write(
+            self.style.SUCCESS('Successfully processed the file "%s"' % (file_path,))
+        )

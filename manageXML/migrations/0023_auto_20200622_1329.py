@@ -7,38 +7,74 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0022_language'),
+        ("manageXML", "0022_language"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicallexeme',
-            name='language',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Language'),
+            model_name="historicallexeme",
+            name="language",
+            field=models.ForeignKey(
+                blank=True,
+                db_constraint=False,
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="+",
+                to="manageXML.Language",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalrelationexample',
-            name='language',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Language'),
+            model_name="historicalrelationexample",
+            name="language",
+            field=models.ForeignKey(
+                blank=True,
+                db_constraint=False,
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="+",
+                to="manageXML.Language",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalrelationmetadata',
-            name='language',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Language'),
+            model_name="historicalrelationmetadata",
+            name="language",
+            field=models.ForeignKey(
+                blank=True,
+                db_constraint=False,
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="+",
+                to="manageXML.Language",
+            ),
         ),
         migrations.AlterField(
-            model_name='lexeme',
-            name='language',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='lexemes', to='manageXML.Language'),
+            model_name="lexeme",
+            name="language",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="lexemes",
+                to="manageXML.Language",
+            ),
         ),
         migrations.AlterField(
-            model_name='relationexample',
-            name='language',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='relation_examples', to='manageXML.Language'),
+            model_name="relationexample",
+            name="language",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="relation_examples",
+                to="manageXML.Language",
+            ),
         ),
         migrations.AlterField(
-            model_name='relationmetadata',
-            name='language',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='relation_metadata', to='manageXML.Language'),
+            model_name="relationmetadata",
+            name="language",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="relation_metadata",
+                to="manageXML.Language",
+            ),
         ),
     ]

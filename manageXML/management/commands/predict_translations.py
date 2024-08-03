@@ -9,29 +9,49 @@ from tqdm import tqdm
 
 
 def predict(src_lang, tgt_lang, approved=None):
-    src_lexemes = Lexeme.objects.filter(language=src_lang) \
-        .values('id', 'language', 'lexeme', 'pos', 'homoId').all()
-    tgt_lexemes = Lexeme.objects.filter(language=tgt_lang) \
-        .values('id', 'language', 'lexeme', 'pos', 'homoId').all()
+    src_lexemes = (
+        Lexeme.objects.filter(language=src_lang)
+        .values("id", "language", "lexeme", "pos", "homoId")
+        .all()
+    )
+    tgt_lexemes = (
+        Lexeme.objects.filter(language=tgt_lang)
+        .values("id", "language", "lexeme", "pos", "homoId")
+        .all()
+    )
 
-    relations = Relation.objects.prefetch_related(Prefetch('lexeme_from'), Prefetch('lexeme_to')) \
-        .filter(type=TRANSLATION) \
+    relations = (
+        Relation.objects.prefetch_related(
+            Prefetch("lexeme_from"), Prefetch("lexeme_to")
+        )
+        .filter(type=TRANSLATION)
         .filter(
-        Q(lexeme_from__language=src_lang) | Q(lexeme_from__language=tgt_lang) |
-        Q(lexeme_to__language=src_lang) | Q(lexeme_to__language=tgt_lang)
+            Q(lexeme_from__language=src_lang)
+            | Q(lexeme_from__language=tgt_lang)
+            | Q(lexeme_to__language=src_lang)
+            | Q(lexeme_to__language=tgt_lang)
+        )
     )
     if approved is not None:
         relations = relations.filter(checked=approved)
 
     relations = relations.all()
 
-    existing_relations = Relation.objects.filter(type=TRANSLATION) \
-        .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang) \
-        .values_list('lexeme_from__id', 'lexeme_to__id')
-    existing_relations = [(str(_er[0]), str(_er[1]),) for _er in existing_relations]
+    existing_relations = (
+        Relation.objects.filter(type=TRANSLATION)
+        .filter(lexeme_from__language=src_lang, lexeme_to__language=tgt_lang)
+        .values_list("lexeme_from__id", "lexeme_to__id")
+    )
+    existing_relations = [
+        (
+            str(_er[0]),
+            str(_er[1]),
+        )
+        for _er in existing_relations
+    ]
 
-    src_ids = dict([(str(_l['id']), _l) for _l in src_lexemes])
-    tgt_ids = dict([(str(_l['id']), _l) for _l in tgt_lexemes])
+    src_ids = dict([(str(_l["id"]), _l) for _l in src_lexemes])
+    tgt_ids = dict([(str(_l["id"]), _l) for _l in tgt_lexemes])
     all_nodes = {**src_ids, **tgt_ids}
 
     G = nx.Graph()
@@ -70,36 +90,77 @@ class Command(BaseCommand):
 
     """
 
-    help = 'This command finds all duplicate items and prints them.'
+    help = "This command finds all duplicate items and prints them."
 
     def add_arguments(self, parser):
-        parser.add_argument('-d', '--dir', type=str, help='The directory path where to store the TSV file in.', )
-        parser.add_argument('-s', '--source', type=str, help='Three letter code of source language.', )
-        parser.add_argument('-t', '--target', type=str, help='Three letter code of target language.', )
-        parser.add_argument('--approved', type=lambda v: bool(strtobool(v)), nargs='?', const=True, default=None, )
+        parser.add_argument(
+            "-d",
+            "--dir",
+            type=str,
+            help="The directory path where to store the TSV file in.",
+        )
+        parser.add_argument(
+            "-s",
+            "--source",
+            type=str,
+            help="Three letter code of source language.",
+        )
+        parser.add_argument(
+            "-t",
+            "--target",
+            type=str,
+            help="Three letter code of target language.",
+        )
+        parser.add_argument(
+            "--approved",
+            type=lambda v: bool(strtobool(v)),
+            nargs="?",
+            const=True,
+            default=None,
+        )
 
     def handle(self, *args, **options):
         try:
-            preds = predict(src_lang=options['source'], tgt_lang=options['target'],
-                            approved=options.get('approved', None))
+            preds = predict(
+                src_lang=options["source"],
+                tgt_lang=options["target"],
+                approved=options.get("approved", None),
+            )
 
             _filename = "{}-{}-predictions-{}-{}.tsv".format(
-                options['source'],
-                options['target'],
+                options["source"],
+                options["target"],
                 time.strftime("%Y%m%d-%H%M%S"),
-                str(uuid.uuid4())[:5]
+                str(uuid.uuid4())[:5],
             )
-            output_path = "{}/{}".format(options['dir'], _filename)
-            with io.open(output_path, 'w', encoding='utf-8') as f:
+            output_path = "{}/{}".format(options["dir"], _filename)
+            with io.open(output_path, "w", encoding="utf-8") as f:
                 lines = []
                 for u, v, p in preds:
-                    lines.append("\t".join([
-                        str(u['id']), u['language'], u['lexeme'], u['pos'], str(u['homoId']),
-                        str(v['id']), v['language'], v['lexeme'], v['pos'], str(v['homoId']),
-                        str(p)
-                    ]))
+                    lines.append(
+                        "\t".join(
+                            [
+                                str(u["id"]),
+                                u["language"],
+                                u["lexeme"],
+                                u["pos"],
+                                str(u["homoId"]),
+                                str(v["id"]),
+                                v["language"],
+                                v["lexeme"],
+                                v["pos"],
+                                str(v["homoId"]),
+                                str(p),
+                            ]
+                        )
+                    )
                 f.write("\n".join(lines))
             self.stdout.write(
-                self.style.SUCCESS('Successfully predicted translations into the file: {}.'.format(output_path)))
+                self.style.SUCCESS(
+                    "Successfully predicted translations into the file: {}.".format(
+                        output_path
+                    )
+                )
+            )
         except Exception as e:
             self.stderr.write(self.style.ERROR(str(e)))

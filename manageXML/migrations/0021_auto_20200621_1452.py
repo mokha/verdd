@@ -6,22 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0020_auto_20200617_0526'),
+        ("manageXML", "0020_auto_20200617_0526"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalstem',
-            name='status',
+            model_name="historicalstem",
+            name="status",
             field=models.CharField(blank=True, max_length=250),
         ),
         migrations.AddField(
-            model_name='stem',
-            name='status',
+            model_name="stem",
+            name="status",
             field=models.CharField(blank=True, max_length=250),
         ),
         migrations.AlterUniqueTogether(
-            name='stem',
-            unique_together={('lexeme', 'text', 'contlex')},
+            name="stem",
+            unique_together={("lexeme", "text", "contlex")},
         ),
     ]

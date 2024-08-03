@@ -7,18 +7,18 @@ import manageXML.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0015_auto_20200602_0033'),
+        ("manageXML", "0015_auto_20200602_0033"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicallexeme',
-            name='lexeme_lang',
+            model_name="historicallexeme",
+            name="lexeme_lang",
             field=manageXML.fields.BinaryCharField(blank=True, max_length=250),
         ),
         migrations.AlterField(
-            model_name='lexeme',
-            name='lexeme_lang',
+            model_name="lexeme",
+            name="lexeme_lang",
             field=manageXML.fields.BinaryCharField(blank=True, max_length=250),
         ),
     ]

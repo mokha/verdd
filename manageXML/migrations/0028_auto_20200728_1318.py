@@ -10,56 +10,151 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('manageXML', '0027_merge_20200713_0251'),
+        ("manageXML", "0027_merge_20200713_0251"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicallexememetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender'), (4, 'Type'), (5, 'defNative'), (6, 'Ignore')], default=None, null=True),
+            model_name="historicallexememetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[
+                    (0, "Generic"),
+                    (1, "Specification"),
+                    (3, "Gender"),
+                    (4, "Type"),
+                    (5, "defNative"),
+                    (6, "Ignore"),
+                ],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='lexememetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender'), (4, 'Type'), (5, 'defNative'), (6, 'Ignore')], default=None, null=True),
+            model_name="lexememetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[
+                    (0, "Generic"),
+                    (1, "Specification"),
+                    (3, "Gender"),
+                    (4, "Type"),
+                    (5, "defNative"),
+                    (6, "Ignore"),
+                ],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='lexememetadata',
-            unique_together={('lexeme', 'type', 'text')},
+            name="lexememetadata",
+            unique_together={("lexeme", "type", "text")},
         ),
         migrations.CreateModel(
-            name='HistoricalStemMetadata',
+            name="HistoricalStemMetadata",
             fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('type', models.IntegerField(blank=True, choices=[(0, 'Generic')], default=None, null=True)),
-                ('text', models.CharField(max_length=250)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField()),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('changed_by', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('stem', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Stem')),
+                (
+                    "id",
+                    models.IntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "type",
+                    models.IntegerField(
+                        blank=True, choices=[(0, "Generic")], default=None, null=True
+                    ),
+                ),
+                ("text", models.CharField(max_length=250)),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField()),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "changed_by",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "stem",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.Stem",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical stem metadata',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': 'history_date',
+                "verbose_name": "historical stem metadata",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": "history_date",
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
-            name='StemMetadata',
+            name="StemMetadata",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.IntegerField(blank=True, choices=[(0, 'Generic')], default=None, null=True)),
-                ('text', models.CharField(max_length=250)),
-                ('changed_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='stem_metadata', to=settings.AUTH_USER_MODEL)),
-                ('stem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manageXML.Stem')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.IntegerField(
+                        blank=True, choices=[(0, "Generic")], default=None, null=True
+                    ),
+                ),
+                ("text", models.CharField(max_length=250)),
+                (
+                    "changed_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="stem_metadata",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "stem",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="manageXML.Stem"
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('stem', 'type', 'text')},
+                "unique_together": {("stem", "type", "text")},
             },
         ),
     ]

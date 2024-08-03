@@ -9,50 +9,72 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('manageXML', '0011_historicalrelationexamples_relationexamples'),
+        ("manageXML", "0011_historicalrelationexamples_relationexamples"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Examples',
-            new_name='Example',
+            old_name="Examples",
+            new_name="Example",
         ),
         migrations.RenameModel(
-            old_name='HistoricalRelationExamples',
-            new_name='HistoricalExample',
+            old_name="HistoricalRelationExamples",
+            new_name="HistoricalExample",
         ),
         migrations.RenameModel(
-            old_name='HistoricalExamples',
-            new_name='HistoricalRelationExample',
+            old_name="HistoricalExamples",
+            new_name="HistoricalRelationExample",
         ),
         migrations.RenameModel(
-            old_name='RelationExamples',
-            new_name='RelationExample',
+            old_name="RelationExamples",
+            new_name="RelationExample",
         ),
         migrations.AlterModelOptions(
-            name='historicalexample',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical example'},
+            name="historicalexample",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical example",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalrelationexample',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical relation example'},
+            name="historicalrelationexample",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical relation example",
+            },
         ),
         migrations.RemoveField(
-            model_name='historicalexample',
-            name='relation',
+            model_name="historicalexample",
+            name="relation",
         ),
         migrations.RemoveField(
-            model_name='historicalrelationexample',
-            name='lexeme',
+            model_name="historicalrelationexample",
+            name="lexeme",
         ),
         migrations.AddField(
-            model_name='historicalexample',
-            name='lexeme',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Lexeme'),
+            model_name="historicalexample",
+            name="lexeme",
+            field=models.ForeignKey(
+                blank=True,
+                db_constraint=False,
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="+",
+                to="manageXML.Lexeme",
+            ),
         ),
         migrations.AddField(
-            model_name='historicalrelationexample',
-            name='relation',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Relation'),
+            model_name="historicalrelationexample",
+            name="relation",
+            field=models.ForeignKey(
+                blank=True,
+                db_constraint=False,
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="+",
+                to="manageXML.Relation",
+            ),
         ),
     ]

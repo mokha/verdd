@@ -7,18 +7,28 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0025_auto_20200710_1323'),
+        ("manageXML", "0025_auto_20200710_1323"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='datafile',
-            name='lang_source',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='datafile_source', to='manageXML.Language'),
+            model_name="datafile",
+            name="lang_source",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="datafile_source",
+                to="manageXML.Language",
+            ),
         ),
         migrations.AlterField(
-            model_name='datafile',
-            name='lang_target',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='datafile_target', to='manageXML.Language'),
+            model_name="datafile",
+            name="lang_target",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="datafile_target",
+                to="manageXML.Language",
+            ),
         ),
     ]

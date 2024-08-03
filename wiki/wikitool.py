@@ -4,9 +4,9 @@ from django.conf import settings
 
 
 class WikiTool:
-    '''
+    """
     Implemented by Mika Hämäläinen
-    '''
+    """
 
     def __init__(self, username, password, language):
         self.wiki_url = settings.WIKI_URL
@@ -32,15 +32,27 @@ class WikiTool:
         return success, d, r.cookies
 
     def login(self):
-        data = {"action": "login", "lgname": self.username, "lgpassword": self.password, "format": "json"}
+        data = {
+            "action": "login",
+            "lgname": self.username,
+            "lgpassword": self.password,
+            "format": "json",
+        }
         success, loginResults, c = self.post(self.wiki_url + "api.php", data)
         self.cookies = c
         if not success:
             return False
         if loginResults["login"]["result"] == "NeedToken":
-            confirmationData = {"action": "login", "lgname": self.username, "lgpassword": self.password,
-                                "lgtoken": loginResults["login"]["token"], "format": "json"}
-            success, loginResults, c = self.post(self.wiki_url + "api.php", confirmationData)
+            confirmationData = {
+                "action": "login",
+                "lgname": self.username,
+                "lgpassword": self.password,
+                "lgtoken": loginResults["login"]["token"],
+                "format": "json",
+            }
+            success, loginResults, c = self.post(
+                self.wiki_url + "api.php", confirmationData
+            )
             if not success:
                 return False
         self.cookies = c
@@ -56,8 +68,14 @@ class WikiTool:
         return True
 
     def get_pages(self, additional_parameters="", all_pages=False):
-        post_parameters = {"action": "query", "list": "categorymembers", "cmtitle": "Category:" + self.language.title(),
-                           "cmlimit": 100000, "format": "json", "token": self.token}
+        post_parameters = {
+            "action": "query",
+            "list": "categorymembers",
+            "cmtitle": "Category:" + self.language.title(),
+            "cmlimit": 100000,
+            "format": "json",
+            "token": self.token,
+        }
         if all_pages:
             post_parameters["list"] = "allpages"
             del post_parameters["cmtitle"]
@@ -67,6 +85,11 @@ class WikiTool:
         return success, results
 
     def get_a_page(self, id, by_parameter="pageids"):
-        postParameters = {"action": "query", by_parameter: id, "export": True, "format": "json"}
+        postParameters = {
+            "action": "query",
+            by_parameter: id,
+            "export": True,
+            "format": "json",
+        }
         success, results, c = self.post(self.wiki_url + "api.php", postParameters)
         return success, results

@@ -6,18 +6,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0013_auto_20200127_0110'),
+        ("manageXML", "0013_auto_20200127_0110"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalrelation',
-            name='type',
-            field=models.IntegerField(choices=[(0, 'Translation'), (1, 'Etymology'), (2, 'Compound'), (3, 'Derivation'), (4, 'Variation'), (5, 'Phraseology'), (99, 'Other')], default=0),
+            model_name="historicalrelation",
+            name="type",
+            field=models.IntegerField(
+                choices=[
+                    (0, "Translation"),
+                    (1, "Etymology"),
+                    (2, "Compound"),
+                    (3, "Derivation"),
+                    (4, "Variation"),
+                    (5, "Phraseology"),
+                    (99, "Other"),
+                ],
+                default=0,
+            ),
         ),
         migrations.AlterField(
-            model_name='relation',
-            name='type',
-            field=models.IntegerField(choices=[(0, 'Translation'), (1, 'Etymology'), (2, 'Compound'), (3, 'Derivation'), (4, 'Variation'), (5, 'Phraseology'), (99, 'Other')], default=0),
+            model_name="relation",
+            name="type",
+            field=models.IntegerField(
+                choices=[
+                    (0, "Translation"),
+                    (1, "Etymology"),
+                    (2, "Compound"),
+                    (3, "Derivation"),
+                    (4, "Variation"),
+                    (5, "Phraseology"),
+                    (99, "Other"),
+                ],
+                default=0,
+            ),
         ),
     ]

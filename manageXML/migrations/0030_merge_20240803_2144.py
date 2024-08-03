@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0029_alter_historicalaffiliation_options_and_more'),
-        ('manageXML', '0029_auto_20210810_2054'),
+        ("manageXML", "0029_alter_historicalaffiliation_options_and_more"),
+        ("manageXML", "0029_auto_20210810_2054"),
     ]
 
-    operations = [
-    ]
+    operations = []

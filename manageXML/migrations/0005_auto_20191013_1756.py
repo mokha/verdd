@@ -6,32 +6,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0004_affiliation_type'),
+        ("manageXML", "0004_affiliation_type"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='affiliation',
-            name='checked',
+            model_name="affiliation",
+            name="checked",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='affiliation',
-            name='link',
+            model_name="affiliation",
+            name="link",
             field=models.URLField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='affiliation',
-            name='notes',
+            model_name="affiliation",
+            name="notes",
             field=models.CharField(blank=True, max_length=250),
         ),
         migrations.AlterField(
-            model_name='affiliation',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(None, '-'), (1, 'Akusanat'), (2, 'TermWiki')], default=None, null=True),
+            model_name="affiliation",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[(None, "-"), (1, "Akusanat"), (2, "TermWiki")],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='affiliation',
-            unique_together={('lexeme', 'title', 'type')},
+            name="affiliation",
+            unique_together={("lexeme", "title", "type")},
         ),
     ]

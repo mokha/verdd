@@ -7,12 +7,19 @@ import logging
 from .merge_lexemes import merge
 from django.db import IntegrityError
 
-logger = logging.getLogger('verdd')  # Get an instance of a logger
+logger = logging.getLogger("verdd")  # Get an instance of a logger
 
 
 def log_change(lexeme_id, lexeme, edit, note):
     logger.info(
-        "%s (%d): [%s] %s on %s" % (lexeme, lexeme_id, edit, note, datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"))
+        "%s (%d): [%s] %s on %s"
+        % (
+            lexeme,
+            lexeme_id,
+            edit,
+            note,
+            datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)"),
+        )
     )
 
 
@@ -28,34 +35,51 @@ def process(row):
         existing_lexeme = Lexeme.objects.get(language=row[0], lexeme=row[1], pos=row[2])
         merge(existing_lexeme, [lexeme])
     except Exception as ex:
-        logger.info("Couldn't merge row {} because '{}'".format("\t".join(row), repr(ex)))
+        logger.info(
+            "Couldn't merge row {} because '{}'".format("\t".join(row), repr(ex))
+        )
 
 
 class Command(BaseCommand):
-    '''
+    """
     Example: python manage.py fix_spellings -f ../data/Adj-workspace_2020-05-19b.csv -d ';'
-    '''
+    """
 
-    help = 'This command imports fixed spellings for lexemes in the database.' \
-           'The format that is expected "lang;correct_spelling;POS;ID;misspelled_word;POS"'
+    help = (
+        "This command imports fixed spellings for lexemes in the database."
+        'The format that is expected "lang;correct_spelling;POS;ID;misspelled_word;POS"'
+    )
 
     def add_arguments(self, parser):
-        parser.add_argument('-f', '--file', type=str, help='The CSV file to import.', )
-        parser.add_argument('-d', '--delimiter', type=str, nargs='?', default=';',
-                            help='The delimiter to use when reading the CSV file.', )
+        parser.add_argument(
+            "-f",
+            "--file",
+            type=str,
+            help="The CSV file to import.",
+        )
+        parser.add_argument(
+            "-d",
+            "--delimiter",
+            type=str,
+            nargs="?",
+            default=";",
+            help="The delimiter to use when reading the CSV file.",
+        )
 
     def handle(self, *args, **options):
-        file_path = options['file']
-        d = options['delimiter']
+        file_path = options["file"]
+        d = options["delimiter"]
 
         if not os.path.isfile(file_path):
             raise CommandError('File "%s" does not exist.' % file_path)
 
-        with io.open(file_path, 'r', encoding='utf-8') as fp:
+        with io.open(file_path, "r", encoding="utf-8") as fp:
             reader = csv.reader(fp, delimiter=d)
             rows = list(reader)
             rows = [r for r in rows if len(r) > 0]
             for r in rows:
                 process(r)
 
-        self.stdout.write(self.style.SUCCESS('Successfully processed the file "%s"' % (file_path,)))
+        self.stdout.write(
+            self.style.SUCCESS('Successfully processed the file "%s"' % (file_path,))
+        )

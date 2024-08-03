@@ -4,11 +4,19 @@ from simple_history.admin import SimpleHistoryAdmin
 
 
 class LexemeAdmin(SimpleHistoryAdmin):
-    search_fields = ('id', 'lexeme', 'pos',)
+    search_fields = (
+        "id",
+        "lexeme",
+        "pos",
+    )
 
 
 class RelationAdmin(SimpleHistoryAdmin):
-    search_fields = ('id', 'lexeme_from__lexeme', 'lexeme_to__lexeme',)
+    search_fields = (
+        "id",
+        "lexeme_from__lexeme",
+        "lexeme_to__lexeme",
+    )
 
 
 admin.site.register(DataFile)

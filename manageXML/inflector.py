@@ -24,23 +24,39 @@ class Inflector:
 
     def return_model(self, language, model_type):
         if model_type == "analyser":
-            filename = os.path.join(self._transducers_base_dir, language + "/analyser-gt-desc.hfstol")
+            filename = os.path.join(
+                self._transducers_base_dir, language + "/analyser-gt-desc.hfstol"
+            )
         elif model_type == "analyser-norm":
-            filename = os.path.join(self._transducers_base_dir, language + "/analyser-gt-norm.hfstol")
+            filename = os.path.join(
+                self._transducers_base_dir, language + "/analyser-gt-norm.hfstol"
+            )
         elif model_type == "generator":
-            filename = os.path.join(self._transducers_base_dir, language + "/generator-dict-gt-norm.hfstol")
+            filename = os.path.join(
+                self._transducers_base_dir, language + "/generator-dict-gt-norm.hfstol"
+            )
         elif model_type == "generator-desc":
-            filename = os.path.join(self._transducers_base_dir, language + "/generator-gt-desc.hfstol")
+            filename = os.path.join(
+                self._transducers_base_dir, language + "/generator-gt-desc.hfstol"
+            )
         elif model_type == "generator-norm":
-            filename = os.path.join(self._transducers_base_dir, language + "/generator-gt-norm.hfstol")
+            filename = os.path.join(
+                self._transducers_base_dir, language + "/generator-gt-norm.hfstol"
+            )
         elif model_type == "metadata.json":
-            filename = os.path.join(self._transducers_base_dir, language + "/metadata.json")
+            filename = os.path.join(
+                self._transducers_base_dir, language + "/metadata.json"
+            )
         else:
-            filename = os.path.join(self._transducers_base_dir, language + "/disambiguator.cg3")
+            filename = os.path.join(
+                self._transducers_base_dir, language + "/disambiguator.cg3"
+            )
         return os.path.getsize(filename), open(filename, "rb")
 
     def return_all_analysis(self, word_form, language="sms"):
-        filename = os.path.join(self._transducers_base_dir, language + "/analyser-gt-desc.hfstol")
+        filename = os.path.join(
+            self._transducers_base_dir, language + "/analyser-gt-desc.hfstol"
+        )
         try:
             input_stream = hfst.HfstInputStream(filename)
             analyser = input_stream.read()
@@ -50,7 +66,9 @@ class Inflector:
         return analysis
 
     def generate_form(self, hfst_query, language="sms"):
-        filename = os.path.join(self._transducers_base_dir, language + "/generator-dict-gt-norm.hfstol")
+        filename = os.path.join(
+            self._transducers_base_dir, language + "/generator-dict-gt-norm.hfstol"
+        )
         try:
             input_stream = hfst.HfstInputStream(filename)
             analyser = input_stream.read()
@@ -74,7 +92,9 @@ class Inflector:
         return lemmas
 
     def __inflect_sms__(self, lemma, pos):
-        file_path = os.path.join(self._transducers_base_dir, "sms/generator-dict-gt-norm.hfstol")
+        file_path = os.path.join(
+            self._transducers_base_dir, "sms/generator-dict-gt-norm.hfstol"
+        )
         queries, q_trans = self.__generator_queries__(lemma, pos)
         return self.__inflect_generic__(queries, q_trans, file_path)
 
@@ -96,7 +116,7 @@ class Inflector:
         results = defaultdict(list)
         for i in range(len(queries)):
             q = queries[i]
-            MP_form = '+'.join(q.split('+')[1:])
+            MP_form = "+".join(q.split("+")[1:])
             r = synthetiser.lookup(q)
             try:
                 item = r[0][0].split("@")[0], q_translations[i]
@@ -130,7 +150,9 @@ class Inflector:
                 for num in nums:
                     for per in pers:
                         more_queries.append(query + "+Px" + num + per)
-                        more_trans.append(query_trans[i] + self.__get_trans__(["Px", num, per]))
+                        more_trans.append(
+                            query_trans[i] + self.__get_trans__(["Px", num, per])
+                        )
             queries.extend(more_queries)
             query_trans.extend(more_trans)
 
@@ -149,9 +171,11 @@ class Inflector:
             if pos in self.default_forms:
                 poses = self.default_forms[pos]
                 for f in poses:
-                    results = uralicApi.generate(lemma + '+' + f, lang, **kwargs)
+                    results = uralicApi.generate(lemma + "+" + f, lang, **kwargs)
                     for r in results:
-                        generated_forms[f].append(r[0].split('@')[0], )
+                        generated_forms[f].append(
+                            r[0].split("@")[0],
+                        )
         return generated_forms
 
     def generate(self, lang, lemma, pos):
@@ -159,11 +183,11 @@ class Inflector:
             lang = str(lang)
         generated_forms = defaultdict(list)
         try:
-            if lang == 'fin':
+            if lang == "fin":
                 generated_forms = self.generate_uralicNLP(lang, lemma, pos)
             else:
                 if lang in self.get_supported_languages():
-                    _method = getattr(self, '__inflect_%s__' % lang)
+                    _method = getattr(self, "__inflect_%s__" % lang)
                     generated_forms = _method(lemma, pos)
                 else:
                     generated_forms = self.generate_uralicNLP(lang, lemma, pos)

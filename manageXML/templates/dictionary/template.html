@@ -1,0 +1,157 @@
+{% load i18n %}
+{% load staticfiles %}
+{% load account %}
+{% load crispy_forms_tags %}
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    {% block head %}
+        <title>{% block title %}{{ title }}{% endblock %} - {% blocktrans %}Verdd{% endblocktrans %}</title>
+    {% endblock %}
+
+    {% block css %}
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% endblock %}
+
+</head>
+<body>
+{% block body %}
+    {% block navigation %}
+        <div class="container">
+            <header class="header py-3">
+                <div class="row flex-nowrap justify-content-between align-items-center">
+                    <div class="col-4 pt-1">
+                        <a class="btn btn-sm btn-outline-secondary" href="#" onClick="history.go(-1); return false;"
+                           class="nav-link">{% blocktrans %}Back{% endblocktrans %}</a>
+                        {% block navigation-dropdown %}
+                            <div class="dropdown show d-inline">
+                                <a class="btn btn-outline-primary btn-sm" href="#" role="button"
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-list" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                      <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                                    </svg>
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="{% url 'relation-search' %}" class="nav-link">
+                                    {% blocktrans %}Search Relations{% endblocktrans %}</a>
+                                    {% if user.is_authenticated %}
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="{% url 'lexeme-filter' %}" class="nav-link">
+                                        {% blocktrans %}Manage Lexemes{% endblocktrans %}</a>
+                                        <a class="dropdown-item" href="{% url 'lexeme-add' %}" class="nav-link">
+                                            {% blocktrans %}Add Lexeme{% endblocktrans %}</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="{% url 'symbol-list' %}">
+                                            {% blocktrans %}Symbols{% endblocktrans %}</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                    <div class="col-4 text-center">
+                        <a class="header-logo text-dark" href="{% url 'index' %}">{% blocktrans %}Verdd{% endblocktrans %}</a>
+                    </div>
+                    <div class="col-4 d-flex justify-content-end align-items-center">
+                        {% if user.is_authenticated %}
+                            <div class="col-4 pt-1">
+                                {% user_display user %}
+                            </div>
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'account_logout' %}"
+                               class="nav-link">
+                                {% blocktrans %}Logout{% endblocktrans %}</a>
+                        {% else %}
+                            <a class="btn btn-sm btn-outline-secondary nav-link" href="{% url 'account_signup' %}">
+                                {% blocktrans %}Signup{% endblocktrans %}</a>
+                            <a class="btn btn-sm btn-outline-primary nav-link ml-1" href="{% url 'account_login' %}">
+                                {% blocktrans %}Sign In{% endblocktrans %}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+        </div>
+    {% endblock %}
+
+    <div class="container">
+    {% block main_container %}
+        <main role="main">
+            <div class="container-content">
+                {% block main_content %}
+                {% endblock %}
+            </div>
+        </main><!-- /.container -->
+    {% endblock %}
+
+    {% block footer %}
+        <footer class="pt-4 my-md-5 pt-md-5 border-top">
+            <div class="row">
+                <div class="col-6 col-md dropdown show">
+                    <div class="text-center">
+                        <a class="header-logo text-dark" href="{% url 'index' %}">
+                            {% blocktrans %}Verdd{% endblocktrans %}
+                        </a>
+                    </div>
+
+                </div>
+                <div class="col-6 col-md text-center">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_language_info for LANGUAGE_CODE as lang %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    <a class="dropdown-toggle" href="#" role="button" id="languageLink"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ lang.name_local }}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="languageLink">
+                        {% for language in languages %}
+                           <a class="dropdown-item language-select" href="#" data-lang="{{ language.code }}">{{ language.name_local }} ({{ language.code }})</a>
+                        {% endfor %}
+                    </div>
+                    <form action="{% url 'set_language' %}" method="post" id="language-form">{% csrf_token %}
+                        <input name="next" type="hidden" value="{{ redirect_to }}">
+                        <input name="language" type="hidden" value="{{ redirect_to }}">
+                    </form>
+                </div>
+        </footer>
+    {% endblock %}
+    </div>
+{% endblock %}
+{% block js %}
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function(){
+            $(".language-select").click(function(event){
+                event.preventDefault();
+
+                let language_form = $('#language-form');
+                let selected_language = $(this).attr('data-lang');
+                $("input[name=language]", language_form).val(selected_language);
+                language_form.submit();
+            });
+        });
+    </script>
+
+{% endblock %}
+</body>
+</html>

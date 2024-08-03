@@ -1,0 +1,35 @@
+services:
+  db:
+    platform: 'linux/amd64'
+    image: postgres:latest
+    container_name: verdd-backend-postgres-local
+    ports:
+      - '5437:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  backend:
+    platform: 'linux/amd64'
+    container_name: verdd-backend-django-local
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000 --settings=verdd.settings.production
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./dev.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

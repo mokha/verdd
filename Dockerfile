@@ -9,8 +9,8 @@ ENV PYTHONUNBUFFERED 1
 
 # Install dependencies
 RUN pip3 install --upgrade pip setuptools wheel
-COPY requirements.txt /app/
-RUN pip3 install -r requirements.txt  --no-cache-dir
+COPY requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt  --no-cache-dir
 
 # Copy the project code into the container
 COPY . /app/

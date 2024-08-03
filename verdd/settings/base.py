@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",  # for allauth
     "rest_framework",
     "crispy_forms",
+    "crispy_bootstrap5",
     "users",
     "manageXML",
     "apertium",
@@ -189,7 +190,8 @@ ACCOUNT_LOGOUT_ON_GET = True
 # End Auth settings
 
 # For templating
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # use Transducers
 TRANSDUCERS_PATH = config("TRANSDUCERS_PATH")

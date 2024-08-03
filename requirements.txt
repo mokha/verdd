@@ -1,6 +1,7 @@
 Django
-django-allauth
+django-allauth[socialaccount]
 django_crispy_forms
+crispy-bootstrap5
 django_debug_toolbar
 django_filter
 djangorestframework

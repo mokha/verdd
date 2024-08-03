@@ -104,6 +104,9 @@ class Lexeme(models.Model):
     def get_relations(self):
         return Relation.objects.filter(Q(lexeme_from=self) | Q(lexeme_to=self))
 
+    def get_translations(self):
+        return Relation.objects.filter(lexeme_from=self, type=TRANSLATION)
+
     def inflexType_str(self):
         return INFLEX_TYPE_OPTIONS_DICT[self.inflexType] if self.inflexType in INFLEX_TYPE_OPTIONS_DICT else ''
 
@@ -489,6 +492,30 @@ class StemMetadata(models.Model):
     def get_absolute_url(self):
         return reverse('stem-detail',
                        kwargs={'pk': self.stem.pk})
+
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+
+
+class LanguageParadigm(models.Model):
+    class Meta:
+        unique_together = ('language', 'pos', 'form',)
+
+    language = models.ForeignKey(Language, null=True, on_delete=models.SET_NULL, related_name='paradigms')
+    pos = models.CharField(max_length=25)
+    form = models.CharField(max_length=250, blank=True)
+    mini = models.BooleanField(default=False)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='language_paradigms')
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return "{}".format(self.form)
 
     @property
     def _history_user(self):

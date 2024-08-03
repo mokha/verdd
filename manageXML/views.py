@@ -204,6 +204,82 @@ class LexemeView(FilteredListView):
         return context
 
 
+class LexemeDictionaryFilter(django_filters.FilterSet):
+    ORDER_BY_FIELDS = {
+        'pos': 'pos',
+        'lexeme_lang': 'lexeme_lang',
+        'consonance': 'consonance',
+        'consonance_rev': 'consonance_rev',
+        'assonance': 'assonance',
+        'assonance_rev': 'assonance_rev',
+    }
+
+    lookup_choices = [
+        ('exact', _('Exact')),
+        ('iexact', _('iExact')),
+        ('contains', _('Contains')),
+        ('icontains', _('iContains')),
+        ('startswith', _('Starts with')),
+        ('istartswith', _('iStarts with')),
+        ('endswith', _('Ends with')),
+        ('iendswith', _('iEnds with')),
+        ('regex', _('Regex')),
+        ('iregex', _('iRegex')),
+    ]
+
+    lexeme = LookupChoiceFilter(field_class=forms.CharField, label=_('Lexeme'), empty_label=None,
+                                lookup_choices=lookup_choices)
+    language = ChoiceFilter(label=_('Language'))
+    pos = ChoiceFilter(label=_('POS'))
+    order_by = LexemeOrderingFilter(fields=ORDER_BY_FIELDS,
+                                    label=_("Order by")
+                                    )
+
+    class Meta:
+        model = Lexeme
+        fields = ['lexeme', 'language', 'pos']
+
+    def __init__(self, data, *args, **kwargs):
+        data = data.copy()
+        data.setdefault('order', '+lexeme_lang')
+        super().__init__(data, *args, **kwargs)
+
+        lang_pos = Lexeme.objects.values('language', 'pos').distinct()
+        languages = list(sorted(set([_i['language'] for _i in lang_pos])))
+        pos = list(sorted(set([_i['pos'] for _i in lang_pos])))
+        self.form.fields['language'].choices = zip(languages, languages)
+        self.form.fields['pos'].choices = zip(pos, pos)
+        self.form.fields['order_by'].choices = (
+            ('lexeme_lang', _('Lexeme')),
+            ('-lexeme_lang', '%s (%s)' % (_('Lexeme'), _('descending'))),
+            ('consonance', _('Consonance')),
+            ('-consonance', '%s (%s)' % (_('Consonance'), _('descending'))),
+            ('consonance_rev', _('revConsonance')),
+            ('-consonance_rev', '%s (%s)' % (_('revConsonance'), _('descending'))),
+            ('assonance', _('Assonance')),
+            ('-assonance', '%s (%s)' % (_('Assonance'), _('descending'))),
+            ('assonance_rev', _('RevAssonance')),
+            ('-assonance_rev', '%s (%s)' % (_('RevAssonance'), _('descending'))),
+        )
+
+
+class LexemeDictionaryView(FilteredListView):
+    filterset_class = LexemeDictionaryFilter
+    model = Lexeme
+    template_name = 'dictionary/dictionary.html'
+    paginate_by = 50
+    title = _("Dictionary")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_by = self.request.GET.get('order_by', None)
+        order_by = order_by[1:] if order_by and order_by.startswith('-') else order_by
+        order_by_options = dict([[v, k] for k, v in self.filterset_class.ORDER_BY_FIELDS.items()])
+        if order_by and order_by not in ['pos', 'lexeme_lang'] and order_by in order_by_options:
+            context['order_by'] = order_by_options[order_by]
+        return context
+
+
 class LexemeExportView(LexemeView):
     def render_to_response(self, context, **response_kwargs):
         filename = "{}-export.csv".format(datetime.datetime.now().replace(microsecond=0).isoformat())

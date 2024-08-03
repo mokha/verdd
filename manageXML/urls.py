@@ -2,7 +2,8 @@ from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
-    path('', views.LexemeView.as_view(), name='index'),
+    path('', views.LexemeDictionaryView.as_view(), name='index'),
+    re_path(r'^lexeme/filter$', views.LexemeView.as_view(), name='lexeme-filter'),
     re_path(r'^lexeme/(?P<pk>\d+)(?:-(?P<slug>[\w\d-]+))?/$', views.LexemeDetailView.as_view(),
             name='lexeme-detail'),
     path('download', views.LexemeExportView.as_view(), name='download-csv'),

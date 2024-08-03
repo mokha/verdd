@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% load staticfiles %}
+{% load static %}
 {% load account %}
 {% load crispy_forms_tags %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% endblock %}
 
 {% block body %}
-    {% crispy form %}
+{% crispy form %}
 {% endblock %}

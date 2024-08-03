@@ -14,7 +14,7 @@ import os
 from decouple import config, Csv
 import django.conf.locale
 from django.conf import global_settings
-from django.utils.translation import ugettext_lazy as _  # for translations
+from django.utils.translation import gettext_lazy as _  # for translations
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,100 +22,97 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = config("DEBUG", cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config("SECRET_KEY")
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',  # for allauth
-
-    'rest_framework',
-    'crispy_forms',
-    'users',
-    'manageXML',
-    'apertium',
-
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-
-    'widget_tweaks',
-    'django_filters',
-    'simple_history',  # simple_history: keep track of changes done by the user
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",  # for allauth
+    "rest_framework",
+    "crispy_forms",
+    "users",
+    "manageXML",
+    "apertium",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "widget_tweaks",
+    "django_filters",
+    "simple_history",  # simple_history: keep track of changes done by the user
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'simple_history.middleware.HistoryRequestMiddleware',  # simple_history
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",  # simple_history
 ]
 
-ROOT_URLCONF = 'verdd.urls'
+ROOT_URLCONF = "verdd.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, '../templates'),
-            os.path.join(BASE_DIR, '../templates', 'allauth')
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.join(BASE_DIR, "../templates"),
+            os.path.join(BASE_DIR, "../templates", "allauth"),
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'verdd.wsgi.application'
+WSGI_APPLICATION = "verdd.wsgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = config('LANGUAGE_CODE', default='en-us')
+LANGUAGE_CODE = config("LANGUAGE_CODE", default="en-us")
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -126,115 +123,115 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+# Set the default primary key field type to BigAutoField
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Application settings
-WIKI_URL = config('WIKI_URL').rstrip('/') + '/'
-BASE_URL = config('BASE_URL').rstrip('/')
+WIKI_URL = config("WIKI_URL").rstrip("/") + "/"
+BASE_URL = config("BASE_URL").rstrip("/")
 FORCE_SCRIPT_NAME = BASE_URL
 
-STATIC_ROOT = 'static'
-STATIC_URL = '%s/static/' % FORCE_SCRIPT_NAME
+STATIC_ROOT = "static"
+STATIC_URL = "%s/static/" % FORCE_SCRIPT_NAME
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "../assets"),
 ]
 
 LANGUAGES = (
-    ('en-us', _('English')),
-    ('fi', _('Finnish')),
-    ('ru', _('Russian')),
-    ('myv', _('Erzya')),
-    ('es', _('Spanish')),
-    ('pt', _('Portuguese')),
-    ('ar', _('Arabic')),
+    ("en-us", _("English")),
+    ("fi", _("Finnish")),
+    ("ru", _("Russian")),
+    ("myv", _("Erzya")),
+    ("es", _("Spanish")),
+    ("pt", _("Portuguese")),
+    ("ar", _("Arabic")),
 )
 
 # Add support for additional languages
 EXTRA_LANG_INFO = {
-    'myv': {
-        'bidi': False,
-        'code': 'myv',
-        'name': 'Erzya',
-        'name_local': 'эрзякс',
+    "myv": {
+        "bidi": False,
+        "code": "myv",
+        "name": "Erzya",
+        "name_local": "эрзякс",
     },
 }
 
 django.conf.locale.LANG_INFO = {**django.conf.locale.LANG_INFO, **EXTRA_LANG_INFO}
 
 # Tell Django where the project's translation files should be.
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, '../locale'),
-)
+LOCALE_PATHS = (os.path.join(BASE_DIR, "../locale"),)
 
 # End of Localization settings
 
 # Auth settings
 SITE_ID = 1
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
-LOGIN_REDIRECT_URL = '%s/' % FORCE_SCRIPT_NAME
-ACCOUNT_LOGOUT_REDIRECT_URL = '%s/' % FORCE_SCRIPT_NAME
+LOGIN_REDIRECT_URL = "%s/" % FORCE_SCRIPT_NAME
+ACCOUNT_LOGOUT_REDIRECT_URL = "%s/" % FORCE_SCRIPT_NAME
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_FORMS = {
     "login": "users.forms.CustomLoginForm",
-    'signup': 'users.forms.CustomSignupForm',
-    'add_email': 'allauth.account.forms.AddEmailForm',
-    'change_password': 'allauth.account.forms.ChangePasswordForm',
-    'set_password': 'allauth.account.forms.SetPasswordForm',
-    'reset_password': 'allauth.account.forms.ResetPasswordForm',
-    'reset_password_from_key': 'allauth.account.forms.ResetPasswordKeyForm',
-    'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
+    "signup": "users.forms.CustomSignupForm",
+    "add_email": "allauth.account.forms.AddEmailForm",
+    "change_password": "allauth.account.forms.ChangePasswordForm",
+    "set_password": "allauth.account.forms.SetPasswordForm",
+    "reset_password": "allauth.account.forms.ResetPasswordForm",
+    "reset_password_from_key": "allauth.account.forms.ResetPasswordKeyForm",
+    "disconnect": "allauth.socialaccount.forms.DisconnectForm",
 }
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_LOGOUT_ON_GET = True
 # End Auth settings
 
 # For templating
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # use Transducers
-TRANSDUCERS_PATH = config('TRANSDUCERS_PATH')
+TRANSDUCERS_PATH = config("TRANSDUCERS_PATH")
 
 if not TRANSDUCERS_PATH:
     TRANSDUCERS_PATH = None
 else:
-    TRANSDUCERS_PATH = TRANSDUCERS_PATH.rstrip('/') + '/'
-    if not TRANSDUCERS_PATH.startswith('/'):  # convert a relative path to an absolute one
-        TRANSDUCERS_PATH = os.path.join(BASE_DIR, '../%s' % TRANSDUCERS_PATH)
+    TRANSDUCERS_PATH = TRANSDUCERS_PATH.rstrip("/") + "/"
+    if not TRANSDUCERS_PATH.startswith(
+        "/"
+    ):  # convert a relative path to an absolute one
+        TRANSDUCERS_PATH = os.path.join(BASE_DIR, "../%s" % TRANSDUCERS_PATH)
     if not os.path.isdir(TRANSDUCERS_PATH):
         raise Exception("Cannot access the transducer models.")
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'verdd.manageXML': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, '../logs/verdd.manageXML.log')
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "verdd.manageXML": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "../logs/verdd.manageXML.log"),
         },
-        'console': {
-            'class': 'logging.StreamHandler',
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        'verdd': {
-            'handlers': ['console'],
-            'level': config('LOG_LEVEL', 'INFO'),
+    "loggers": {
+        "verdd": {
+            "handlers": ["console"],
+            "level": config("LOG_LEVEL", "INFO"),
         },
-        'verdd.manageXML': {
-            'handlers': ['verdd.manageXML'],
-        }
+        "verdd.manageXML": {
+            "handlers": ["verdd.manageXML"],
+        },
     },
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
 }
 
 # For localizations
-LANGUAGE_COOKIE_NAME = 'language'
+LANGUAGE_COOKIE_NAME = "language"

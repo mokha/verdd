@@ -36,10 +36,12 @@ class GiellaXML:
 
     @staticmethod
     def odict2item(value):
-        if isinstance(value, OrderedDict):
+        if isinstance(value, (dict, OrderedDict)):
             d = GiellaXML.Item()
             for k, v in value.items():
-                if isinstance(v, OrderedDict):  # assumes v is also list of pairs
+                if isinstance(
+                    v, (dict, OrderedDict)
+                ):  # assumes v is also list of pairs
                     d[k.lower()] = d[k] = [GiellaXML.odict2item(v)]
                 elif isinstance(v, list):
                     d[k.lower()] = d[k] = [GiellaXML.odict2item(_v) for _v in v]

@@ -6,15 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0021_auto_20200621_1452'),
+        ("manageXML", "0021_auto_20200621_1452"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Language',
+            name="Language",
             fields=[
-                ('id', models.CharField(max_length=3, primary_key=True, serialize=False, unique=True)),
-                ('name', models.CharField(max_length=250)),
+                (
+                    "id",
+                    models.CharField(
+                        max_length=3, primary_key=True, serialize=False, unique=True
+                    ),
+                ),
+                ("name", models.CharField(max_length=250)),
             ],
         ),
     ]

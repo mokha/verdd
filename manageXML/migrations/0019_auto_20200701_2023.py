@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0018_auto_20200701_1931'),
+        ("manageXML", "0018_auto_20200701_1931"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='example',
-            name='source',
+            model_name="example",
+            name="source",
             field=models.CharField(blank=True, max_length=250),
         ),
         migrations.AddField(
-            model_name='historicalexample',
-            name='source',
+            model_name="historicalexample",
+            name="source",
             field=models.CharField(blank=True, max_length=250),
         ),
         migrations.AddField(
-            model_name='historicalrelationexample',
-            name='source',
+            model_name="historicalrelationexample",
+            name="source",
             field=models.CharField(blank=True, max_length=250),
         ),
         migrations.AddField(
-            model_name='relationexample',
-            name='source',
+            model_name="relationexample",
+            name="source",
             field=models.CharField(blank=True, max_length=250),
         ),
     ]

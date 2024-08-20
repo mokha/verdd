@@ -5,4 +5,4 @@ from .models import *
 class LexemeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lexeme
-        fields = ('id', 'lexeme', 'pos', 'homoId', 'language')
+        fields = ("id", "lexeme", "pos", "homoId", "language")

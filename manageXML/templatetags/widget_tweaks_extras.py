@@ -14,9 +14,10 @@ def render_lookup_choice_field(parser, token):
     Attribute-value pairs should be in the form of attribute=value OR
     attribute="a value"
     """
-    error_msg = ('%r tag requires a form field and index followed by a list '
-                 'of attributes and values in the form attr="value"'
-                 % token.split_contents()[0])
+    error_msg = (
+        "%r tag requires a form field and index followed by a list "
+        'of attributes and values in the form attr="value"' % token.split_contents()[0]
+    )
     try:
         bits = token.split_contents()
         form_field = bits[1]
@@ -37,8 +38,9 @@ def render_lookup_choice_field(parser, token):
         else:
             attr_concat_dict[attr] = value
 
-    return MultiFieldAttributeNode(form_field, attr_assign_dict,
-                                   attr_concat_dict, index=field_index)
+    return MultiFieldAttributeNode(
+        form_field, attr_assign_dict, attr_concat_dict, index=field_index
+    )
 
 
 class MultiFieldAttributeNode(template.Node):
@@ -52,26 +54,25 @@ class MultiFieldAttributeNode(template.Node):
         bounded_field = template.Variable(self.field).resolve(context)
         field = bounded_field.field.fields[self.index]
         widget = bounded_field.field.widget.widgets[self.index]
-        widget_data = bounded_field.subwidgets[0].data['subwidgets'][self.index]
+        widget_data = bounded_field.subwidgets[0].data["subwidgets"][self.index]
 
-        attrs = widget_data['attrs'].copy()
+        attrs = widget_data["attrs"].copy()
 
         for k, v in self.set_attrs.items():
             attrs[k] = v
 
         for k, v in self.append_attrs.items():
-            attrs[k] = widget.attrs.get(k, '') + ' ' + v
+            attrs[k] = widget.attrs.get(k, "") + " " + v
 
         if bounded_field.errors:
-            attrs['class'] = attrs.get('class', '') + ' error'
+            attrs["class"] = attrs.get("class", "") + " error"
 
         if not bounded_field.form.is_bound:
-            data = bounded_field.form.initial.get(bounded_field.name,
-                                                  field.initial)
+            data = bounded_field.form.initial.get(bounded_field.name, field.initial)
             if callable(data):
                 data = data()
             data = bounded_field.field.widget.decompress(data)[self.index]
         else:
             data = bounded_field.data[self.index]
 
-        return widget.render(widget_data['name'], data, attrs)
+        return widget.render(widget_data["name"], data, attrs)

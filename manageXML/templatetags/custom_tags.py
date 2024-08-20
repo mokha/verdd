@@ -26,7 +26,7 @@ def param_replace(context, **kwargs):
     Based on
     https://stackoverflow.com/questions/22734695/next-and-before-links-for-a-django-paginated-query/22735278#22735278
     """
-    d = context['request'].GET.copy()
+    d = context["request"].GET.copy()
     for k, v in kwargs.items():
         d[k] = v
     for k in [k for k, v in d.items() if not v]:
@@ -42,6 +42,7 @@ def mediawiki_link(title):
 @register.simple_tag
 def constant_text(constant_name, index):
     from manageXML import constants
+
     constant = dict(getattr(constants, constant_name))
     return constant[index]
 
@@ -49,11 +50,11 @@ def constant_text(constant_name, index):
 numeric_test = re.compile("^\d+$")
 
 
-@register.filter(name='getattr')
+@register.filter(name="getattr")
 def getattrfilter(value, arg):
     if hasattr(value, str(arg)):
         return getattr(value, arg)
-    elif hasattr(value, 'has_key') and value.has_key(arg):
+    elif hasattr(value, "has_key") and value.has_key(arg):
         return value[arg]
     elif numeric_test.match(str(arg)) and len(value) > int(arg):
         return value[int(arg)]
@@ -73,6 +74,6 @@ def query_transform(request, **kwargs):
     return updated.urlencode()
 
 
-@register.simple_tag(name='zip')
+@register.simple_tag(name="zip")
 def zip_lists(a, b):
     return zip(a, b)

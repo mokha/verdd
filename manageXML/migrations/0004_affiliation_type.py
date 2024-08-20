@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0003_auto_20190923_0833'),
+        ("manageXML", "0003_auto_20190923_0833"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='affiliation',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(None, '-'), (1, 'Recommendation')], default=None, null=True),
+            model_name="affiliation",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[(None, "-"), (1, "Recommendation")],
+                default=None,
+                null=True,
+            ),
         ),
     ]

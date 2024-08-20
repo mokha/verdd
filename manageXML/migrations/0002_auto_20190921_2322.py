@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0001_initial'),
+        ("manageXML", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicallexeme',
-            name='checked',
+            model_name="historicallexeme",
+            name="checked",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='lexeme',
-            name='checked',
+            model_name="lexeme",
+            name="checked",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -16,221 +16,567 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='DataFile',
+            name="DataFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('lang_source', models.CharField(max_length=3)),
-                ('lang_target', models.CharField(max_length=3)),
-                ('name', models.CharField(max_length=250)),
-                ('added_date', models.DateTimeField(auto_now_add=True, verbose_name='date published')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("lang_source", models.CharField(max_length=3)),
+                ("lang_target", models.CharField(max_length=3)),
+                ("name", models.CharField(max_length=250)),
+                (
+                    "added_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="date published"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Lexeme',
+            name="Lexeme",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('lexeme', models.CharField(max_length=250)),
-                ('homoId', models.IntegerField(default=0)),
-                ('assonance', models.CharField(blank=True, max_length=250)),
-                ('assonance_rev', models.CharField(blank=True, max_length=250)),
-                ('consonance', models.CharField(blank=True, max_length=250)),
-                ('consonance_rev', models.CharField(blank=True, max_length=250)),
-                ('language', models.CharField(max_length=3)),
-                ('pos', models.CharField(max_length=25)),
-                ('notes', models.CharField(blank=True, max_length=250)),
-                ('added_date', models.DateTimeField(auto_now_add=True, verbose_name='date published')),
-                ('contlex', models.CharField(blank=True, max_length=250)),
-                ('type', models.CharField(blank=True, max_length=25)),
-                ('lemmaId', models.CharField(blank=True, default='', max_length=250)),
-                ('inflexId', models.CharField(blank=True, max_length=25)),
-                ('inflexType', models.IntegerField(blank=True, choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (99, 'X')], default=None, null=True)),
-                ('deleted', models.BooleanField(default=False)),
-                ('imported_from', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='manageXML.DataFile')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("lexeme", models.CharField(max_length=250)),
+                ("homoId", models.IntegerField(default=0)),
+                ("assonance", models.CharField(blank=True, max_length=250)),
+                ("assonance_rev", models.CharField(blank=True, max_length=250)),
+                ("consonance", models.CharField(blank=True, max_length=250)),
+                ("consonance_rev", models.CharField(blank=True, max_length=250)),
+                ("language", models.CharField(max_length=3)),
+                ("pos", models.CharField(max_length=25)),
+                ("notes", models.CharField(blank=True, max_length=250)),
+                (
+                    "added_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="date published"
+                    ),
+                ),
+                ("contlex", models.CharField(blank=True, max_length=250)),
+                ("type", models.CharField(blank=True, max_length=25)),
+                ("lemmaId", models.CharField(blank=True, default="", max_length=250)),
+                ("inflexId", models.CharField(blank=True, max_length=25)),
+                (
+                    "inflexType",
+                    models.IntegerField(
+                        blank=True,
+                        choices=[
+                            (1, "1"),
+                            (2, "2"),
+                            (3, "3"),
+                            (4, "4"),
+                            (5, "5"),
+                            (99, "X"),
+                        ],
+                        default=None,
+                        null=True,
+                    ),
+                ),
+                ("deleted", models.BooleanField(default=False)),
+                (
+                    "imported_from",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="manageXML.DataFile",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('lexeme', 'pos', 'homoId', 'language')},
+                "unique_together": {("lexeme", "pos", "homoId", "language")},
             },
         ),
         migrations.CreateModel(
-            name='Relation',
+            name="Relation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.IntegerField(choices=[(0, 'Translation'), (1, 'Etymology'), (2, 'Compound'), (3, 'Derivation'), (99, 'Other')], default=0)),
-                ('notes', models.CharField(blank=True, max_length=250)),
-                ('checked', models.BooleanField(default=False)),
-                ('added_date', models.DateTimeField(auto_now_add=True, verbose_name='date published')),
-                ('deleted', models.BooleanField(default=False)),
-                ('lexeme_from', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lexeme_from_lexeme_set', to='manageXML.Lexeme')),
-                ('lexeme_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lexeme_to_lexeme_set', to='manageXML.Lexeme')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.IntegerField(
+                        choices=[
+                            (0, "Translation"),
+                            (1, "Etymology"),
+                            (2, "Compound"),
+                            (3, "Derivation"),
+                            (99, "Other"),
+                        ],
+                        default=0,
+                    ),
+                ),
+                ("notes", models.CharField(blank=True, max_length=250)),
+                ("checked", models.BooleanField(default=False)),
+                (
+                    "added_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="date published"
+                    ),
+                ),
+                ("deleted", models.BooleanField(default=False)),
+                (
+                    "lexeme_from",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="lexeme_from_lexeme_set",
+                        to="manageXML.Lexeme",
+                    ),
+                ),
+                (
+                    "lexeme_to",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="lexeme_to_lexeme_set",
+                        to="manageXML.Lexeme",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('lexeme_from', 'lexeme_to', 'type')},
+                "unique_together": {("lexeme_from", "lexeme_to", "type")},
             },
         ),
         migrations.CreateModel(
-            name='MiniParadigm',
+            name="MiniParadigm",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('msd', models.CharField(max_length=25)),
-                ('wordform', models.CharField(max_length=250)),
-                ('lexeme', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manageXML.Lexeme')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("msd", models.CharField(max_length=25)),
+                ("wordform", models.CharField(max_length=250)),
+                (
+                    "lexeme",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="manageXML.Lexeme",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='HistoricalSource',
+            name="HistoricalSource",
             fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('name', models.CharField(max_length=250)),
-                ('page', models.CharField(blank=True, max_length=25)),
-                ('type', models.CharField(max_length=25)),
-                ('notes', models.CharField(blank=True, max_length=250)),
-                ('added_date', models.DateTimeField(blank=True, editable=False, verbose_name='date published')),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField()),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('relation', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Relation')),
+                (
+                    "id",
+                    models.IntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=250)),
+                ("page", models.CharField(blank=True, max_length=25)),
+                ("type", models.CharField(max_length=25)),
+                ("notes", models.CharField(blank=True, max_length=250)),
+                (
+                    "added_date",
+                    models.DateTimeField(
+                        blank=True, editable=False, verbose_name="date published"
+                    ),
+                ),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField()),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "relation",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.Relation",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical source',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': 'history_date',
+                "verbose_name": "historical source",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": "history_date",
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
-            name='HistoricalRelation',
+            name="HistoricalRelation",
             fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('type', models.IntegerField(choices=[(0, 'Translation'), (1, 'Etymology'), (2, 'Compound'), (3, 'Derivation'), (99, 'Other')], default=0)),
-                ('notes', models.CharField(blank=True, max_length=250)),
-                ('checked', models.BooleanField(default=False)),
-                ('added_date', models.DateTimeField(blank=True, editable=False, verbose_name='date published')),
-                ('deleted', models.BooleanField(default=False)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField()),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('lexeme_from', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Lexeme')),
-                ('lexeme_to', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Lexeme')),
+                (
+                    "id",
+                    models.IntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "type",
+                    models.IntegerField(
+                        choices=[
+                            (0, "Translation"),
+                            (1, "Etymology"),
+                            (2, "Compound"),
+                            (3, "Derivation"),
+                            (99, "Other"),
+                        ],
+                        default=0,
+                    ),
+                ),
+                ("notes", models.CharField(blank=True, max_length=250)),
+                ("checked", models.BooleanField(default=False)),
+                (
+                    "added_date",
+                    models.DateTimeField(
+                        blank=True, editable=False, verbose_name="date published"
+                    ),
+                ),
+                ("deleted", models.BooleanField(default=False)),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField()),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "lexeme_from",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.Lexeme",
+                    ),
+                ),
+                (
+                    "lexeme_to",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.Lexeme",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical relation',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': 'history_date',
+                "verbose_name": "historical relation",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": "history_date",
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
-            name='HistoricalMiniParadigm',
+            name="HistoricalMiniParadigm",
             fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('msd', models.CharField(max_length=25)),
-                ('wordform', models.CharField(max_length=250)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField()),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('lexeme', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Lexeme')),
+                (
+                    "id",
+                    models.IntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                ("msd", models.CharField(max_length=25)),
+                ("wordform", models.CharField(max_length=250)),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField()),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "lexeme",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.Lexeme",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical mini paradigm',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': 'history_date',
+                "verbose_name": "historical mini paradigm",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": "history_date",
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
-            name='HistoricalLexeme',
+            name="HistoricalLexeme",
             fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('lexeme', models.CharField(max_length=250)),
-                ('homoId', models.IntegerField(default=0)),
-                ('assonance', models.CharField(blank=True, max_length=250)),
-                ('assonance_rev', models.CharField(blank=True, max_length=250)),
-                ('consonance', models.CharField(blank=True, max_length=250)),
-                ('consonance_rev', models.CharField(blank=True, max_length=250)),
-                ('language', models.CharField(max_length=3)),
-                ('pos', models.CharField(max_length=25)),
-                ('notes', models.CharField(blank=True, max_length=250)),
-                ('added_date', models.DateTimeField(blank=True, editable=False, verbose_name='date published')),
-                ('contlex', models.CharField(blank=True, max_length=250)),
-                ('type', models.CharField(blank=True, max_length=25)),
-                ('lemmaId', models.CharField(blank=True, default='', max_length=250)),
-                ('inflexId', models.CharField(blank=True, max_length=25)),
-                ('inflexType', models.IntegerField(blank=True, choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (99, 'X')], default=None, null=True)),
-                ('deleted', models.BooleanField(default=False)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField()),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('imported_from', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.DataFile')),
+                (
+                    "id",
+                    models.IntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                ("lexeme", models.CharField(max_length=250)),
+                ("homoId", models.IntegerField(default=0)),
+                ("assonance", models.CharField(blank=True, max_length=250)),
+                ("assonance_rev", models.CharField(blank=True, max_length=250)),
+                ("consonance", models.CharField(blank=True, max_length=250)),
+                ("consonance_rev", models.CharField(blank=True, max_length=250)),
+                ("language", models.CharField(max_length=3)),
+                ("pos", models.CharField(max_length=25)),
+                ("notes", models.CharField(blank=True, max_length=250)),
+                (
+                    "added_date",
+                    models.DateTimeField(
+                        blank=True, editable=False, verbose_name="date published"
+                    ),
+                ),
+                ("contlex", models.CharField(blank=True, max_length=250)),
+                ("type", models.CharField(blank=True, max_length=25)),
+                ("lemmaId", models.CharField(blank=True, default="", max_length=250)),
+                ("inflexId", models.CharField(blank=True, max_length=25)),
+                (
+                    "inflexType",
+                    models.IntegerField(
+                        blank=True,
+                        choices=[
+                            (1, "1"),
+                            (2, "2"),
+                            (3, "3"),
+                            (4, "4"),
+                            (5, "5"),
+                            (99, "X"),
+                        ],
+                        default=None,
+                        null=True,
+                    ),
+                ),
+                ("deleted", models.BooleanField(default=False)),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField()),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "imported_from",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.DataFile",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical lexeme',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': 'history_date',
+                "verbose_name": "historical lexeme",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": "history_date",
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
-            name='HistoricalExamples',
+            name="HistoricalExamples",
             fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('text', models.CharField(max_length=250)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField()),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('lexeme', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.Lexeme')),
+                (
+                    "id",
+                    models.IntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                ("text", models.CharField(max_length=250)),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField()),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "lexeme",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.Lexeme",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical examples',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': 'history_date',
+                "verbose_name": "historical examples",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": "history_date",
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
-            name='Source',
+            name="Source",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=250)),
-                ('page', models.CharField(blank=True, max_length=25)),
-                ('type', models.CharField(max_length=25)),
-                ('notes', models.CharField(blank=True, max_length=250)),
-                ('added_date', models.DateTimeField(auto_now_add=True, verbose_name='date published')),
-                ('relation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manageXML.Relation')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=250)),
+                ("page", models.CharField(blank=True, max_length=25)),
+                ("type", models.CharField(max_length=25)),
+                ("notes", models.CharField(blank=True, max_length=250)),
+                (
+                    "added_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="date published"
+                    ),
+                ),
+                (
+                    "relation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="manageXML.Relation",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('relation', 'name')},
+                "unique_together": {("relation", "name")},
             },
         ),
         migrations.CreateModel(
-            name='Examples',
+            name="Examples",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.CharField(max_length=250)),
-                ('lexeme', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manageXML.Lexeme')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.CharField(max_length=250)),
+                (
+                    "lexeme",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="manageXML.Lexeme",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('lexeme', 'text')},
+                "unique_together": {("lexeme", "text")},
             },
         ),
         migrations.CreateModel(
-            name='Affiliation',
+            name="Affiliation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=250)),
-                ('lexeme', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manageXML.Lexeme')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=250)),
+                (
+                    "lexeme",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="manageXML.Lexeme",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('lexeme', 'title')},
+                "unique_together": {("lexeme", "title")},
             },
         ),
     ]

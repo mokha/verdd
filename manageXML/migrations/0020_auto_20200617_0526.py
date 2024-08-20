@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0019_auto_20200616_0852'),
+        ("manageXML", "0019_auto_20200616_0852"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalstem',
-            name='homoId',
+            model_name="historicalstem",
+            name="homoId",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='stem',
-            name='homoId',
+            model_name="stem",
+            name="homoId",
             field=models.IntegerField(default=0),
         ),
     ]

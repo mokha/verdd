@@ -10,7 +10,9 @@ from collections import OrderedDict
 from manageXML.constants import LEXEME_TYPE
 
 
-def read_first_ids_from(file_path: str, delimiter: str = ',', id_in_col: int = 0, cast=int):
+def read_first_ids_from(
+    file_path: str, delimiter: str = ",", id_in_col: int = 0, cast=int
+):
     """
     A function that loads a CSV file and returns the {id_in_col}th value of each row as {cast} type.
 
@@ -25,7 +27,7 @@ def read_first_ids_from(file_path: str, delimiter: str = ',', id_in_col: int = 0
     """
     ids = []
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        with open(file_path, 'r', encoding='utf-8') as fp:
+        with open(file_path, "r", encoding="utf-8") as fp:
             reader = csv.reader(fp, delimiter=delimiter)
             rows = list(reader)
             rows = [r for r in rows if len(r) > 0]
@@ -35,17 +37,27 @@ def read_first_ids_from(file_path: str, delimiter: str = ',', id_in_col: int = 0
 
 def annotate_objects(model: Type[Model], annotations: Tuple = ()):
     possible_annotations = dir(model_functions)
-    annotation_re = re.compile(
-        r'(\w+)\((\'|")(.+)(\'|")\)',
-        re.I | re.U)
-    _annotations = [[_a[:_a.find('=')], _a[_a.find('=') + 1:], ] for _a in annotations if '=' in _a]
+    annotation_re = re.compile(r'(\w+)\((\'|")(.+)(\'|")\)', re.I | re.U)
+    _annotations = [
+        [
+            _a[: _a.find("=")],
+            _a[_a.find("=") + 1 :],
+        ]
+        for _a in annotations
+        if "=" in _a
+    ]
 
     model_objects = model.objects
     for _a in _annotations:
         matched = annotation_re.match(_a[1])
         if matched and matched.groups()[0] in possible_annotations:
-            func_name, _, _values, _, = matched.groups()
-            _values = _values.split('##')
+            (
+                func_name,
+                _,
+                _values,
+                _,
+            ) = matched.groups()
+            _values = _values.split("##")
             for _i, _v in enumerate(_values):
                 if _i == 0:
                     continue
@@ -55,7 +67,9 @@ def annotate_objects(model: Type[Model], annotations: Tuple = ()):
     return model_objects
 
 
-def get_duplicate_objects(model: Type[Model], annotations: Tuple = (), unique_fields: Tuple = ()):
+def get_duplicate_objects(
+    model: Type[Model], annotations: Tuple = (), unique_fields: Tuple = ()
+):
     """
     Finds {model} objects in the database that have identical values of {unique_fields}.
 
@@ -65,8 +79,12 @@ def get_duplicate_objects(model: Type[Model], annotations: Tuple = (), unique_fi
     :return Model:
     """
     annotated_objects = annotate_objects(model, annotations)
-    return annotated_objects.values(*unique_fields).order_by() \
-        .annotate(max_id=Max('id'), count_id=Count('id')).filter(count_id__gt=1)
+    return (
+        annotated_objects.values(*unique_fields)
+        .order_by()
+        .annotate(max_id=Max("id"), count_id=Count("id"))
+        .filter(count_id__gt=1)
+    )
 
 
 def get_object_attribute(obj, attribute_query: str, separator: str = LOOKUP_SEP):
@@ -84,7 +102,7 @@ def get_object_attribute(obj, attribute_query: str, separator: str = LOOKUP_SEP)
     return value
 
 
-def obj_to_txt(obj: object, delimiter: str = ',', fields: Tuple = ()):
+def obj_to_txt(obj: object, delimiter: str = ",", fields: Tuple = ()):
     """
 
     :param obj: The object to convert its fields into text.
@@ -95,7 +113,9 @@ def obj_to_txt(obj: object, delimiter: str = ',', fields: Tuple = ()):
     return delimiter.join([str(get_object_attribute(obj, _f)) for _f in fields])
 
 
-def row_to_objects(model: Type[Model], row: List[str], fields_length: int = 4, id_in_col: int = 0):
+def row_to_objects(
+    model: Type[Model], row: List[str], fields_length: int = 4, id_in_col: int = 0
+):
     """
     Returns a list of :model objects from a parsed row containing N objects, each with :fields_length values.
     :param model: Model type.
@@ -104,8 +124,12 @@ def row_to_objects(model: Type[Model], row: List[str], fields_length: int = 4, i
     :param id_in_col: Index where ID of objects is in.
     :return: A list of :model objects.
     """
-    objects = [row[x:x + fields_length] for x in range(0, len(row), fields_length)]
-    objects = [model.objects.get(pk=_o[id_in_col]) for _o in objects if len(_o) == fields_length and _o[id_in_col]]
+    objects = [row[x : x + fields_length] for x in range(0, len(row), fields_length)]
+    objects = [
+        model.objects.get(pk=_o[id_in_col])
+        for _o in objects
+        if len(_o) == fields_length and _o[id_in_col]
+    ]
     return objects
 
 
@@ -115,32 +139,39 @@ def contlex_to_pos(contlex: str):
     :param contlex:
     :return: POS and a list
     """
-    CONTLEX_MAP = OrderedDict({
-        r'_?INTERJ_?': 'Interj',
-        r'_?PRON_?': 'Pron',
-        r'_?PROP_?': 'Prop',
-        r'_?PCLE_?': 'Pcle',
-        r'_?ADV_?': 'Adv',
-        r'_?ADP_?': 'Adp',
-        r'_?NUM_?': 'Num',
-        r'_?DET_?': 'Det',
-        r'_?CC_?': 'CC',
-        r'_?CS_?': 'CS',
-        r'_?IV_?': 'V',
-        r'_?BV_?': 'V',
-        r'_?TV_?': 'V',
-        r'_?PO_?': 'Po',
-        r'_?PR_?': 'Pr',
-        r'_?A_?': 'A',
-        r'_?N_?': 'N',
-        r'_?V_?': 'V',
-    })
+    CONTLEX_MAP = OrderedDict(
+        {
+            r"_?INTERJ_?": "Interj",
+            r"_?PRON_?": "Pron",
+            r"_?PROP_?": "Prop",
+            r"_?PCLE_?": "Pcle",
+            r"_?ADV_?": "Adv",
+            r"_?ADP_?": "Adp",
+            r"_?NUM_?": "Num",
+            r"_?DET_?": "Det",
+            r"_?CC_?": "CC",
+            r"_?CS_?": "CS",
+            r"_?IV_?": "V",
+            r"_?BV_?": "V",
+            r"_?TV_?": "V",
+            r"_?PO_?": "Po",
+            r"_?PR_?": "Pr",
+            r"_?A_?": "A",
+            r"_?N_?": "N",
+            r"_?V_?": "V",
+        }
+    )
 
     METADATA_MAP = {  # POS, [(METADATA_TYPE, METADATA_TEXT),]
-        'Prop': ('N', [(LEXEME_TYPE, 'Prop'), ]),
+        "Prop": (
+            "N",
+            [
+                (LEXEME_TYPE, "Prop"),
+            ],
+        ),
     }
 
-    pos = ''
+    pos = ""
     metadata = []
     for contlex_map in CONTLEX_MAP:
         if re.search(contlex_map, contlex, flags=re.I | re.U):

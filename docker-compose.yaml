@@ -1,0 +1,34 @@
+services:
+  db:
+    platform: 'linux/amd64'
+    container_name: verdd-db-django-local
+    image: mariadb:latest
+    environment:
+      - MARIADB_ROOT_PASSWORD=verdd
+      - MARIADB_DATABASE=verdd
+      - MARIADB_USER=verdd
+      - MARIADB_PASSWORD=verdd
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - db-data:/var/lib/mysql
+  backend:
+    platform: 'linux/amd64'
+    container_name: verdd-backend-django-local
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000 --settings=verdd.settings.production
+    volumes:
+      - .:/app
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  db-data:

@@ -6,28 +6,58 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0024_symbol'),
+        ("manageXML", "0024_symbol"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicallexememetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender'), (4, 'Type')], default=None, null=True),
+            model_name="historicallexememetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[
+                    (0, "Generic"),
+                    (1, "Specification"),
+                    (3, "Gender"),
+                    (4, "Type"),
+                ],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='lexememetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender'), (4, 'Type')], default=None, null=True),
+            model_name="lexememetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[
+                    (0, "Generic"),
+                    (1, "Specification"),
+                    (3, "Gender"),
+                    (4, "Type"),
+                ],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalrelationmetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender')], default=None, null=True),
+            model_name="historicalrelationmetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[(0, "Generic"), (1, "Specification"), (3, "Gender")],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='relationmetadata',
-            name='type',
-            field=models.IntegerField(blank=True, choices=[(0, 'Generic'), (1, 'Specification'), (3, 'Gender')], default=None, null=True),
+            model_name="relationmetadata",
+            name="type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[(0, "Generic"), (1, "Specification"), (3, "Gender")],
+                default=None,
+                null=True,
+            ),
         ),
     ]

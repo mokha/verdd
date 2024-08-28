@@ -20,3 +20,4 @@ tqdm
 uralicNLP
 xmlschema
 psycopg2-binary
+networkx

@@ -11,10 +11,13 @@ DATABASES = {
         "PASSWORD": config("DB_PASSWORD"),
         "HOST": config("DB_HOST"),
         "PORT": config("DB_PORT"),
+        "CHARSET": "utf8mb4",
+        "COLLATION": "utf8mb4_bin",
     }
 }
 
 if DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
     DATABASES["default"]["OPTIONS"] = {
-        "init_command": "SET character_set_connection=utf8,collation_connection=utf8_unicode_ci,default_storage_engine=INNODB",
+        "init_command": "SET character_set_connection=utf8mb4, collation_connection=utf8mb4_bin, default_storage_engine=INNODB",
+        "charset": "utf8mb4",
     }

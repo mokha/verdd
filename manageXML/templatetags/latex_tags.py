@@ -34,11 +34,11 @@ def tex_escape(text):
         "_": r"\_",
         "{": r"\{",
         "}": r"\}",
-        "~": r"\textasciitilde{}",
-        "^": r"\^{}",
-        "\\": r"\textbackslash{}",
-        "<": r"\textless{}",
-        ">": r"\textgreater{}",
+        "~": r"\\textasciitilde{}",
+        "^": r"\\^{}",
+        "\\": r"\\textbackslash{}",
+        "<": r"\\textless{}",
+        ">": r"\\textgreater{}",
     }
 
     regex = re.compile(
@@ -74,7 +74,7 @@ def dictionary_entry(grouped_relation):
         lexeme_from.specification,
     )
     entry_content = tuple([tex_escape(c) for c in entry_content])
-    dictionary_entry_text.append("\entry{%s}{%s}{%s}" % entry_content)
+    dictionary_entry_text.append(r"\\entry{%s}{%s}{%s}" % entry_content)
 
     inflection_table = {
         "V": ["V+Ind+Prs+ConNeg", "V+Ind+Prs+Sg3", "V+Ind+Prt+Sg1", "V+Ind+Prt+Sg3"],
@@ -258,7 +258,7 @@ def dictionary_entry(grouped_relation):
 
 @register.simple_tag(name="dictionary_chapter")
 def dictionary_chapter(key):
-    return "\includedictionary{%s}{chapter-%s.tex}" % (
+    return r"\\includedictionary{%s}{chapter-%s.tex}" % (
         key,
         key,
     )

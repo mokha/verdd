@@ -47,7 +47,7 @@ def constant_text(constant_name, index):
     return constant[index]
 
 
-numeric_test = re.compile("^\d+$")
+numeric_test = re.compile(r"^\d+$")
 
 
 @register.filter(name="getattr")

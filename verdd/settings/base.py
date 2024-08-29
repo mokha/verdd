@@ -125,7 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 # Set the default primary key field type to BigAutoField
-DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Application settings
 WIKI_URL = config("WIKI_URL").rstrip("/") + "/"

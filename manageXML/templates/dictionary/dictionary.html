@@ -1,4 +1,4 @@
-{% extends 'dictionary/template.html' %}
+{% extends 'template.html' %}
 {% load i18n %}
 {% load custom_tags %}
 {% load widget_tweaks_extras %}
@@ -6,91 +6,149 @@
 
 {% block main_content %}
 <form method="get">
-    <div class="well mt-3">
-        <div class="row">
-            <div class="form-group col-sm-6 col-md-6">
-                {{ filterset.form.lexeme.label_tag }}
-                <div class="row">
-                    <div class="col-sm-8 col-md-8">
-                        {% render_lookup_choice_field filterset.form.lexeme 0 class="form-control" %}
-                    </div>
-                    <div class="col-sm-4 col-md-4">
-                        {% render_lookup_choice_field filterset.form.lexeme 1 class="form-control" %}
+    <div class="bg-light p-4 rounded mt-4 shadow-sm">
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    {{ filterset.form.lexeme.label_tag }}
+                    <div class="row g-2">
+                        <div class="col-8">
+                            {% render_lookup_choice_field filterset.form.lexeme 0 class="form-control" %}
+                        </div>
+                        <div class="col-4">
+                            {% render_lookup_choice_field filterset.form.lexeme 1 class="form-control" %}
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group col-sm-2 col-md-2">
-                {{ filterset.form.language.label_tag }}
-                {% render_field filterset.form.language class="form-control" %}
+            <div class="col-lg-2">
+                <div class="form-group">
+                    {{ filterset.form.language.label_tag }}
+                    {% render_field filterset.form.language class="form-control" %}
+                </div>
             </div>
-            <div class="form-group col-sm-2 col-md-2">
-                {{ filterset.form.pos.label_tag }}
-                {% render_field filterset.form.pos class="form-control" %}
+            <div class="col-lg-2">
+                <div class="form-group">
+                    {{ filterset.form.pos.label_tag }}
+                    {% render_field filterset.form.pos class="form-control" %}
+                </div>
             </div>
-            <div class="form-group col-sm-2 col-md-2">
-                {{ filterset.form.order_by.label_tag }}
-                {% render_field filterset.form.order_by class="form-control" %}
+            <div class="col-lg-2">
+                <div class="form-group">
+                    {{ filterset.form.order_by.label_tag }}
+                    {% render_field filterset.form.order_by class="form-control" %}
+                </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg btn-block">
-            <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
-        </button>
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-search"></i> {% trans "Search" %}
+            </button>
+            {% if user.is_authenticated %}
+            <div class="d-flex">
+                <div class="dropdown me-2">
+                    <a class="btn btn-outline-secondary dropdown-toggle btn-lg" href="#" role="button"
+                        data-bs-toggle="dropdown">
+                        {% blocktrans %}Download{% endblocktrans %}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item"
+                                href="{% url 'download-csv' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+                                {% blocktrans %}as CSV{% endblocktrans %}</a></li>
+                        <li><a class="dropdown-item"
+                                href="{% url 'download-lexc' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+                                {% blocktrans %}as LEXC{% endblocktrans %}</a></li>
+                    </ul>
+                </div>
+                <a class="btn btn-outline-secondary btn-lg"
+                    href="{% url 'lexeme-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
+                    {% blocktrans %}Bulk Approve{% endblocktrans %}
+                </a>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </form>
 
 <br />
 
-<table class="table">
-    <tbody>
-        {% for obj in object_list %}
-        <tr id="lexeme-{{ obj.id }}">
-            <td>
-                <b><a
-                        href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{{ obj.lexeme }}</a></b>
-                <i>{{ obj.pos|lower }}.</i> ({{ obj.language }})
-                <ul>
-                    {% for relation in obj.get_translations.all %}
-                    {% if relation.lexeme_to %}
-                    <li><b><a
-                                href="{% url 'lexeme-detail' pk=relation.lexeme_to.pk slug=relation.lexeme_to.slug %}?{% query_transform request lastlexeme=relation.lexeme_to.pk %}">{{ relation.lexeme_to.lexeme }}</a></b></b>
-                        <i>{{ relation.lexeme_to.pos|lower }}.</i> ({{ relation.lexeme_to.language }})
-                    </li>
+<div class="table-responsive mt-4">
+    <table class="table table-striped table-hover align-middle">
+        <tbody>
+            {% for obj in object_list %}
+            <tr id="lexeme-{{ obj.id }}">
+                <td>
+                    <b><a
+                            href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{{ obj.lexeme }}</a></b>
+                    <i>{{ obj.pos|lower }}.</i> ({{ obj.language }})
+                    <ul class="list-unstyled mt-2 ms-4">
+                        {% for relation in obj.get_translations.all %}
+                        {% if relation.lexeme_to %}
+                        <li>
+                            <b><a
+                                    href="{% url 'lexeme-detail' pk=relation.lexeme_to.pk slug=relation.lexeme_to.slug %}?{% query_transform request lastlexeme=relation.lexeme_to.pk %}">{{ relation.lexeme_to.lexeme }}</a></b>
+                            <i>{{ relation.lexeme_to.pos|lower }}.</i> ({{ relation.lexeme_to.language }})
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                    {% with examples=obj.example_set.all %}
+                    {% if examples %}
+                    <i>{% trans "Examples" %}:</i>
+                    <ul class="list-unstyled ms-4">
+                        {% for example in examples %}
+                        <li>{{ example }}</li>
+                        {% endfor %}
+                    </ul>
                     {% endif %}
-                    {% endfor %}
-                </ul>
-                {% with examples=obj.example_set.all %}
-                {% if examples %}
-                <i>{% trans "Examples" %}:</i>
-                <ul>
-                    {% for example in examples %}
-                    <li>{{ example }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                {% endwith %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                    {% endwith %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 {% if is_paginated %}
-{% if page_obj.has_previous %}
-<a href="?{% param_replace page=1 %}">{% trans "First" %}</a>
-{% if page_obj.previous_page_number != 1 %}
-<a href="?{% param_replace page=page_obj.previous_page_number %}">{% trans "Previous" %}</a>
-{% endif %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{% param_replace page=1 %}" aria-label="{% trans 'First' %}">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}"
+                aria-label="{% trans 'Previous' %}">
+                <span aria-hidden="true">&lsaquo;</span>
+            </a>
+        </li>
+        {% endif %}
+
+        <li class="page-item active" aria-current="page">
+            <span class="page-link">
+                {% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ paginator.num_pages }}
+            </span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}"
+                aria-label="{% trans 'Next' %}">
+                <span aria-hidden="true">&rsaquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?{% param_replace page=paginator.num_pages %}" aria-label="{% trans 'Last' %}">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
 {% endif %}
 
-{% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ paginator.num_pages }}
-
-{% if page_obj.has_next %}
-{% if page_obj.next_page_number != paginator.num_pages %}
-<a href="?{% param_replace page=page_obj.next_page_number %}">{% trans "Next" %}</a>
-{% endif %}
-<a href="?{% param_replace page=paginator.num_pages %}">{% trans "Last" %}</a>
-{% endif %}
-<p></p>
-{% endif %}
 <p><b>{% trans "Total" %}:</b> {{ page_obj.paginator.count }} {% if is_paginated %}({% trans "Showing" %}:
     {{ page_obj.start_index }}—{{ page_obj.end_index }}){% endif %}</p>
 {% endblock %}

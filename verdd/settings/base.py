@@ -237,3 +237,19 @@ REST_FRAMEWORK = {
 
 # For localizations
 LANGUAGE_COOKIE_NAME = "language"
+
+# Celery Configuration
+REDIS_HOST = config("REDIS_HOST", default="redis")
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:6379/0"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
+
+MEDIA_ROOT = "media"
+MEDIA_URL = "%s/media/" % FORCE_SCRIPT_NAME
+
+
+GENERATED_FILES_TMP_DIR = os.getenv("GENERATED_FILES_TMP_DIR", None)

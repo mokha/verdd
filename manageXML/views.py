@@ -1,3 +1,6 @@
+import json
+import os
+
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
@@ -16,6 +19,7 @@ from django_filters import (
 )
 from django_filters.widgets import RangeWidget
 import django_filters
+from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
@@ -23,6 +27,7 @@ from django.views.generic.edit import (
     DeleteView,
     UpdateView,
     ModelFormMixin,
+    FormView,
     FormMixin,
 )
 from django.contrib.auth.decorators import login_required
@@ -46,6 +51,7 @@ import operator
 import logging
 from .utils import read_first_ids_from
 from django.conf import settings
+from .tasks import process_file_request
 
 logger = logging.getLogger("verdd.manageXML")  # Get an instance of a logger
 _inflector = Inflector()
@@ -1664,4 +1670,74 @@ class LexemeExportLexcView(LexemeView):
         response = HttpResponse(content, content_type="text/plain")
         response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
 
+        return response
+
+
+class FileRequestView(LoginRequiredMixin, TitleMixin, CreateView):
+    template_name = "file_request.html"
+    model = FileRequest
+    form_class = FileRequestForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+
+        clean = form.cleaned_data
+
+        job_options = {"use_accepted": clean["use_accepted"]}
+
+        file_request = FileRequest.objects.create(
+            user=self.request.user,
+            type=clean["type"],
+            lang_source=clean["lang_source"],
+            lang_target=clean["lang_target"],
+            options=json.dumps(job_options),
+        )
+
+        lang_source = form.cleaned_data.get("lang_source")
+        lang_target = form.cleaned_data.get("lang_target")
+
+        process_file_request.delay(
+            file_request_id=file_request.id,
+            download_type=form.cleaned_data["type"],
+            lang_source=lang_source.id,
+            lang_target=lang_target.id if lang_target else None,
+            options=job_options,
+        )
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["files"] = FileRequest.objects.filter(
+            user=self.request.user, deleted=False
+        ).order_by("-created_at")
+        return context
+
+    def get_success_url(self):
+        return reverse("file-request")
+
+    def get_title(self):
+        return _("Files")
+
+
+@login_required
+def download_file(request, pk):
+    file_request = get_object_or_404(
+        FileRequest,
+        id=pk,
+        user=request.user,
+        status=DOWNLOAD_STATUS_COMPLETED,
+    )
+
+    tmp_storage = TemporaryFileStorage()
+
+    file_path = tmp_storage.path(file_request.file.name)
+
+    if not os.path.exists(file_path):
+        raise Http404("File not found.")
+
+    with open(file_path, "rb") as f:
+        response = HttpResponse(f.read(), content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="{os.path.basename(file_path)}"'
+        )
         return response

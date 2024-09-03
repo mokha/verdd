@@ -6,7 +6,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column, Div, HTML, Button
 from .constants import *
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count
 
 
 class LanguageChoiceField(forms.ModelChoiceField):
@@ -14,7 +14,7 @@ class LanguageChoiceField(forms.ModelChoiceField):
         return "%s (%s)" % (obj.name, obj.id)
 
 
-class LexmeChoiceField(forms.ModelChoiceField):
+class LexemeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s (%s)" % (obj.lexeme, obj.pos)
 
@@ -72,22 +72,22 @@ class LexemeForm(forms.ModelForm):
                 css_class="",
             ),
             Row(
-                Column("lexeme", css_class="form-group col-md-6 mb-0"),
-                Column("pos", css_class="form-group col-md-3 mb-0"),
-                Column("homoId", css_class="form-group col-md-3 mb-0"),
-                css_class="form-row",
+                Column("lexeme", css_class="col-md-6 mb-3"),
+                Column("pos", css_class="col-md-3 mb-3"),
+                Column("homoId", css_class="col-md-3 mb-3"),
+                css_class="row",
             ),
             Row(
-                Column("contlex", css_class="form-group col-md-6 mb-0"),
-                Column("type", css_class="form-group col-md-3 mb-0"),
-                Column("inflexId", css_class="form-group col-md-3 mb-0"),
-                css_class="form-row",
+                Column("contlex", css_class="col-md-6 mb-3"),
+                Column("type", css_class="col-md-3 mb-3"),
+                Column("inflexId", css_class="col-md-3 mb-3"),
+                css_class="row",
             ),
             Row(
-                Column("specification", css_class="form-group col-md-5 mb-0"),
-                Column("inflexType", css_class="form-group col-md-3 mb-0"),
-                Column("lemmaId", css_class="form-group col-md-4 mb-0"),
-                css_class="form-row",
+                Column("specification", css_class="col-md-5 mb-3"),
+                Column("inflexType", css_class="col-md-3 mb-3"),
+                Column("lemmaId", css_class="col-md-4 mb-3"),
+                css_class="row",
             ),
             "notes",
             "checked",
@@ -127,23 +127,23 @@ class LexemeCreateForm(LexemeForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("lexeme", css_class="form-group col-md-3 mb-0"),
-                Column("language", css_class="form-group col-md-3 mb-0"),
-                Column("pos", css_class="form-group col-md-3 mb-0"),
-                Column("homoId", css_class="form-group col-md-3 mb-0"),
-                css_class="form-row",
+                Column("lexeme", css_class="col-md-3 mb-3"),
+                Column("language", css_class="col-md-3 mb-3"),
+                Column("pos", css_class="col-md-3 mb-3"),
+                Column("homoId", css_class="col-md-3 mb-3"),
+                css_class="row",
             ),
             Row(
-                Column("contlex", css_class="form-group col-md-6 mb-0"),
-                Column("type", css_class="form-group col-md-3 mb-0"),
-                Column("inflexId", css_class="form-group col-md-3 mb-0"),
-                css_class="form-row",
+                Column("contlex", css_class="col-md-6 mb-3"),
+                Column("type", css_class="col-md-3 mb-3"),
+                Column("inflexId", css_class="col-md-3 mb-3"),
+                css_class="row",
             ),
             Row(
-                Column("specification", css_class="form-group col-md-5 mb-0"),
-                Column("inflexType", css_class="form-group col-md-3 mb-0"),
-                Column("lemmaId", css_class="form-group col-md-4 mb-0"),
-                css_class="form-row",
+                Column("specification", css_class="col-md-5 mb-3"),
+                Column("inflexType", css_class="col-md-3 mb-3"),
+                Column("lemmaId", css_class="col-md-4 mb-3"),
+                css_class="row",
             ),
             "notes",
             "checked",
@@ -228,10 +228,10 @@ class SourceForm(forms.ModelForm):
                 css_class="",
             ),
             Row(
-                Column("name", css_class="form-group col-md-6 mb-0"),
-                Column("type", css_class="form-group col-md-3 mb-0"),
-                Column("page", css_class="form-group col-md-3 mb-0"),
-                css_class="form-row",
+                Column("name", css_class="col-md-6 mb-3"),
+                Column("type", css_class="col-md-3 mb-3"),
+                Column("page", css_class="col-md-3 mb-3"),
+                css_class="row",
             ),
             "notes",
             Submit("submit", _("Save")),
@@ -257,10 +257,10 @@ class SourceCreateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("name", css_class="form-group col-md-6 mb-0"),
-                Column("type", css_class="form-group col-md-3 mb-0"),
-                Column("page", css_class="form-group col-md-3 mb-0"),
-                css_class="form-row",
+                Column("name", css_class="col-md-6 mb-3"),
+                Column("type", css_class="col-md-3 mb-3"),
+                Column("page", css_class="col-md-3 mb-3"),
+                css_class="row",
             ),
             "notes",
             Submit("submit", _("Save")),
@@ -349,9 +349,9 @@ class MiniParadigmForm(forms.ModelForm):
                 css_class="",
             ),
             Row(
-                Column("msd", css_class="form-group col-md-5 mb-0"),
-                Column("wordform", css_class="form-group col-md-7 mb-0"),
-                css_class="form-row",
+                Column("msd", css_class="col-md-5 mb-3"),
+                Column("wordform", css_class="col-md-7 mb-3"),
+                css_class="row",
             ),
             Submit("submit", _("Save")),
         )
@@ -374,9 +374,9 @@ class MiniParadigmCreateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("msd", css_class="form-group col-md-5 mb-0"),
-                Column("wordform", css_class="form-group col-md-7 mb-0"),
-                css_class="form-row",
+                Column("msd", css_class="col-md-5 mb-3"),
+                Column("wordform", css_class="col-md-7 mb-3"),
+                css_class="row",
             ),
             Submit("submit", _("Save")),
         )
@@ -416,8 +416,8 @@ class ExampleForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("text", css_class="form-group col-md-12 mb-0"),
-                css_class="form-row",
+                Column("text", css_class="col-md-12 mb-3"),
+                css_class="row",
             ),
             Submit("submit", _("Save")),
         )
@@ -451,9 +451,9 @@ class RelationExampleForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("language", css_class="form-group col-md-2"),
-                Column("text", css_class="form-group col-md-10"),
-                css_class="form-row",
+                Column("language", css_class="col-md-2"),
+                Column("text", css_class="col-md-10"),
+                css_class="row",
             ),
             "source",
             "notes",
@@ -486,10 +486,10 @@ class RelationMetadataForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("language", css_class="form-group col-md-2"),
-                Column("type", css_class="form-group col-md-2"),
-                Column("text", css_class="form-group col-md-8"),
-                css_class="form-row",
+                Column("language", css_class="col-md-2"),
+                Column("type", css_class="col-md-2"),
+                Column("text", css_class="col-md-8"),
+                css_class="row",
             ),
             Submit("submit", _("Save")),
         )
@@ -534,9 +534,9 @@ class HistoryForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("start_date", css_class="form-group col-md-6 mb-0"),
-                Column("end_date", css_class="form-group col-md-6 mb-0"),
-                css_class="form-row",
+                Column("start_date", css_class="col-md-6 mb-3"),
+                Column("end_date", css_class="col-md-6 mb-3"),
+                css_class="row",
             ),
             Submit("submit", _("Search")),
         )
@@ -620,10 +620,10 @@ class StemForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column("text", css_class="form-group col-md-4 mb-0"),
-                Column("contlex", css_class="form-group col-md-4 mb-0"),
-                Column("order", css_class="form-group col-md-4 mb-0"),
-                css_class="form-row",
+                Column("text", css_class="col-md-4 mb-3"),
+                Column("contlex", css_class="col-md-4 mb-3"),
+                Column("order", css_class="col-md-4 mb-3"),
+                css_class="row",
             ),
             "notes",
             "checked",
@@ -731,3 +731,75 @@ class LexemeMetadataForm(forms.ModelForm):
         super(LexemeMetadataForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout("text", "type", Submit("submit", _("Save")))
+
+
+class FileRequestForm(forms.ModelForm):
+
+    class Meta:
+        model = FileRequest
+        fields = ["lang_source", "lang_target", "type"]
+
+    type = forms.ChoiceField(
+        choices=DOWNLOAD_TYPES[1:], label=_("Download Type")
+    )  # remove lexc file
+    lang_source = LanguageChoiceField(
+        queryset=Language.objects.annotate(lexeme_count=Count("lexemes")).filter(
+            lexeme_count__gt=0
+        ),
+        required=True,
+        label=_("Source Language"),
+    )
+    lang_target = LanguageChoiceField(
+        queryset=Language.objects.annotate(lexeme_count=Count("lexemes")).filter(
+            lexeme_count__gt=0
+        ),
+        required=True,
+        label=_("Target Language"),
+    )
+    use_accepted = forms.BooleanField(required=False, label=_("Accepted only"))
+
+    def __init__(self, *args, **kwargs):
+        super(FileRequestForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column("type", css_class="col-md-6 mb-3"),
+                css_class="row",
+            ),
+            Row(
+                Column("lang_source", css_class="col-md-6 mb-3"),
+                Column(
+                    "lang_target",
+                    css_id="lang_target_form",
+                    css_class="col-md-6 mb-3",
+                ),
+                css_class="row",
+            ),
+            Row(
+                Column("use_accepted", css_class="col-md-6 mb-3"),
+                css_class="row",
+            ),
+            Submit("submit", _("Request"), css_class="btn btn-primary"),
+        )
+
+    def clean(self):
+        cleaned_data = super(FileRequestForm, self).clean()
+
+        cleaned_data["type"] = int(cleaned_data.get("type"))
+
+        download_type = cleaned_data["type"]
+
+        if download_type in [
+            DOWNLOAD_TYPE_GIELLA_XML,
+            DOWNLOAD_TYPE_APERTIUM_BIDIX,
+            DOWNLOAD_TYPE_LATEX,
+            DOWNLOAD_TYPE_TRANSLATION_PREDICTIONS,
+        ]:
+            lang_target = cleaned_data.get("lang_target")
+            if not lang_target:
+                self.add_error(
+                    "lang_target",
+                    _("Target Language is required for this download type."),
+                )
+
+        return cleaned_data

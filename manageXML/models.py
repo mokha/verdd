@@ -6,7 +6,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 from simple_history.models import HistoricalRecords
 from django.core.validators import slug_re
-
+from django.utils import timezone
+from .storage import TemporaryFileStorage
 from wiki.semantic_api import SemanticAPI
 from .common import Rhyme
 from .constants import *
@@ -15,8 +16,15 @@ from .managers import *
 
 
 class Language(models.Model):
-    id = models.CharField(max_length=3, unique=True, primary_key=True)  # ISO 639-3
+    id = models.CharField(
+        max_length=3, unique=True, primary_key=True, db_index=True
+    )  # ISO 639-3
     name = models.CharField(max_length=250)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["id"], name="id_idx"),
+        ]
 
     def __str__(self):
         return self.id
@@ -648,3 +656,78 @@ class LanguageParadigm(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+
+
+class FileRequest(models.Model):
+
+    type = models.IntegerField(
+        choices=DOWNLOAD_TYPES, blank=True, null=True, default=None
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="file_requests",
+    )
+    status = models.CharField(
+        max_length=10, choices=DOWNLOAD_STATUS_CHOICES, default=DOWNLOAD_STATUS_PENDING
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    options = models.TextField(blank=True, null=True)
+    lang_source = models.ForeignKey(
+        Language,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="file_requests_lang_source",
+    )
+    lang_target = models.ForeignKey(
+        Language,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="file_requests_lang_target",
+    )
+
+    file = models.FileField(
+        upload_to="files/", blank=True, null=True, storage=TemporaryFileStorage
+    )
+    output = models.TextField(blank=True, null=True)
+
+    deleted = models.BooleanField(default=False)
+
+    processed_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Request {self.id} by {self.user.username}"
+
+    def is_completed(self):
+        return self.status == DOWNLOAD_STATUS_COMPLETED
+
+    def is_failed(self):
+        return self.status == DOWNLOAD_STATUS_FAILED
+
+    def is_processing(self):
+        return self.status == DOWNLOAD_STATUS_PROCESSING
+
+    def is_pending(self):
+        return self.status == DOWNLOAD_STATUS_PENDING
+
+    def get_absolute_url(self):
+        return reverse("file-download", kwargs={"pk": self.pk})
+
+    def mark_processing(self):
+        self.status = DOWNLOAD_STATUS_PROCESSING
+        self.save()
+
+    def mark_completed(self, file_path, output=None):
+        self.status = DOWNLOAD_STATUS_COMPLETED
+        self.file.name = file_path
+        self.output = output
+        self.processed_at = timezone.now()
+        self.save()
+
+    def mark_failed(self, error_message):
+        self.status = DOWNLOAD_STATUS_FAILED
+        self.output = error_message
+        self.processed_at = timezone.now()
+        self.save()

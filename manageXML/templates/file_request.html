@@ -1,0 +1,49 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{% trans "Request Download" %}:</h2>
+    <div class="mb-5">
+        {% crispy form %}
+    </div>
+
+    <h3 class="mb-3">{% trans "Current Files" %}</h3>
+    <div class="row">
+        {% for file in files %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ file.name }}</h5>
+                    <p class="card-text">
+                        {% trans "Status" %}:
+                        {% if file.is_completed %}
+                        <span class="badge bg-success">{% trans "Complete" %}</span>
+                        {% elif file.is_failed %}
+                        <span class="badge bg-error">{% trans "Failed" %}</span>
+                        {% elif file.is_processing %}
+                        <span class="badge bg-warning">{% trans "Processing" %}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{% trans "Pending" %}</span>
+                        {% endif %}
+                    </p>
+                    {% if file.is_completed %}
+                    <a href="{{ file.get_absolute_url }}" class="btn btn-primary">
+                        <i class="fas fa-download"></i> {% trans "Download" %}
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-muted">
+                    {% trans "Requested on" %}: {{ file.created_at|date:"F j, Y, g:i a" }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>{% trans "No files available at the moment." %}</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

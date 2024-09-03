@@ -222,4 +222,11 @@ urlpatterns = [
         views.LexemeMetadataDeleteView.as_view(),
         name="lexeme-metadata-delete",
     ),
+    # file requests & downloads
+    path("files", views.FileRequestView.as_view(), name="file-request"),
+    re_path(
+        r"files/download/(?P<pk>\d+)/",
+        views.download_file,
+        name="file-download",
+    ),
 ]

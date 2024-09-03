@@ -16,6 +16,12 @@ services:
       retries: 3
     volumes:
       - db-data:/var/lib/mysql
+  redis:
+    platform: 'linux/amd64'
+    container_name: verdd-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
   backend:
     platform: 'linux/amd64'
     container_name: verdd-backend-django-local
@@ -23,6 +29,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000 --settings=verdd.settings.production
     volumes:
       - .:/app
+      - verdd-files:/tmp/verdd_files
     ports:
       - "127.0.0.1:8000:8000"
     env_file:
@@ -30,5 +37,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+  worker:
+    platform: 'linux/amd64'
+    container_name: verdd-celery-worker
+    build: .
+    command: celery -A verdd worker --loglevel=info
+    volumes:
+      - .:/app
+      - verdd-files:/tmp/verdd_files
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
 volumes:
   db-data:
+  verdd-files:

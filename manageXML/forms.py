@@ -787,19 +787,4 @@ class FileRequestForm(forms.ModelForm):
 
         cleaned_data["type"] = int(cleaned_data.get("type"))
 
-        download_type = cleaned_data["type"]
-
-        if download_type in [
-            DOWNLOAD_TYPE_GIELLA_XML,
-            DOWNLOAD_TYPE_APERTIUM_BIDIX,
-            DOWNLOAD_TYPE_LATEX,
-            DOWNLOAD_TYPE_TRANSLATION_PREDICTIONS,
-        ]:
-            lang_target = cleaned_data.get("lang_target")
-            if not lang_target:
-                self.add_error(
-                    "lang_target",
-                    _("Target Language is required for this download type."),
-                )
-
         return cleaned_data

@@ -18,6 +18,21 @@ def run_django_command(command_name, *args, **kwargs):
 
 
 def write_dir_content_to_zip(dir_path):
+    # Get a list of all files in the directory
+    files_in_dir = [
+        f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+    ]
+
+    # Check if there is exactly one .zip file in the directory
+    zip_files = [f for f in files_in_dir if f.endswith(".zip")]
+
+    if len(zip_files) == 1:
+        # If there's exactly one .zip file, return its content directly
+        zip_file_path = os.path.join(dir_path, zip_files[0])
+        with open(zip_file_path, "rb") as single_zip_file:
+            return single_zip_file.read()
+
+    # Otherwise, zip the directory's contents as usual
     zip_buffer = io.BytesIO()
 
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
@@ -27,7 +42,6 @@ def write_dir_content_to_zip(dir_path):
                 # Create the full file path by joining root and file
                 full_path = os.path.join(root, file)
                 # Add the file to the zip archive
-                # The arcname argument strips the base directory, so the file structure is preserved inside the zip
                 arcname = os.path.relpath(full_path, start=dir_path)
                 zip_file.write(full_path, arcname)
 
@@ -48,6 +62,10 @@ def generate_file_for_request(download_type, lang1, lang2=None, approved=False):
     elif download_type == DOWNLOAD_TYPE_APERTIUM_BIDIX:
         return generate_apertium_bidix(
             left_language=lang1, right_language=lang2, approved=approved
+        )
+    elif download_type == DOWNLOAD_TYPE_LATEX:
+        return generate_latex_file(
+            source_language=lang1, target_language=lang2, approved=approved
         )
 
 
@@ -127,6 +145,26 @@ def generate_translation_suggestions(
         return zip_result
 
 
-# def generate_latex_file(lang, use_accepted_lexemes):
-#     result = run_django_command("my_command", "arg1", "arg2")
-#     return result
+def generate_latex_file(
+    source_language: str, target_language: str, approved: bool = False
+):
+    with tempfile.TemporaryDirectory() as tmpdir_name:
+
+        command = [
+            "export_latex",
+            "--dir",
+            tmpdir_name,
+            "--source",
+            source_language,
+            "--target",
+            target_language,
+        ]
+
+        if approved:
+            command.append("--approved")
+
+        _ = run_django_command(*command)
+
+        zip_result = write_dir_content_to_zip(tmpdir_name)
+
+        return zip_result

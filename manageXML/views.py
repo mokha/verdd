@@ -287,11 +287,12 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
     )
     language = ChoiceFilter(label=_("Language"))
     pos = ChoiceFilter(label=_("POS"))
+    contlex = CharFilter(label=_("Contlex"), method="filter_contlex")
     order_by = LexemeOrderingFilter(fields=ORDER_BY_FIELDS, label=_("Order by"))
 
     class Meta:
         model = Lexeme
-        fields = ["lexeme", "language", "pos"]
+        fields = ["lexeme", "language", "pos", "contlex"]
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
@@ -316,6 +317,12 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
             ("-assonance_rev", "%s (%s)" % (_("RevAssonance"), _("descending"))),
         )
 
+    def filter_contlex(self, queryset, name, value):
+        """
+        Custom filter method to filter Lexemes based on contlex of the Lexeme or related Stem objects.
+        """
+        return queryset.filter(Q(contlex=value) | Q(stem__contlex=value)).distinct()
+
 
 class LexemeDictionaryView(FilteredListView):
     filterset_class = LexemeDictionaryFilter
@@ -327,16 +334,14 @@ class LexemeDictionaryView(FilteredListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         order_by = self.request.GET.get("order_by", None)
-        order_by = order_by[1:] if order_by and order_by.startswith("-") else order_by
-        order_by_options = dict(
-            [[v, k] for k, v in self.filterset_class.ORDER_BY_FIELDS.items()]
-        )
-        if (
-            order_by
-            and order_by not in ["pos", "lexeme_lang"]
-            and order_by in order_by_options
-        ):
-            context["order_by"] = order_by_options[order_by]
+        if order_by:
+            order_by_options = dict(
+                [[v, k] for k, v in self.filterset_class.ORDER_BY_FIELDS.items()]
+            )
+            clean_order_by = order_by[1:] if order_by.startswith("-") else order_by
+            if clean_order_by in order_by_options:
+                context["order_by"] = order_by_options[clean_order_by]
+
         return context
 
 

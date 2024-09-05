@@ -33,6 +33,12 @@
                     {% render_field filterset.form.pos class="form-control" %}
                 </div>
             </div>
+            <div class="col-lg-3">
+              <div class="form-group">
+                  {{ filterset.form.contlex.label_tag }}
+                  {% render_field filterset.form.contlex class="form-control" %}
+              </div>
+          </div>
             <div class="col-lg-2">
                 <div class="form-group">
                     {{ filterset.form.order_by.label_tag }}

@@ -290,6 +290,17 @@ class Relation(models.Model):
     def _history_user(self, value):
         self.changed_by = value
 
+    def save(self, *args, **kwargs):
+        super(Relation, self).save(*args, **kwargs)
+
+        if self.type in REVERSE_RELATION_MAPPING:
+            reverse_relation, created = Relation.objects.get_or_create(
+                lexeme_from=self.lexeme_to,
+                lexeme_to=self.lexeme_from,
+                type=REVERSE_RELATION_MAPPING[self.type],
+                defaults={"notes": self.notes, "checked": self.checked},
+            )
+
 
 class Source(models.Model):
     class Meta:

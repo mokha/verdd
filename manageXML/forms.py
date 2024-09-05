@@ -159,12 +159,14 @@ class RelationForm(forms.ModelForm):
 
     class Meta:
         model = Relation
-        fields = ["notes", "checked"]
+        fields = ["type", "notes", "checked"]
 
     def __init__(self, *args, **kwargs):
         super(RelationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout("notes", "checked", Submit("submit", _("Save")))
+        self.helper.layout = Layout(
+            "type", "notes", "checked", Submit("submit", _("Save"))
+        )
 
 
 class RelationCreateForm(forms.ModelForm):

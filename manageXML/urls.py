@@ -229,4 +229,25 @@ urlpatterns = [
         views.download_file,
         name="file-download",
     ),
+    # paradigms
+    path(
+        "paradigms/",
+        views.LanguageParadigmListView.as_view(),
+        name="language-paradigm-list",
+    ),
+    path(
+        "paradigms/add/",
+        views.LanguageParadigmCreateView.as_view(),
+        name="language-paradigm-add",
+    ),
+    path(
+        "paradigms/<int:pk>/edit/",
+        views.LanguageParadigmUpdateView.as_view(),
+        name="language-paradigm-edit",
+    ),
+    path(
+        "paradigms/<int:pk>/delete/",
+        views.LanguageParadigmDeleteView.as_view(),
+        name="language-paradigm-delete",
+    ),
 ]

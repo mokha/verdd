@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load static %}
 {% load account %}
+{% load custom_tags %}
 {% load crispy_forms_tags %}
 
 
@@ -82,6 +83,13 @@
                                     {% blocktrans %}Downloads{% endblocktrans %}
                                 </a>
                             </li>
+                              {% if request.user|is_privileged_user %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'language-paradigm-list' %}">
+                                        {% blocktrans %}Language Paradigms{% endblocktrans %}
+                                    </a>
+                                </li>
+                              {% endif %}
                             {% endif %}
                         </ul>
                     </div>

@@ -1,6 +1,7 @@
 import string
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.text import slugify
@@ -656,6 +657,14 @@ class LanguageParadigm(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+
+    def save(self, *args, **kwargs):
+        super(LanguageParadigm, self).save(*args, **kwargs)
+        cache.delete(f"language_paradigms_{self.language.id}")
+
+    def delete(self, *args, **kwargs):
+        cache.delete(f"language_paradigms_{self.language.id}")
+        super(LanguageParadigm, self).delete(*args, **kwargs)
 
 
 class FileRequest(models.Model):

@@ -4,6 +4,7 @@ from django.db.models import Prefetch, F, Value, When, Case
 from manageXML.models import *
 from manageXML.utils import *
 from itertools import groupby
+from distutils.util import strtobool
 from django.template.loader import render_to_string
 from io import open, BytesIO
 from django.conf import settings
@@ -13,7 +14,7 @@ import time
 from django.db.models.functions import Cast
 
 
-def export(src_lang, tgt_lang, directory_path, ignore_file=None):
+def export(src_lang, tgt_lang, directory_path, approved=None, ignore_file=None):
     main_template = "export/latex.html"
     chapter_template = "export/latex-chapter.html"
 
@@ -22,12 +23,14 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None):
     # 2) group them by their first character
     # 3) order them
 
-    to_ignore_ids = read_first_ids_from(ignore_file)
+    relations = Relation.objects.filter(checked=True, type=TRANSLATION)
+
+    if ignore_file is not None:
+        to_ignore_ids = read_first_ids_from(ignore_file)
+        relations = relations.exclude(id__in=to_ignore_ids)
 
     relations = (
-        Relation.objects.filter(checked=True, type=TRANSLATION)
-        .exclude(pk__in=to_ignore_ids)
-        .prefetch_related(
+        relations.prefetch_related(
             Prefetch(
                 "lexeme_from",
                 queryset=Lexeme.objects.prefetch_related("miniparadigm_set"),
@@ -51,6 +54,9 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None):
         .order_by("lexeme_fcl")
         .all()
     )
+
+    if approved is not None:
+        relations = relations.filter(checked=approved)
 
     grouped_relations = groupby(
         sorted(relations, key=lambda r: r.lexeme_fcl), key=lambda r: r.lexeme_fcl
@@ -143,6 +149,13 @@ class Command(BaseCommand):
             help="A file containing relations to be ignored. "
             "The first value must be the ID of the relation.",
         )
+        parser.add_argument(
+            "--approved",
+            type=lambda v: bool(strtobool(v)),
+            nargs="?",
+            const=True,
+            default=None,
+        )
 
     def success_info(self, info):
         return self.stdout.write(self.style.SUCCESS(info))
@@ -155,10 +168,11 @@ class Command(BaseCommand):
         src_lang = options["source"]
         tgt_lang = options["target"]
         ignore_file = options["ignore"]
+        approved = options.get("approved", None)
 
         if not os.path.isdir(dir_path):
             return self.error_info("The directory doesn't exist!")
         elif ignore_file and not os.path.isfile(ignore_file):
             return self.error_info("The ignore file doesn't exist.")
 
-        export(src_lang, tgt_lang, dir_path, ignore_file)
+        export(src_lang, tgt_lang, dir_path, approved, ignore_file)

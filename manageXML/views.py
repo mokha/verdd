@@ -2,6 +2,7 @@ import json
 import os
 
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.template.loader import get_template
@@ -1741,3 +1742,41 @@ def download_file(request, pk):
             f'attachment; filename="{os.path.basename(file_path)}"'
         )
         return response
+
+
+class LanguageParadigmListView(AdminStaffRequiredMixin, TitleMixin, ListView):
+    model = LanguageParadigm
+    template_name = "language_paradigm_list.html"
+    context_object_name = "paradigms"
+
+    def get_title(self):
+        return _("Language Paradigms")
+
+
+class LanguageParadigmCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
+    model = LanguageParadigm
+    form_class = LanguageParadigmForm
+    template_name = "language_paradigm_add.html"
+    success_url = reverse_lazy("language-paradigm-list")
+
+    def get_title(self):
+        return _("Add Language Paradigm")
+
+
+class LanguageParadigmUpdateView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
+    model = LanguageParadigm
+    form_class = LanguageParadigmForm
+    template_name = "language_paradigm_edit.html"
+    success_url = reverse_lazy("language-paradigm-list")
+
+    def get_title(self):
+        return _("Edit Language Paradigm")
+
+
+class LanguageParadigmDeleteView(AdminStaffRequiredMixin, TitleMixin, DeleteView):
+    model = LanguageParadigm
+    template_name = "language_paradigm_confirm_delete.html"
+    success_url = reverse_lazy("language-paradigm-list")
+
+    def get_title(self):
+        return _("Delete Language Paradigm")

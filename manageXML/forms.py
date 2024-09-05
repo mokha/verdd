@@ -788,3 +788,22 @@ class FileRequestForm(forms.ModelForm):
         cleaned_data["type"] = int(cleaned_data.get("type"))
 
         return cleaned_data
+
+
+class LanguageParadigmForm(forms.ModelForm):
+    class Meta:
+        model = LanguageParadigm
+        fields = ["language", "pos", "form", "mini"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column("language", css_class="col-md-6"),
+                Column("pos", css_class="col-md-6"),
+            ),
+            "form",
+            "mini",
+            Submit("submit", "Save", css_class="btn btn-primary"),
+        )

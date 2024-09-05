@@ -1,0 +1,9 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    <h2>{% trans "Add Language Paradigm" %}:</h2>
+    {% crispy form %}
+{% endblock %}

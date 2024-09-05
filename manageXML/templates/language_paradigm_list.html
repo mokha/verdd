@@ -1,0 +1,44 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load custom_tags %}
+{% load widget_tweaks_extras %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+
+    <div class="m-3">
+      <a href="{% url 'language-paradigm-add' %}" class="btn btn-lg w-100 btn-primary">
+          <i class="fas fa-plus"></i> {% trans "Add Language Paradigm" %}
+      </a>
+    </div>
+
+    <br/>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>{% trans "Language" %}</th>
+            <th>{% trans "POS" %}</th>
+            <th>{% trans "Form" %}</th>
+            <th>{% trans "Mini" %}</th>
+            <th>{% trans "Actions" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for obj in object_list %}
+            <tr>
+                <td>{{ obj.language }}</td>
+                <td>{{ obj.pos }}</td>
+                <td>{{ obj.form }}</td>
+                <td>{% if obj.mini %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>
+                <td>
+                    <ul>
+                        <li><a href="{% url 'language-paradigm-edit' pk=obj.pk %}">{% trans "edit" %}</a></li>
+                        <li><a href="{% url 'language-paradigm-delete' pk=obj.pk %}">{% trans "delete" %}</a></li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

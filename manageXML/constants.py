@@ -29,6 +29,7 @@ HYPERONYMY = 9
 HOLONYMY = 10
 MERONYMY = 11
 COHYPONYM = 12
+DESC_TRANSLATION = 13
 
 RELATION_TYPE_OPTIONS = (
     (TRANSLATION, _("Translation")),
@@ -44,6 +45,7 @@ RELATION_TYPE_OPTIONS = (
     (COHYPONYM, _("Co-hyponym")),
     (SYNONYM, _("Synonym")),
     (ANTONYM, _("Antonym")),
+    (DESC_TRANSLATION, _("Description translation")),
     (99, _("Other")),
 )
 RELATION_TYPE_OPTIONS_DICT = dict(RELATION_TYPE_OPTIONS)

@@ -12,6 +12,11 @@
                         {% if specific.language == object.language  and specific.type == 1 %}
                     <re>{{ specific.text }}</re>{% endif %}{% endfor %}
                     <t pos="{{ translation.lexeme_to.pos }}">{{ translation.lexeme_to.lexeme }}</t>
+                    {% with examples=translation.relationexample_set.all %}{% if examples %}
+                    <xg>{% for example in examples %}
+                      <x>{{ example.text }}</x>{% endfor %}
+                    </xg>
+                    {% endif %}{% endwith %}
                 </tg>
             </mg>
         {% endfor %}

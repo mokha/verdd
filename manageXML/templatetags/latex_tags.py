@@ -2,16 +2,9 @@ import re
 from django import template
 from manageXML.constants import SPECIFICATION
 from collections import defaultdict
-from uralicNLP import uralicApi
-from django.core.cache import cache  # Cache mini paradigms per language
+from manageXML.inflector import generate_inflections
 
 register = template.Library()
-
-
-# Ensure the uralicNLP model is installed
-def ensure_model_is_installed(language):
-    if not uralicApi.is_language_installed(language):
-        uralicApi.download(language)
 
 
 @register.filter(name="tex_escape")
@@ -40,15 +33,6 @@ def tex_escape(text):
         )
     )
     return regex.sub(lambda match: conv[match.group()], text)
-
-
-def load_mini_paradigms(language):
-    cache_key = f"language_paradigms_{language}"
-    paradigms = cache.get(cache_key)
-    if not paradigms:
-        paradigms = language.paradigms.filter(mini=True).all()
-        cache.set(cache_key, paradigms, timeout=3600)  # Cache for 1 hour
-    return paradigms
 
 
 @register.simple_tag(name="dictionary_entry")
@@ -86,29 +70,11 @@ def dictionary_entry(grouped_relation):
     for r in relations:
         translation = r.lexeme_to
 
-        paradigms = load_mini_paradigms(translation.language)
-
         translation_text = translation.lexeme
         pos = "" if translation.pos == lexeme_from.pos else translation.pos
 
-        # Use uralicNLP to generate inflected forms
-        ensure_model_is_installed(translation.language.id)
-
-        generated_forms = []
-        for paradigm in paradigms:
-            if translation.pos == paradigm.pos:
-                _generation_forms = uralicApi.generate(
-                    f"{translation.lexeme}+{translation.pos}+{paradigm.form}",
-                    translation.language.id,
-                    dictionary_forms=True,
-                )
-                generated_forms.extend(_generation_forms)
-
-        inflections = (
-            [form[0].split("@")[0] for form in generated_forms if form]
-            if generated_forms
-            else []
-        )
+        generated_forms = generate_inflections(translation)
+        inflections = [_m for m in generated_forms.values() for _m in m]
 
         MP_forms = translation.miniparadigm_set.all()
         existing_MP_forms = defaultdict(list)

@@ -47,15 +47,13 @@ from collections import defaultdict
 import csv
 import re
 from .constants import INFLEX_TYPE_OPTIONS
-from manageXML.inflector import Inflector
-import operator
+from .inflector import generate_inflections
 import logging
 from .utils import read_first_ids_from
 from django.conf import settings
 from .tasks import process_file_request
 
 logger = logging.getLogger("verdd.manageXML")  # Get an instance of a logger
-_inflector = Inflector()
 
 
 class AdminStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -397,25 +395,11 @@ class MiniParadigmMixin:
             existing_MP_forms[form.msd].append(form.wordform)
         return existing_MP_forms
 
-    def generate_forms(self, lexeme):
-        existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
-        MP_forms = _inflector.generate(lexeme.language, lexeme.lexeme, lexeme.pos)
-
-        generated_forms = defaultdict(list)
-        for f, r in MP_forms.items():
-            if f in existing_MP_forms:  # if overridden by the user
-                continue  # ignore it
-
-            for _r in r:
-                generated_forms[f].append(_r)
-        generated_forms.default_factory = None
-        return generated_forms
-
     def short_generate_forms(self, lexeme):
+
+        MP_forms = generate_inflections(lexeme)
+
         existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
-        MP_forms = _inflector.generate_uralicNLP(
-            lexeme.language, lexeme.lexeme, lexeme.pos
-        )
 
         generated_forms = defaultdict(list)
         for f, r in MP_forms.items():
@@ -495,10 +479,7 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(LexemeDetailView, self).get_context_data(**kwargs)
-        context["generated_miniparadigms"] = self.generate_forms(self.object)
-        context["short_generated_miniparadigms"] = self.short_generate_forms(
-            self.object
-        )
+        context["generated_miniparadigms"] = self.short_generate_forms(self.object)
 
         last_lexeme = self.request.GET.get("lastlexeme", None)  # is last lexeme passed?
         last_lexeme = (
@@ -624,7 +605,7 @@ class MiniParadigmEditView(
         # Pass the filterset to the template - it provides the form.
         lexeme = get_object_or_404(Lexeme, pk=self.object.lexeme.id)
         context["lexeme"] = lexeme
-        context["generated_miniparadigms"] = self.generate_forms(lexeme)
+        context["generated_miniparadigms"] = self.short_generate_forms(lexeme)
         return context
 
     def get_title(self):
@@ -649,7 +630,7 @@ class MiniParadigmCreateView(
     def get_context_data(self, **kwargs):
         context = super(MiniParadigmCreateView, self).get_context_data(**kwargs)
         context["lexeme"] = self.lexeme
-        context["generated_miniparadigms"] = self.generate_forms(self.lexeme)
+        context["generated_miniparadigms"] = self.short_generate_forms(self.lexeme)
         return context
 
     def get_title(self):

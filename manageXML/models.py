@@ -732,6 +732,13 @@ class FileRequest(models.Model):
     def is_pending(self):
         return self.status == DOWNLOAD_STATUS_PENDING
 
+    def time_taken(self):
+        if self.processed_at:
+            delta = self.processed_at - self.created_at
+            minutes = delta.total_seconds() / 60
+            return round(minutes, 2)
+        return None
+
     def get_absolute_url(self):
         return reverse("file-download", kwargs={"pk": self.pk})
 

@@ -29,6 +29,21 @@
                   <span class="badge bg-secondary">{% trans "Pending" %}</span>
                 {% endif %}
               </p>
+
+              <p><strong>{% trans "Type" %}:</strong> {% constant_text 'DOWNLOAD_TYPES' file.type %}</p>
+              <p><strong>{% trans "Source Language" %}:</strong> {{ file.lang_source }}</p>
+              <p><strong>{% trans "Target Language" %}:</strong> {{ file.lang_target }}</p>
+              <p><strong>{% trans "Options" %}:</strong> {{ file.options }}</p>
+
+              
+              {% if file.is_completed or file.is_failed %}
+                {% if file.time_taken %}
+                  <p><strong>{% trans "Time" %}:</strong> {{ file.time_taken }} {% trans "minutes" %}</p>
+                {% else %}
+                  <p><strong>{% trans "Time" %}:</strong> N/A</p>
+                {% endif %}
+              {% endif %}
+
               {% if file.is_completed %}
                 <a href="{{ file.get_absolute_url }}" class="btn btn-primary">
                   <i class="fas fa-download"></i> {% trans "Download" %}

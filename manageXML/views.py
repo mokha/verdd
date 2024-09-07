@@ -285,7 +285,9 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
     )
     language = ChoiceFilter(label=_("Language"))
     pos = ChoiceFilter(label=_("POS"))
-    contlex = CharFilter(label=_("Contlex"), method="filter_contlex")
+    contlex = CharFilter(
+        label=_("Contlex") + " (" + _("Regex") + ")", method="filter_contlex"
+    )
     order_by = LexemeOrderingFilter(fields=ORDER_BY_FIELDS, label=_("Order by"))
 
     class Meta:
@@ -319,7 +321,7 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
         """
         Custom filter method to filter Lexemes based on contlex of the Lexeme or related Stem objects.
         """
-        return queryset.filter(Q(contlex=value) | Q(stem__contlex=value)).distinct()
+        return queryset.filter(Q(stem__contlex__iregex=value)).distinct()
 
 
 class LexemeDictionaryView(FilteredListView):

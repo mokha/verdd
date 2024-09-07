@@ -50,7 +50,7 @@
             <button type="submit" class="btn btn-primary btn-lg">
                 <i class="fas fa-search"></i> {% trans "Search" %}
             </button>
-            {% if user.is_authenticated %}
+            {% if user.is_admin_or_staff %}
             <div class="d-flex">
                 <div class="dropdown me-2">
                     <a class="btn btn-outline-secondary dropdown-toggle btn-lg" href="#" role="button"

@@ -53,7 +53,7 @@
                                     {% blocktrans %}Search Relations{% endblocktrans %}
                                 </a>
                             </li>
-                            {% if user.is_authenticated %}
+                            {% if user.is_admin_or_staff %}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -83,13 +83,11 @@
                                     {% blocktrans %}Downloads{% endblocktrans %}
                                 </a>
                             </li>
-                              {% if request.user|is_privileged_user %}
                                 <li>
                                     <a class="dropdown-item" href="{% url 'language-paradigm-list' %}">
                                         {% blocktrans %}Language Paradigms{% endblocktrans %}
                                     </a>
                                 </li>
-                              {% endif %}
                             {% endif %}
                         </ul>
                     </div>

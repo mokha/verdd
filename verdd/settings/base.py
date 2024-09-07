@@ -64,6 +64,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "users.middleware.VerddUserMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",  # simple_history
 ]
 

@@ -45,7 +45,7 @@
             <button type="submit" class="btn btn-primary">
                 <span class="glyphicon glyphicon-search"></span> {% trans "Search" %}
             </button>
-            {% if user.is_authenticated %}
+            {% if user.is_admin_or_staff %}
                 <a class="btn btn-outline-secondary float-right" href="{% url 'relation-approval' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
                     {% blocktrans %}Bulk Approve{% endblocktrans %}</a>
             {% endif %}
@@ -112,7 +112,7 @@
                 <td>
                     <ul>
                         <li><a href="{% url 'relation-detail' pk=obj.pk %}?{% query_transform request lastlexeme=obj.pk %}">{% trans "view" %}</a></li>
-                        {% if user.is_authenticated %}
+                        {% if user.is_admin_or_staff %}
                             <li><a href="{% url 'relation-edit' pk=obj.pk %}">{% trans "edit" %}</a></li>
                             <li><a href="{% url 'relation-delete' pk=obj.pk lexeme_id=obj.lexeme_from.pk %}">{% trans "delete" %}</a></li>
                         {% endif %}

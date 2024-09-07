@@ -22,11 +22,11 @@
             {% include 'example_data.html' with object=object %}
             {% include 'stem_data.html' with object=object stems=stems %}
 
-            <h2>{% trans "Mini Paradigms" %}{% if user.is_authenticated %} (<a href="{% url 'mini-paradigm-add' lexeme_id=object.pk %}">{% trans "add" %}</a>){% endif %}:</h2>
+            <h2>{% trans "Mini Paradigms" %}{% if user.is_admin_or_staff %} (<a href="{% url 'mini-paradigm-add' lexeme_id=object.pk %}">{% trans "add" %}</a>){% endif %}:</h2>
 
             {% include 'mini_paradigm_data.html' with object=object generated_miniparadigms=generated_miniparadigms %}
 
-            <h2>{% trans "Relations" %}{% if user.is_authenticated %} (<a href="{% url 'relation-add' lexeme_id=object.pk %}">{% trans "add" %}</a>){% endif %}:</h2>
+            <h2>{% trans "Relations" %}{% if user.is_admin_or_staff %} (<a href="{% url 'relation-add' lexeme_id=object.pk %}">{% trans "add" %}</a>){% endif %}:</h2>
             {% with object.get_relations as relations %}
                 {% if relations %}
                     <div id="relation-details">
@@ -35,7 +35,7 @@
                 {% endif %}
             {% endwith %}
 
-            {% if user.is_authenticated and not object.checked %}
+            {% if user.is_admin_or_staff and not object.checked %}
                 <form action="{% url 'lexeme-approve' pk=object.pk %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-success">

@@ -414,7 +414,7 @@ class MiniParadigmMixin:
         return generated_forms
 
 
-class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class LexemeCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "lexeme_add.html"
     model = Lexeme
     form_class = LexemeCreateForm
@@ -498,7 +498,7 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
         return self.object
 
 
-class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class LexemeEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "lexeme_edit.html"
     model = Lexeme
     form_class = LexemeForm
@@ -546,7 +546,7 @@ class RelationDetailView(TitleMixin, DetailView):
         )
 
 
-class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_edit.html"
     model = Relation
     form_class = RelationForm
@@ -579,7 +579,7 @@ class SourceDetailView(DetailView):
     template_name = "source_detail.html"
 
 
-class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class SourceEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "source_edit.html"
     model = Source
     form_class = SourceForm
@@ -596,7 +596,7 @@ class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
 
 
 class MiniParadigmEditView(
-    LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView
+    AdminStaffRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView
 ):
     template_name = "mini_paradigm_edit.html"
     model = MiniParadigm
@@ -645,7 +645,7 @@ class MiniParadigmCreateView(
         return super(MiniParadigmCreateView, self).form_valid(form)
 
 
-class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_add.html"
     model = Relation
     form_class = RelationCreateForm
@@ -681,7 +681,7 @@ class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(RelationCreateView, self).form_valid(form)
 
 
-class AffiliationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class AffiliationCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "affiliation_add.html"
     model = Affiliation
     form_class = AffiliationCreateForm
@@ -704,7 +704,7 @@ class AffiliationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(AffiliationCreateView, self).form_valid(form)
 
 
-class AffiliationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class AffiliationEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "affiliation_edit.html"
     model = Affiliation
     form_class = AffiliationEditForm
@@ -726,7 +726,7 @@ class AffiliationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return super(AffiliationEditView, self).form_valid(form)
 
 
-class SourceCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class SourceCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "source_add.html"
     model = Source
     form_class = SourceCreateForm
@@ -752,7 +752,7 @@ class SourceCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(SourceCreateView, self).form_valid(form)
 
 
-class DeleteFormMixin(LoginRequiredMixin, TitleMixin, DeleteView):
+class DeleteFormMixin(AdminStaffRequiredMixin, TitleMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(DeleteFormMixin, self).get_context_data(**kwargs)
         context.update(
@@ -832,7 +832,7 @@ class SourceDeleteView(LexemeDeleteFormMixin):
         )
 
 
-class ExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class ExampleCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "example_add.html"
     model = Example
     form_class = ExampleForm
@@ -855,7 +855,7 @@ class ExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(ExampleCreateView, self).form_valid(form)
 
 
-class ExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class ExampleEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "example_edit.html"
     model = Example
     form_class = ExampleForm
@@ -879,7 +879,7 @@ class ExampleDeleteView(LexemeDeleteFormMixin):
         )
 
 
-class RelationExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationExampleCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_example_add.html"
     model = RelationExample
     form_class = RelationExampleForm
@@ -911,7 +911,7 @@ class RelationExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationMetadataCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_metadata_add.html"
     model = RelationMetadata
     form_class = RelationMetadataForm
@@ -943,7 +943,7 @@ class RelationMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationExampleEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_example_edit.html"
     model = RelationExample
     form_class = RelationExampleForm
@@ -977,7 +977,7 @@ class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationMetadataEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_metadata_edit.html"
     model = RelationMetadata
     form_class = RelationMetadataForm
@@ -1007,7 +1007,7 @@ class RelationMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationExampleRelationView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationExampleRelationView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_example_relation_add.html"
     model = RelationExampleRelation
     form_class = RelationExampleLinkForm
@@ -1045,7 +1045,7 @@ class RelationExampleRelationView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(RelationExampleRelationView, self).form_valid(form)
 
 
-class RelationExampleRelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationExampleRelationEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_example_relation_edit.html"
     model = RelationExampleRelation
     form_class = RelationExampleLinkEditForm
@@ -1164,7 +1164,7 @@ class HistorySearchView(TitleMixin, ListView, AdminStaffRequiredMixin):
         return object_list
 
 
-class ApprovalViewMixin(LoginRequiredMixin, FormMixin, FilteredListView):
+class ApprovalViewMixin(AdminStaffRequiredMixin, FormMixin, FilteredListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(
             **{"form": None, **kwargs}
@@ -1426,7 +1426,7 @@ class StemDetailView(TitleMixin, DetailView):
         return "%s (%s)" % (self.object.text, self.object.lexeme.lexeme)
 
 
-class StemCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class StemCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "stem_add.html"
     model = Stem
     form_class = StemForm
@@ -1449,7 +1449,7 @@ class StemCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(StemCreateView, self).form_valid(form)
 
 
-class StemEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class StemEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "stem_edit.html"
     model = Stem
     form_class = StemForm
@@ -1479,7 +1479,7 @@ class SymbolListView(TitleMixin, ListView):
     title = _("Symbol")
 
 
-class LexemeMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class LexemeMetadataCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "lexeme_metadata_add.html"
     model = LexemeMetadata
     form_class = LexemeMetadataForm
@@ -1502,7 +1502,7 @@ class LexemeMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(LexemeMetadataCreateView, self).form_valid(form)
 
 
-class LexemeMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class LexemeMetadataEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "lexeme_metadata_edit.html"
     model = LexemeMetadata
     form_class = LexemeMetadataForm
@@ -1662,7 +1662,7 @@ class LexemeExportLexcView(LexemeView):
         return response
 
 
-class FileRequestView(LoginRequiredMixin, TitleMixin, CreateView):
+class FileRequestView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "file_request.html"
     model = FileRequest
     form_class = FileRequestForm

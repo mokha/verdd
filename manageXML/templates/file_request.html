@@ -37,11 +37,7 @@
 
               
               {% if file.is_completed or file.is_failed %}
-                {% if file.time_taken %}
-                  <p><strong>{% trans "Time" %}:</strong> {{ file.time_taken }} {% trans "minutes" %}</p>
-                {% else %}
-                  <p><strong>{% trans "Time" %}:</strong> N/A</p>
-                {% endif %}
+                  <p><strong>{% trans "Time" %}:</strong> {% if file.time_taken is not none %}{{ file.time_taken }} {% trans "minutes" %}{% else %}{% trans "N/A" %}{% endif %}</p>
               {% endif %}
 
               {% if file.is_completed %}

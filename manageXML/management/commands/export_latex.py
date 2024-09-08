@@ -23,7 +23,10 @@ def export(src_lang, tgt_lang, directory_path, approved=None, ignore_file=None):
     # 2) group them by their first character
     # 3) order them
 
-    relations = Relation.objects.filter(checked=True, type=TRANSLATION)
+    relations = Relation.objects.filter(type=TRANSLATION)
+
+    if approved is not None:
+        relations = relations.filter(checked=approved)
 
     if ignore_file is not None:
         to_ignore_ids = read_first_ids_from(ignore_file)
@@ -37,7 +40,16 @@ def export(src_lang, tgt_lang, directory_path, approved=None, ignore_file=None):
             ),
             Prefetch(
                 "lexeme_to",
-                queryset=Lexeme.objects.prefetch_related("miniparadigm_set"),
+                queryset=Lexeme.objects.prefetch_related("miniparadigm_set").annotate(
+                    _homonyms_count=Count(
+                        "id",
+                        filter=Q(
+                            lexeme=F("lexeme"),
+                            pos=F("pos"),
+                            language=F("language"),
+                        ),
+                    )
+                ),
             ),
             "relationexample_set",
             "relationmetadata_set",
@@ -47,19 +59,13 @@ def export(src_lang, tgt_lang, directory_path, approved=None, ignore_file=None):
             lexeme_fc=Upper(
                 Substr(Cast("lexeme_from__lexeme", models.CharField()), 1, 1)
             ),
-            lexeme_fcl=Substr(
-                Cast("lexeme_from__lexeme_lang", models.CharField()), 1, 1
-            ),
         )
-        .order_by("lexeme_fcl")
+        .order_by("lexeme_from__lexeme")
         .all()
     )
 
-    if approved is not None:
-        relations = relations.filter(checked=approved)
-
     grouped_relations = groupby(
-        sorted(relations, key=lambda r: r.lexeme_fcl), key=lambda r: r.lexeme_fcl
+        sorted(relations, key=lambda r: r.lexeme_fc), key=lambda r: r.lexeme_fc
     )
 
     in_memory = BytesIO()

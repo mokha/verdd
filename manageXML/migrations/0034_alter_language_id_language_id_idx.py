@@ -6,17 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0033_filerequest'),
+        ("manageXML", "0033_filerequest"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='language',
-            name='id',
-            field=models.CharField(db_index=True, max_length=3, primary_key=True, serialize=False, unique=True),
+            model_name="language",
+            name="id",
+            field=models.CharField(
+                db_index=True,
+                max_length=3,
+                primary_key=True,
+                serialize=False,
+                unique=True,
+            ),
         ),
         migrations.AddIndex(
-            model_name='language',
-            index=models.Index(fields=['id'], name='id_idx'),
+            model_name="language",
+            index=models.Index(fields=["id"], name="id_idx"),
         ),
     ]

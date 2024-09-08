@@ -66,6 +66,20 @@ class Lexeme(models.Model):
             "language",
         )
 
+        indexes = [
+            models.Index(
+                fields=["lexeme", "pos", "language"], name="lexeme_pos_language_idx"
+            ),
+            models.Index(fields=["lexeme"], name="lexeme_idx"),
+            models.Index(fields=["pos"], name="pos_idx"),
+            models.Index(fields=["language"], name="language_idx"),
+            models.Index(fields=["lexeme_lang"], name="lexeme_lang_idx"),
+            models.Index(fields=["consonance"], name="consonance_idx"),
+            models.Index(fields=["consonance_rev"], name="consonance_rev_idx"),
+            models.Index(fields=["assonance"], name="assonance_idx"),
+            models.Index(fields=["assonance_rev"], name="assonance_rev_idx"),
+        ]
+
     lexeme = BinaryCharField(max_length=250)
     homoId = models.IntegerField(default=0)
     assonance = models.CharField(max_length=250, blank=True)
@@ -138,6 +152,18 @@ class Lexeme(models.Model):
             if self.inflexType in INFLEX_TYPE_OPTIONS_DICT
             else ""
         )
+
+    @property
+    def homonyms_count(self):
+        """
+        Returns the count of homonyms for this lexeme (lexeme with the same lexeme, pos, and language).
+        If the count has been pre-calculated (e.g., annotated in a queryset), use the cached value.
+        """
+        if hasattr(self, "_homonyms_count"):
+            return self._homonyms_count
+        return Lexeme.objects.filter(
+            lexeme=self.lexeme, pos=self.pos, language=self.language
+        ).count()
 
     def get_lexeme_lang(self):
         main_str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¨ÂÄÅÕÖáâäåõöČčĐđŊŋśŠšŽžƷǤǥǦǧǨǩǮǯʒʹʼˈАаẸẹ’₋"
@@ -241,6 +267,19 @@ class Lexeme(models.Model):
 class Relation(models.Model):
     class Meta:
         unique_together = ("lexeme_from", "lexeme_to", "type")
+
+        indexes = [
+            models.Index(
+                fields=["lexeme_from"], name="lexeme_from_idx"
+            ),  # For faster joins and lookups
+            models.Index(
+                fields=["lexeme_to"], name="lexeme_to_idx"
+            ),  # For faster joins and lookups
+            models.Index(fields=["type"], name="type_idx"),  # For filtering by type
+            models.Index(
+                fields=["checked"], name="checked_idx"
+            ),  # For filtering by checked status
+        ]
 
     lexeme_from = models.ForeignKey(
         Lexeme, related_name="lexeme_from_lexeme_set", on_delete=models.CASCADE

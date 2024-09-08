@@ -239,6 +239,24 @@ REST_FRAMEWORK = {
 # For localizations
 LANGUAGE_COOKIE_NAME = "language"
 
+# For debugging
+if DEBUG:
+    INSTALLED_APPS += ("debug_toolbar",)
+
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
+
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "JQUERY_URL": "",
+        # "SHOW_TOOLBAR_CALLBACK": lambda request: True, # Show the toolbar to everyone
+    }
+
+    INTERNAL_IPS = ["127.0.0.1"]
+
+
 # Celery Configuration
 REDIS_HOST = config("REDIS_HOST", default="redis")
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:6379/0"

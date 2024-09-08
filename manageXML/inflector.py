@@ -5,9 +5,20 @@ from manageXML.models import Lexeme
 from django.core.cache import cache  # Cache mini paradigms per language
 
 
+def uralicNLP_language_supported(language):
+    cache_key = f"language_supported_{language}"
+    supported = cache.get(cache_key)
+    if supported is None:
+        supported = uralicApi.supported_languages().get(language) is not None
+        cache.set(cache_key, supported)
+    return supported
+
+
 # Ensure the uralicNLP model is installed
 def ensure_model_is_installed(language):
-    if not uralicApi.is_language_installed(language):
+    if not uralicApi.is_language_installed(
+        language
+    ):  # uralicNLP_language_supported(language)
         uralicApi.download(language)
 
 
@@ -20,10 +31,9 @@ def load_mini_paradigms(language):
     return paradigms
 
 
-def generate_using_uralicNLP(query, language):
+def language_has_dictionary_forms(query, language):
     cache_key = f"language_has_dictionary_forms_{language}"
     language_has_dictionary_forms = cache.get(cache_key)
-
     if language_has_dictionary_forms is None:
         try:
             # Attempt to generate with dictionary_forms=True
@@ -33,12 +43,20 @@ def generate_using_uralicNLP(query, language):
             # If generating with dictionary_forms=True fails, assume it is not supported
             language_has_dictionary_forms = False
         cache.set(
-            cache_key, language_has_dictionary_forms, timeout=3600
-        )  # Cache for 1 hour
+            cache_key, language_has_dictionary_forms, timeout=3600 * 24
+        )  # Cache for a day
+        print(
+            f"Language {language} has dictionary forms: {language_has_dictionary_forms}"
+        )
+    return language_has_dictionary_forms
+
+
+def generate_using_uralicNLP(query, language):
+    has_dictionary_forms = language_has_dictionary_forms(query, language)
 
     try:
         forms = uralicApi.generate(
-            query, language, dictionary_forms=language_has_dictionary_forms
+            query, language, dictionary_forms=has_dictionary_forms
         )
         return forms
     except Exception as e:
@@ -84,13 +102,9 @@ def generate_inflections(lexeme: Lexeme) -> dict:
 
     ensure_model_is_installed(lexeme.language.id)
 
-    homonyms = Lexeme.objects.filter(
-        lexeme=lexeme.lexeme, language=lexeme.language, pos=lexeme.pos
-    ).count()
-
     query = lexeme.lexeme
 
-    if homonyms > 1:
+    if lexeme.homonyms_count > 1:
         query += f"+Hom{lexeme.homoId + 1}"
 
     generated_forms = {}

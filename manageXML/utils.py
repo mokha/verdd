@@ -8,6 +8,42 @@ from typing import Dict, Tuple, List, Sequence, Type
 from django.db.models.constants import LOOKUP_SEP
 from collections import OrderedDict
 from manageXML.constants import LEXEME_TYPE
+from manageXML.models import Lexeme
+from django.core.cache import cache
+
+
+def get_all_used_languages():
+    cache_key = "languages_sorted"
+    result = cache.get(cache_key)
+
+    if not result:
+        result = (
+            Lexeme.objects.values_list("language", flat=True)
+            .distinct()
+            .order_by(
+                "language",
+            )
+        )
+        cache.set(cache_key, result, timeout=3600 * 24)  # Cache for a day
+
+    return result
+
+
+def get_all_used_pos():
+    cache_key = "pos_sorted"
+    result = cache.get(cache_key)
+
+    if not result:
+        result = (
+            Lexeme.objects.values_list("pos", flat=True)
+            .distinct()
+            .order_by(
+                "pos",
+            )
+        )
+        cache.set(cache_key, result, timeout=3600 * 24)  # Cache for a day
+
+    return result
 
 
 def read_first_ids_from(

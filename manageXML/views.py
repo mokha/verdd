@@ -35,6 +35,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.functions import Substr, Upper
 from django.db.models import Prefetch
+from django.core.paginator import Paginator
+import hashlib
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.http import Http404
 from django.db.models import Q
@@ -48,8 +51,8 @@ import csv
 import re
 from .constants import INFLEX_TYPE_OPTIONS
 from .inflector import generate_inflections
+from .utils import get_all_used_languages, get_all_used_pos
 import logging
-from .utils import read_first_ids_from
 from django.conf import settings
 from .tasks import process_file_request
 
@@ -73,8 +76,61 @@ class TitleMixin:
         return self.title
 
 
+class CachedPaginator(Paginator):
+    """
+    A Paginator that caches the total count of objects to avoid expensive queries.
+    Built on top of Django's Paginator.
+    """
+
+    def __init__(
+        self,
+        object_list,
+        per_page,
+        orphans=0,
+        allow_empty_first_page=True,
+        cache_timeout=3600,
+        cache_key_prefix=None,
+    ):
+        """
+        Initializes the CachedPaginator with additional parameters for caching.
+
+        :param cache_timeout: Time in seconds for which the count will be cached.
+        :param cache_key_prefix: Optional prefix for the cache key to avoid collisions.
+        """
+        super().__init__(object_list, per_page, orphans, allow_empty_first_page)
+        self.cache_timeout = cache_timeout
+        self.cache_key_prefix = cache_key_prefix or "cached_paginator"
+
+    def _generate_cache_key(self):
+        """
+        Generates a cache key based on the query and model, using a hash for uniqueness.
+        """
+        query_hash = hashlib.md5(
+            str(self.object_list.query).encode("utf-8")
+        ).hexdigest()
+        return f"{self.cache_key_prefix}:{query_hash}"
+
+    @cached_property
+    def count(self):
+        """
+        Returns the total number of objects, caching the result to avoid redundant count queries.
+        """
+        cache_key = self._generate_cache_key()
+        cached_count = cache.get(cache_key)
+
+        if cached_count is not None:
+            return cached_count
+
+        # If count isn't cached, get the actual count and cache it
+        total_count = super().count
+        cache.set(cache_key, total_count, self.cache_timeout)
+
+        return total_count
+
+
 class FilteredListView(TitleMixin, ListView):
     filterset_class = None
+    paginator_class = CachedPaginator
 
     def get_queryset(self):
         # Get the queryset however you usually would.  For example:
@@ -170,9 +226,8 @@ class LexemeFilter(django_filters.FilterSet):
         data.setdefault("order", "+lexeme_lang")
         super().__init__(data, *args, **kwargs)
 
-        lang_pos = Lexeme.objects.values("language", "pos").distinct()
-        languages = list(sorted(set([_i["language"] for _i in lang_pos])))
-        pos = list(sorted(set([_i["pos"] for _i in lang_pos])))
+        languages = get_all_used_languages()
+        pos = get_all_used_pos()
         self.form.fields["language"].choices = zip(languages, languages)
         self.form.fields["pos"].choices = zip(pos, pos)
         self.form.fields["order_by"].choices = (
@@ -295,13 +350,13 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
         fields = ["lexeme", "language", "pos", "contlex"]
 
     def __init__(self, data, *args, **kwargs):
-        data = data.copy()
+        data = data.copy() if data else {}
         data.setdefault("order", "+lexeme_lang")
         super().__init__(data, *args, **kwargs)
 
-        lang_pos = Lexeme.objects.values("language", "pos").distinct()
-        languages = list(sorted(set([_i["language"] for _i in lang_pos])))
-        pos = list(sorted(set([_i["pos"] for _i in lang_pos])))
+        languages = get_all_used_languages()
+        pos = get_all_used_pos()
+
         self.form.fields["language"].choices = zip(languages, languages)
         self.form.fields["pos"].choices = zip(pos, pos)
         self.form.fields["order_by"].choices = (
@@ -321,7 +376,7 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
         """
         Custom filter method to filter Lexemes based on contlex of the Lexeme or related Stem objects.
         """
-        return queryset.filter(Q(stem__contlex__iregex=value)).distinct()
+        return queryset.filter(Q(stem__contlex__iregex=value))
 
 
 class LexemeDictionaryView(FilteredListView):
@@ -1284,7 +1339,7 @@ class RelationFilter(django_filters.FilterSet):
         data = data.copy()
         super().__init__(data, *args, **kwargs)
 
-        pos = set(Lexeme.objects.values_list("pos", flat=True).distinct())
+        pos = get_all_used_pos()
         self.form.fields["pos"].choices = zip(pos, pos)
 
     def filter_lexeme(self, queryset, name, value):

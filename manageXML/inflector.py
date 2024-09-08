@@ -52,7 +52,7 @@ def language_has_dictionary_forms(query, language):
 
 
 def generate_using_uralicNLP(query, language):
-    has_dictionary_forms = language_has_dictionary_forms(query, language)
+    has_dictionary_forms = False  # language_has_dictionary_forms(query, language) #@TODO: Enable when the dictionary forms are fixed
 
     try:
         forms = uralicApi.generate(

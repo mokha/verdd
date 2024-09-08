@@ -13,18 +13,18 @@ def tex_escape(text):
     Escapes LaTeX special characters in the provided text.
     """
     conv = {
-        "&": r"\&",
-        "%": r"\%",
-        "$": r"\$",
-        "#": r"\#",
-        "_": r"\_",
-        "{": r"\{",
-        "}": r"\}",
-        "~": r"\\textasciitilde{}",
-        "^": r"\\^{}",
-        "\\": r"\\textbackslash{}",
-        "<": r"\\textless{}",
-        ">": r"\\textgreater{}",
+        "&": "\&",
+        "%": "\%",
+        "$": "\$",
+        "#": "\#",
+        "_": "\_",
+        "{": "\{",
+        "}": "\}",
+        "~": "\\textasciitilde{}",
+        "^": "\^{}",
+        "\\": "\\textbackslash{}",
+        "<": "\\textless{}",
+        ">": "\\textgreater{}",
     }
 
     regex = re.compile(
@@ -54,7 +54,7 @@ def dictionary_entry(grouped_relation):
         lexeme_from.specification,
     )
     entry_content = tuple([tex_escape(c) for c in entry_content])
-    dictionary_entry_text.append(r"\entry{%s}{%s}{%s}" % entry_content)
+    dictionary_entry_text.append("\entry{%s}{%s}{%s}" % entry_content)
 
     # Sort relations for processing
     relations = list(
@@ -134,4 +134,4 @@ def dictionary_chapter(key):
     """
     Generate a LaTeX chapter for the dictionary entry.
     """
-    return r"\\includedictionary{%s}{chapter-%s.tex}" % (key, key)
+    return "\includedictionary{%s}{chapter-%s.tex}" % (key, key)

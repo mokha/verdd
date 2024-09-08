@@ -111,7 +111,7 @@
                 </td>
                 <td>
                     <ul>
-                        <li><a href="{% url 'relation-detail' pk=obj.pk %}?{% query_transform request lastlexeme=obj.pk %}">{% trans "view" %}</a></li>
+                        <li><a href="{% url 'relation-detail' pk=obj.pk %}?">{% trans "view" %}</a></li>
                         {% if user.is_admin_or_staff %}
                             <li><a href="{% url 'relation-edit' pk=obj.pk %}">{% trans "edit" %}</a></li>
                             <li><a href="{% url 'relation-delete' pk=obj.pk lexeme_id=obj.lexeme_from.pk %}">{% trans "delete" %}</a></li>

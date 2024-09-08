@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("manageXML", "0030_alter_historicalaffiliation_options_and_more"),
+
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

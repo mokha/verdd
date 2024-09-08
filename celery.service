@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=forking
 WorkingDirectory=/PATH_TO_PROJECT/verdd/
+EnvironmentFile=/PATH_TO_PROJECT/verdd/.env
 Environment="CELERY_BIN=/PATH_TO_PROJECT/verdd/venv/bin/celery"
 Environment="CELERY_APP=verdd"
 Environment="CELERYD_NODES=worker"

@@ -1,0 +1,2 @@
+@monthly /PATH_TO_PROJECT/verdd/venv/bin/python /PATH_TO_PROJECT/verdd/manage.py database_backup -d default -p /PATH_TO_PROJECT/verdd_db_bk/ --settings verdd.settings.production
+@daily /PATH_TO_PROJECT/verdd/venv/bin/python /PATH_TO_PROJECT/verdd/manage.py cleanup_file_requests --settings verdd.settings.production

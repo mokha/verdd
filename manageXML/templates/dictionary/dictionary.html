@@ -85,14 +85,14 @@
             <tr id="lexeme-{{ obj.id }}">
                 <td>
                     <b><a
-                            href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}">{{ obj.lexeme }}</a></b>
+                            href="{% url 'lexeme-detail' pk=obj.pk slug=obj.slug %}?{% query_transform request lastlexeme=obj.pk %}" class="{% if obj.checked %}text-success{% endif %}">{{ obj.lexeme }}</a></b>
                     <i>{{ obj.pos|lower }}.</i> ({{ obj.language }})
                     <ul class="list-unstyled mt-2 ms-4">
                         {% for relation in obj.get_translations.all %}
                         {% if relation.lexeme_to %}
                         <li>
                             <b><a
-                                    href="{% url 'lexeme-detail' pk=relation.lexeme_to.pk slug=relation.lexeme_to.slug %}?{% query_transform request lastlexeme=relation.lexeme_to.pk %}">{{ relation.lexeme_to.lexeme }}</a></b>
+                                    href="{% url 'lexeme-detail' pk=relation.lexeme_to.pk slug=relation.lexeme_to.slug %}?{% query_transform request lastlexeme=relation.lexeme_to.pk %}" class="{% if relation.checked %}text-success{% endif %}">{{ relation.lexeme_to.lexeme }}</a></b>
                             <i>{{ relation.lexeme_to.pos|lower }}.</i> ({{ relation.lexeme_to.language }})
                         </li>
                         {% endif %}

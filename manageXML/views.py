@@ -338,8 +338,10 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
         empty_label=None,
         lookup_choices=lookup_choices,
     )
-    language = ChoiceFilter(label=_("Language"))
-    pos = ChoiceFilter(label=_("POS"))
+    language = ChoiceFilter(
+        label=_("Language"), choices=[(_v, _v) for _v in get_all_used_languages()]
+    )
+    pos = ChoiceFilter(label=_("POS"), choices=[(_v, _v) for _v in get_all_used_pos()])
     contlex = CharFilter(
         label=_("Contlex") + " (" + _("Regex") + ")", method="filter_contlex"
     )
@@ -354,11 +356,6 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
         data.setdefault("order", "+lexeme_lang")
         super().__init__(data, *args, **kwargs)
 
-        languages = get_all_used_languages()
-        pos = get_all_used_pos()
-
-        self.form.fields["language"].choices = zip(languages, languages)
-        self.form.fields["pos"].choices = zip(pos, pos)
         self.form.fields["order_by"].choices = (
             ("lexeme_lang", _("Lexeme")),
             ("-lexeme_lang", "%s (%s)" % (_("Lexeme"), _("descending"))),

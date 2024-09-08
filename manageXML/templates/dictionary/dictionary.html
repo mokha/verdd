@@ -8,7 +8,7 @@
 <form method="get">
     <div class="bg-light p-4 rounded mt-4 shadow-sm">
         <div class="row g-3">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <div class="form-group">
                     {{ filterset.form.lexeme.label_tag }}
                     <div class="row g-2">
@@ -21,7 +21,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-1">
                 <div class="form-group">
                     {{ filterset.form.language.label_tag }}
                     {% render_field filterset.form.language class="form-control" %}

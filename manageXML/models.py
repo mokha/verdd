@@ -1,12 +1,14 @@
 import string
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.text import slugify
 from simple_history.models import HistoricalRecords
 from django.core.validators import slug_re
-
+from django.utils import timezone
+from .storage import TemporaryFileStorage
 from wiki.semantic_api import SemanticAPI
 from .common import Rhyme
 from .constants import *
@@ -15,8 +17,15 @@ from .managers import *
 
 
 class Language(models.Model):
-    id = models.CharField(max_length=3, unique=True, primary_key=True)  # ISO 639-3
+    id = models.CharField(
+        max_length=3, unique=True, primary_key=True, db_index=True
+    )  # ISO 639-3
     name = models.CharField(max_length=250)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["id"], name="id_idx"),
+        ]
 
     def __str__(self):
         return self.id
@@ -56,6 +65,20 @@ class Lexeme(models.Model):
             "homoId",
             "language",
         )
+
+        indexes = [
+            models.Index(
+                fields=["lexeme", "pos", "language"], name="lexeme_pos_language_idx"
+            ),
+            models.Index(fields=["lexeme"], name="lexeme_idx"),
+            models.Index(fields=["pos"], name="pos_idx"),
+            models.Index(fields=["language"], name="language_idx"),
+            models.Index(fields=["lexeme_lang"], name="lexeme_lang_idx"),
+            models.Index(fields=["consonance"], name="consonance_idx"),
+            models.Index(fields=["consonance_rev"], name="consonance_rev_idx"),
+            models.Index(fields=["assonance"], name="assonance_idx"),
+            models.Index(fields=["assonance_rev"], name="assonance_rev_idx"),
+        ]
 
     lexeme = BinaryCharField(max_length=250)
     homoId = models.IntegerField(default=0)
@@ -129,6 +152,18 @@ class Lexeme(models.Model):
             if self.inflexType in INFLEX_TYPE_OPTIONS_DICT
             else ""
         )
+
+    @property
+    def homonyms_count(self):
+        """
+        Returns the count of homonyms for this lexeme (lexeme with the same lexeme, pos, and language).
+        If the count has been pre-calculated (e.g., annotated in a queryset), use the cached value.
+        """
+        if hasattr(self, "_homonyms_count"):
+            return self._homonyms_count
+        return Lexeme.objects.filter(
+            lexeme=self.lexeme, pos=self.pos, language=self.language
+        ).count()
 
     def get_lexeme_lang(self):
         main_str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¨ÂÄÅÕÖáâäåõöČčĐđŊŋśŠšŽžƷǤǥǦǧǨǩǮǯʒʹʼˈАаẸẹ’₋"
@@ -233,6 +268,19 @@ class Relation(models.Model):
     class Meta:
         unique_together = ("lexeme_from", "lexeme_to", "type")
 
+        indexes = [
+            models.Index(
+                fields=["lexeme_from"], name="lexeme_from_idx"
+            ),  # For faster joins and lookups
+            models.Index(
+                fields=["lexeme_to"], name="lexeme_to_idx"
+            ),  # For faster joins and lookups
+            models.Index(fields=["type"], name="type_idx"),  # For filtering by type
+            models.Index(
+                fields=["checked"], name="checked_idx"
+            ),  # For filtering by checked status
+        ]
+
     lexeme_from = models.ForeignKey(
         Lexeme, related_name="lexeme_from_lexeme_set", on_delete=models.CASCADE
     )
@@ -280,6 +328,17 @@ class Relation(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+
+    def save(self, *args, **kwargs):
+        super(Relation, self).save(*args, **kwargs)
+
+        if self.type in REVERSE_RELATION_MAPPING:
+            reverse_relation, created = Relation.objects.get_or_create(
+                lexeme_from=self.lexeme_to,
+                lexeme_to=self.lexeme_from,
+                type=REVERSE_RELATION_MAPPING[self.type],
+                defaults={"notes": self.notes, "checked": self.checked},
+            )
 
 
 class Source(models.Model):
@@ -648,3 +707,93 @@ class LanguageParadigm(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+
+    def save(self, *args, **kwargs):
+        super(LanguageParadigm, self).save(*args, **kwargs)
+        cache.delete(f"language_paradigms_{self.language.id}")
+
+    def delete(self, *args, **kwargs):
+        cache.delete(f"language_paradigms_{self.language.id}")
+        super(LanguageParadigm, self).delete(*args, **kwargs)
+
+
+class FileRequest(models.Model):
+
+    type = models.IntegerField(
+        choices=DOWNLOAD_TYPES, blank=True, null=True, default=None
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="file_requests",
+    )
+    status = models.CharField(
+        max_length=10, choices=DOWNLOAD_STATUS_CHOICES, default=DOWNLOAD_STATUS_PENDING
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    options = models.TextField(blank=True, null=True)
+    lang_source = models.ForeignKey(
+        Language,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="file_requests_lang_source",
+    )
+    lang_target = models.ForeignKey(
+        Language,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="file_requests_lang_target",
+    )
+
+    file = models.FileField(
+        upload_to="files/", blank=True, null=True, storage=TemporaryFileStorage
+    )
+    output = models.TextField(blank=True, null=True)
+
+    deleted = models.BooleanField(default=False)
+
+    processed_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Request {self.id} by {self.user.username}"
+
+    def is_completed(self):
+        return self.status == DOWNLOAD_STATUS_COMPLETED
+
+    def is_failed(self):
+        return self.status == DOWNLOAD_STATUS_FAILED
+
+    def is_processing(self):
+        return self.status == DOWNLOAD_STATUS_PROCESSING
+
+    def is_pending(self):
+        return self.status == DOWNLOAD_STATUS_PENDING
+
+    def time_taken(self):
+        if self.processed_at:
+            delta = self.processed_at - self.created_at
+            minutes = delta.total_seconds() / 60
+            return round(minutes, 2)
+        return None
+
+    def get_absolute_url(self):
+        return reverse("file-download", kwargs={"pk": self.pk})
+
+    def mark_processing(self):
+        self.status = DOWNLOAD_STATUS_PROCESSING
+        self.save()
+
+    def mark_completed(self, file_path, output=None):
+        self.status = DOWNLOAD_STATUS_COMPLETED
+        self.file.name = file_path
+        self.output = output
+        self.processed_at = timezone.now()
+        self.save()
+
+    def mark_failed(self, error_message):
+        self.status = DOWNLOAD_STATUS_FAILED
+        self.output = error_message
+        self.processed_at = timezone.now()
+        self.save()

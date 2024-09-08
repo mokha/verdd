@@ -1,4 +1,8 @@
+import json
+import os
+
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.template.loader import get_template
@@ -16,6 +20,7 @@ from django_filters import (
 )
 from django_filters.widgets import RangeWidget
 import django_filters
+from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
@@ -23,12 +28,16 @@ from django.views.generic.edit import (
     DeleteView,
     UpdateView,
     ModelFormMixin,
+    FormView,
     FormMixin,
 )
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.functions import Substr, Upper
 from django.db.models import Prefetch
+from django.core.paginator import Paginator
+import hashlib
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.http import Http404
 from django.db.models import Q
@@ -41,14 +50,13 @@ from collections import defaultdict
 import csv
 import re
 from .constants import INFLEX_TYPE_OPTIONS
-from manageXML.inflector import Inflector
-import operator
+from .inflector import generate_inflections
+from .utils import get_all_used_languages, get_all_used_pos
 import logging
-from .utils import read_first_ids_from
 from django.conf import settings
+from .tasks import process_file_request
 
 logger = logging.getLogger("verdd.manageXML")  # Get an instance of a logger
-_inflector = Inflector()
 
 
 class AdminStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -68,8 +76,61 @@ class TitleMixin:
         return self.title
 
 
+class CachedPaginator(Paginator):
+    """
+    A Paginator that caches the total count of objects to avoid expensive queries.
+    Built on top of Django's Paginator.
+    """
+
+    def __init__(
+        self,
+        object_list,
+        per_page,
+        orphans=0,
+        allow_empty_first_page=True,
+        cache_timeout=3600,
+        cache_key_prefix=None,
+    ):
+        """
+        Initializes the CachedPaginator with additional parameters for caching.
+
+        :param cache_timeout: Time in seconds for which the count will be cached.
+        :param cache_key_prefix: Optional prefix for the cache key to avoid collisions.
+        """
+        super().__init__(object_list, per_page, orphans, allow_empty_first_page)
+        self.cache_timeout = cache_timeout
+        self.cache_key_prefix = cache_key_prefix or "cached_paginator"
+
+    def _generate_cache_key(self):
+        """
+        Generates a cache key based on the query and model, using a hash for uniqueness.
+        """
+        query_hash = hashlib.md5(
+            str(self.object_list.query).encode("utf-8")
+        ).hexdigest()
+        return f"{self.cache_key_prefix}:{query_hash}"
+
+    @cached_property
+    def count(self):
+        """
+        Returns the total number of objects, caching the result to avoid redundant count queries.
+        """
+        cache_key = self._generate_cache_key()
+        cached_count = cache.get(cache_key)
+
+        if cached_count is not None:
+            return cached_count
+
+        # If count isn't cached, get the actual count and cache it
+        total_count = super().count
+        cache.set(cache_key, total_count, self.cache_timeout)
+
+        return total_count
+
+
 class FilteredListView(TitleMixin, ListView):
     filterset_class = None
+    paginator_class = CachedPaginator
 
     def get_queryset(self):
         # Get the queryset however you usually would.  For example:
@@ -165,9 +226,8 @@ class LexemeFilter(django_filters.FilterSet):
         data.setdefault("order", "+lexeme_lang")
         super().__init__(data, *args, **kwargs)
 
-        lang_pos = Lexeme.objects.values("language", "pos").distinct()
-        languages = list(sorted(set([_i["language"] for _i in lang_pos])))
-        pos = list(sorted(set([_i["pos"] for _i in lang_pos])))
+        languages = get_all_used_languages()
+        pos = get_all_used_pos()
         self.form.fields["language"].choices = zip(languages, languages)
         self.form.fields["pos"].choices = zip(pos, pos)
         self.form.fields["order_by"].choices = (
@@ -278,24 +338,24 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
         empty_label=None,
         lookup_choices=lookup_choices,
     )
-    language = ChoiceFilter(label=_("Language"))
-    pos = ChoiceFilter(label=_("POS"))
+    language = ChoiceFilter(
+        label=_("Language"), choices=[(_v, _v) for _v in get_all_used_languages()]
+    )
+    pos = ChoiceFilter(label=_("POS"), choices=[(_v, _v) for _v in get_all_used_pos()])
+    contlex = CharFilter(
+        label=_("Contlex") + " (" + _("Regex") + ")", method="filter_contlex"
+    )
     order_by = LexemeOrderingFilter(fields=ORDER_BY_FIELDS, label=_("Order by"))
 
     class Meta:
         model = Lexeme
-        fields = ["lexeme", "language", "pos"]
+        fields = ["lexeme", "language", "pos", "contlex"]
 
     def __init__(self, data, *args, **kwargs):
-        data = data.copy()
+        data = data.copy() if data else {}
         data.setdefault("order", "+lexeme_lang")
         super().__init__(data, *args, **kwargs)
 
-        lang_pos = Lexeme.objects.values("language", "pos").distinct()
-        languages = list(sorted(set([_i["language"] for _i in lang_pos])))
-        pos = list(sorted(set([_i["pos"] for _i in lang_pos])))
-        self.form.fields["language"].choices = zip(languages, languages)
-        self.form.fields["pos"].choices = zip(pos, pos)
         self.form.fields["order_by"].choices = (
             ("lexeme_lang", _("Lexeme")),
             ("-lexeme_lang", "%s (%s)" % (_("Lexeme"), _("descending"))),
@@ -309,6 +369,12 @@ class LexemeDictionaryFilter(django_filters.FilterSet):
             ("-assonance_rev", "%s (%s)" % (_("RevAssonance"), _("descending"))),
         )
 
+    def filter_contlex(self, queryset, name, value):
+        """
+        Custom filter method to filter Lexemes based on contlex of the Lexeme or related Stem objects.
+        """
+        return queryset.filter(Q(stem__contlex__iregex=value))
+
 
 class LexemeDictionaryView(FilteredListView):
     filterset_class = LexemeDictionaryFilter
@@ -320,16 +386,14 @@ class LexemeDictionaryView(FilteredListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         order_by = self.request.GET.get("order_by", None)
-        order_by = order_by[1:] if order_by and order_by.startswith("-") else order_by
-        order_by_options = dict(
-            [[v, k] for k, v in self.filterset_class.ORDER_BY_FIELDS.items()]
-        )
-        if (
-            order_by
-            and order_by not in ["pos", "lexeme_lang"]
-            and order_by in order_by_options
-        ):
-            context["order_by"] = order_by_options[order_by]
+        if order_by:
+            order_by_options = dict(
+                [[v, k] for k, v in self.filterset_class.ORDER_BY_FIELDS.items()]
+            )
+            clean_order_by = order_by[1:] if order_by.startswith("-") else order_by
+            if clean_order_by in order_by_options:
+                context["order_by"] = order_by_options[clean_order_by]
+
         return context
 
 
@@ -385,25 +449,11 @@ class MiniParadigmMixin:
             existing_MP_forms[form.msd].append(form.wordform)
         return existing_MP_forms
 
-    def generate_forms(self, lexeme):
-        existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
-        MP_forms = _inflector.generate(lexeme.language, lexeme.lexeme, lexeme.pos)
-
-        generated_forms = defaultdict(list)
-        for f, r in MP_forms.items():
-            if f in existing_MP_forms:  # if overridden by the user
-                continue  # ignore it
-
-            for _r in r:
-                generated_forms[f].append(_r)
-        generated_forms.default_factory = None
-        return generated_forms
-
     def short_generate_forms(self, lexeme):
+
+        MP_forms = generate_inflections(lexeme)
+
         existing_MP_forms = MiniParadigmMixin.existing_forms(lexeme)
-        MP_forms = _inflector.generate_uralicNLP(
-            lexeme.language, lexeme.lexeme, lexeme.pos
-        )
 
         generated_forms = defaultdict(list)
         for f, r in MP_forms.items():
@@ -416,7 +466,7 @@ class MiniParadigmMixin:
         return generated_forms
 
 
-class LexemeCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class LexemeCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "lexeme_add.html"
     model = Lexeme
     form_class = LexemeCreateForm
@@ -483,10 +533,7 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(LexemeDetailView, self).get_context_data(**kwargs)
-        context["generated_miniparadigms"] = self.generate_forms(self.object)
-        context["short_generated_miniparadigms"] = self.short_generate_forms(
-            self.object
-        )
+        context["generated_miniparadigms"] = self.short_generate_forms(self.object)
 
         last_lexeme = self.request.GET.get("lastlexeme", None)  # is last lexeme passed?
         last_lexeme = (
@@ -503,7 +550,7 @@ class LexemeDetailView(TitleMixin, MiniParadigmMixin, DetailView):
         return self.object
 
 
-class LexemeEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class LexemeEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "lexeme_edit.html"
     model = Lexeme
     form_class = LexemeForm
@@ -551,7 +598,7 @@ class RelationDetailView(TitleMixin, DetailView):
         )
 
 
-class RelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_edit.html"
     model = Relation
     form_class = RelationForm
@@ -584,7 +631,7 @@ class SourceDetailView(DetailView):
     template_name = "source_detail.html"
 
 
-class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class SourceEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "source_edit.html"
     model = Source
     form_class = SourceForm
@@ -601,7 +648,7 @@ class SourceEditView(LoginRequiredMixin, TitleMixin, UpdateView):
 
 
 class MiniParadigmEditView(
-    LoginRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView
+    AdminStaffRequiredMixin, MiniParadigmMixin, TitleMixin, UpdateView
 ):
     template_name = "mini_paradigm_edit.html"
     model = MiniParadigm
@@ -612,7 +659,7 @@ class MiniParadigmEditView(
         # Pass the filterset to the template - it provides the form.
         lexeme = get_object_or_404(Lexeme, pk=self.object.lexeme.id)
         context["lexeme"] = lexeme
-        context["generated_miniparadigms"] = self.generate_forms(lexeme)
+        context["generated_miniparadigms"] = self.short_generate_forms(lexeme)
         return context
 
     def get_title(self):
@@ -637,7 +684,7 @@ class MiniParadigmCreateView(
     def get_context_data(self, **kwargs):
         context = super(MiniParadigmCreateView, self).get_context_data(**kwargs)
         context["lexeme"] = self.lexeme
-        context["generated_miniparadigms"] = self.generate_forms(self.lexeme)
+        context["generated_miniparadigms"] = self.short_generate_forms(self.lexeme)
         return context
 
     def get_title(self):
@@ -650,7 +697,7 @@ class MiniParadigmCreateView(
         return super(MiniParadigmCreateView, self).form_valid(form)
 
 
-class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_add.html"
     model = Relation
     form_class = RelationCreateForm
@@ -686,7 +733,7 @@ class RelationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(RelationCreateView, self).form_valid(form)
 
 
-class AffiliationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class AffiliationCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "affiliation_add.html"
     model = Affiliation
     form_class = AffiliationCreateForm
@@ -709,7 +756,7 @@ class AffiliationCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(AffiliationCreateView, self).form_valid(form)
 
 
-class AffiliationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class AffiliationEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "affiliation_edit.html"
     model = Affiliation
     form_class = AffiliationEditForm
@@ -731,7 +778,7 @@ class AffiliationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return super(AffiliationEditView, self).form_valid(form)
 
 
-class SourceCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class SourceCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "source_add.html"
     model = Source
     form_class = SourceCreateForm
@@ -757,7 +804,7 @@ class SourceCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(SourceCreateView, self).form_valid(form)
 
 
-class DeleteFormMixin(LoginRequiredMixin, TitleMixin, DeleteView):
+class DeleteFormMixin(AdminStaffRequiredMixin, TitleMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(DeleteFormMixin, self).get_context_data(**kwargs)
         context.update(
@@ -837,7 +884,7 @@ class SourceDeleteView(LexemeDeleteFormMixin):
         )
 
 
-class ExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class ExampleCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "example_add.html"
     model = Example
     form_class = ExampleForm
@@ -860,7 +907,7 @@ class ExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(ExampleCreateView, self).form_valid(form)
 
 
-class ExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class ExampleEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "example_edit.html"
     model = Example
     form_class = ExampleForm
@@ -884,7 +931,7 @@ class ExampleDeleteView(LexemeDeleteFormMixin):
         )
 
 
-class RelationExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationExampleCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_example_add.html"
     model = RelationExample
     form_class = RelationExampleForm
@@ -916,7 +963,7 @@ class RelationExampleCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationMetadataCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_metadata_add.html"
     model = RelationMetadata
     form_class = RelationMetadataForm
@@ -948,7 +995,7 @@ class RelationMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationExampleEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_example_edit.html"
     model = RelationExample
     form_class = RelationExampleForm
@@ -982,7 +1029,7 @@ class RelationExampleEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationMetadataEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_metadata_edit.html"
     model = RelationMetadata
     form_class = RelationMetadataForm
@@ -1012,7 +1059,7 @@ class RelationMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
         return self.lexeme.get_absolute_url()
 
 
-class RelationExampleRelationView(LoginRequiredMixin, TitleMixin, CreateView):
+class RelationExampleRelationView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "relation_example_relation_add.html"
     model = RelationExampleRelation
     form_class = RelationExampleLinkForm
@@ -1050,7 +1097,7 @@ class RelationExampleRelationView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(RelationExampleRelationView, self).form_valid(form)
 
 
-class RelationExampleRelationEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class RelationExampleRelationEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "relation_example_relation_edit.html"
     model = RelationExampleRelation
     form_class = RelationExampleLinkEditForm
@@ -1169,7 +1216,7 @@ class HistorySearchView(TitleMixin, ListView, AdminStaffRequiredMixin):
         return object_list
 
 
-class ApprovalViewMixin(LoginRequiredMixin, FormMixin, FilteredListView):
+class ApprovalViewMixin(AdminStaffRequiredMixin, FormMixin, FilteredListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(
             **{"form": None, **kwargs}
@@ -1289,7 +1336,7 @@ class RelationFilter(django_filters.FilterSet):
         data = data.copy()
         super().__init__(data, *args, **kwargs)
 
-        pos = set(Lexeme.objects.values_list("pos", flat=True).distinct())
+        pos = get_all_used_pos()
         self.form.fields["pos"].choices = zip(pos, pos)
 
     def filter_lexeme(self, queryset, name, value):
@@ -1431,7 +1478,7 @@ class StemDetailView(TitleMixin, DetailView):
         return "%s (%s)" % (self.object.text, self.object.lexeme.lexeme)
 
 
-class StemCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class StemCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "stem_add.html"
     model = Stem
     form_class = StemForm
@@ -1454,7 +1501,7 @@ class StemCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(StemCreateView, self).form_valid(form)
 
 
-class StemEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class StemEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "stem_edit.html"
     model = Stem
     form_class = StemForm
@@ -1484,7 +1531,7 @@ class SymbolListView(TitleMixin, ListView):
     title = _("Symbol")
 
 
-class LexemeMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
+class LexemeMetadataCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
     template_name = "lexeme_metadata_add.html"
     model = LexemeMetadata
     form_class = LexemeMetadataForm
@@ -1507,7 +1554,7 @@ class LexemeMetadataCreateView(LoginRequiredMixin, TitleMixin, CreateView):
         return super(LexemeMetadataCreateView, self).form_valid(form)
 
 
-class LexemeMetadataEditView(LoginRequiredMixin, TitleMixin, UpdateView):
+class LexemeMetadataEditView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
     template_name = "lexeme_metadata_edit.html"
     model = LexemeMetadata
     form_class = LexemeMetadataForm
@@ -1665,3 +1712,111 @@ class LexemeExportLexcView(LexemeView):
         response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
 
         return response
+
+
+class FileRequestView(AdminStaffRequiredMixin, TitleMixin, CreateView):
+    template_name = "file_request.html"
+    model = FileRequest
+    form_class = FileRequestForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+
+        clean = form.cleaned_data
+
+        job_options = {"use_accepted": clean["use_accepted"]}
+
+        file_request = FileRequest.objects.create(
+            user=self.request.user,
+            type=clean["type"],
+            lang_source=clean["lang_source"],
+            lang_target=clean["lang_target"],
+            options=json.dumps(job_options),
+        )
+
+        lang_source = form.cleaned_data.get("lang_source")
+        lang_target = form.cleaned_data.get("lang_target")
+
+        process_file_request.delay(
+            file_request_id=file_request.id,
+            download_type=form.cleaned_data["type"],
+            lang_source=lang_source.id,
+            lang_target=lang_target.id if lang_target else None,
+            options=job_options,
+        )
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["files"] = FileRequest.objects.filter(
+            user=self.request.user, deleted=False
+        ).order_by("-created_at")
+        return context
+
+    def get_success_url(self):
+        return reverse("file-request")
+
+    def get_title(self):
+        return _("Files")
+
+
+@login_required
+def download_file(request, pk):
+    file_request = get_object_or_404(
+        FileRequest,
+        id=pk,
+        user=request.user,
+        status=DOWNLOAD_STATUS_COMPLETED,
+    )
+
+    tmp_storage = TemporaryFileStorage()
+
+    file_path = tmp_storage.path(file_request.file.name)
+
+    if not os.path.exists(file_path):
+        raise Http404("File not found.")
+
+    with open(file_path, "rb") as f:
+        response = HttpResponse(f.read(), content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="{os.path.basename(file_path)}"'
+        )
+        return response
+
+
+class LanguageParadigmListView(AdminStaffRequiredMixin, TitleMixin, ListView):
+    model = LanguageParadigm
+    template_name = "language_paradigm_list.html"
+    context_object_name = "paradigms"
+
+    def get_title(self):
+        return _("Language Paradigms")
+
+
+class LanguageParadigmCreateView(AdminStaffRequiredMixin, TitleMixin, CreateView):
+    model = LanguageParadigm
+    form_class = LanguageParadigmForm
+    template_name = "language_paradigm_add.html"
+    success_url = reverse_lazy("language-paradigm-list")
+
+    def get_title(self):
+        return _("Add Language Paradigm")
+
+
+class LanguageParadigmUpdateView(AdminStaffRequiredMixin, TitleMixin, UpdateView):
+    model = LanguageParadigm
+    form_class = LanguageParadigmForm
+    template_name = "language_paradigm_edit.html"
+    success_url = reverse_lazy("language-paradigm-list")
+
+    def get_title(self):
+        return _("Edit Language Paradigm")
+
+
+class LanguageParadigmDeleteView(AdminStaffRequiredMixin, TitleMixin, DeleteView):
+    model = LanguageParadigm
+    template_name = "language_paradigm_confirm_delete.html"
+    success_url = reverse_lazy("language-paradigm-list")
+
+    def get_title(self):
+        return _("Delete Language Paradigm")

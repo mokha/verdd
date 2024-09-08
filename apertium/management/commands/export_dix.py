@@ -8,7 +8,7 @@ from zipfile import ZipFile
 import uuid
 import time
 from django.db.models.functions import Cast, Substr, Upper, Concat
-from django.db.models import Prefetch, F, Value, When, Case
+from django.db.models import Prefetch, F, Value, When, Case, CharField
 from manageXML.models import *
 from manageXML.utils import *
 import operator
@@ -45,10 +45,14 @@ def export_bidix(
         right_relations = right_relations.exclude(pk__in=to_ignore_ids)
 
     left_relations = left_relations.annotate(
-        lexeme_from_to_str=Concat("lexeme_from", Value("_"), "lexeme_to")
+        lexeme_from_to_str=Concat(
+            "lexeme_from", Value("_"), "lexeme_to", output_field=CharField()
+        )
     )
     right_relations = right_relations.annotate(
-        lexeme_from_to_str=Concat("lexeme_to", Value("_"), "lexeme_from")
+        lexeme_from_to_str=Concat(
+            "lexeme_to", Value("_"), "lexeme_from", output_field=CharField()
+        )
     )
 
     _lr = dict(left_relations.values_list("lexeme_from_to_str", "id"))

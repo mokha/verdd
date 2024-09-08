@@ -5,6 +5,14 @@ import re
 register = template.Library()
 
 
+@register.filter(name="is_privileged_user")
+def is_privileged_user(user):
+    """
+    Custom template tag to check if the user is a superuser or staff.
+    """
+    return user.is_superuser or user.is_staff
+
+
 @register.simple_tag(takes_context=True)
 def param_replace(context, **kwargs):
     """
@@ -47,7 +55,7 @@ def constant_text(constant_name, index):
     return constant[index]
 
 
-numeric_test = re.compile("^\d+$")
+numeric_test = re.compile(r"^\d+$")
 
 
 @register.filter(name="getattr")

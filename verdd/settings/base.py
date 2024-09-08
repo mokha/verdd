@@ -64,6 +64,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "users.middleware.VerddUserMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",  # simple_history
 ]
 
@@ -237,3 +238,45 @@ REST_FRAMEWORK = {
 
 # For localizations
 LANGUAGE_COOKIE_NAME = "language"
+
+# For debugging
+if DEBUG:
+    INSTALLED_APPS += ("debug_toolbar",)
+
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "JQUERY_URL": "",
+        # "SHOW_TOOLBAR_CALLBACK": lambda request: True, # Show the toolbar to everyone
+    }
+
+    INTERNAL_IPS = ["127.0.0.1"]
+
+
+# Email Configuration
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+EMAIL_HOST = "smtp.resend.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "resend"
+EMAIL_HOST_PASSWORD = config("RESEND_API_KEY")
+
+
+# Celery Configuration
+REDIS_HOST = config("REDIS_HOST", default="redis")
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:6379/0"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
+
+MEDIA_ROOT = "media"
+MEDIA_URL = "%s/media/" % FORCE_SCRIPT_NAME
+
+
+GENERATED_FILES_TMP_DIR = os.getenv("GENERATED_FILES_TMP_DIR", None)

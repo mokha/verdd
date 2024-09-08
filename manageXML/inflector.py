@@ -1,197 +1,120 @@
-# encoding: utf-8
-import os
+import threading
+
 from uralicNLP import uralicApi
-from django.conf import settings
-from collections import defaultdict
-
-try:
-    import hfst
-except:
-    pass
+from manageXML.models import Lexeme
+from django.core.cache import cache  # Cache mini paradigms per language
 
 
-class Inflector:
-    def __init__(self):
-        self._transducers_base_dir = settings.TRANSDUCERS_PATH
+def uralicNLP_language_supported(language):
+    cache_key = f"language_supported_{language}"
+    supported = cache.get(cache_key)
+    if supported is None:
+        supported = uralicApi.supported_languages().get(language) is not None
+        cache.set(cache_key, supported)
+    return supported
 
-    def get_supported_languages(self):
-        langs = []
-        if self._transducers_base_dir:
-            for x in os.listdir(self._transducers_base_dir):
-                if os.path.isdir(os.path.join(self._transducers_base_dir, x)):
-                    langs.append(x)
-        return langs
 
-    def return_model(self, language, model_type):
-        if model_type == "analyser":
-            filename = os.path.join(
-                self._transducers_base_dir, language + "/analyser-gt-desc.hfstol"
-            )
-        elif model_type == "analyser-norm":
-            filename = os.path.join(
-                self._transducers_base_dir, language + "/analyser-gt-norm.hfstol"
-            )
-        elif model_type == "generator":
-            filename = os.path.join(
-                self._transducers_base_dir, language + "/generator-dict-gt-norm.hfstol"
-            )
-        elif model_type == "generator-desc":
-            filename = os.path.join(
-                self._transducers_base_dir, language + "/generator-gt-desc.hfstol"
-            )
-        elif model_type == "generator-norm":
-            filename = os.path.join(
-                self._transducers_base_dir, language + "/generator-gt-norm.hfstol"
-            )
-        elif model_type == "metadata.json":
-            filename = os.path.join(
-                self._transducers_base_dir, language + "/metadata.json"
-            )
-        else:
-            filename = os.path.join(
-                self._transducers_base_dir, language + "/disambiguator.cg3"
-            )
-        return os.path.getsize(filename), open(filename, "rb")
+# Ensure the uralicNLP model is installed
+def ensure_model_is_installed(language):
+    if not uralicApi.is_language_installed(
+        language
+    ):  # uralicNLP_language_supported(language)
+        uralicApi.download(language)
 
-    def return_all_analysis(self, word_form, language="sms"):
-        filename = os.path.join(
-            self._transducers_base_dir, language + "/analyser-gt-desc.hfstol"
-        )
+
+def load_mini_paradigms(language):
+    cache_key = f"language_paradigms_{language}"
+    paradigms = cache.get(cache_key)
+    if paradigms is None:
+        paradigms = language.paradigms.filter(mini=True).all()
+        cache.set(cache_key, paradigms, timeout=3600)  # Cache for 1 hour
+    return paradigms
+
+
+def language_has_dictionary_forms(query, language):
+    cache_key = f"language_has_dictionary_forms_{language}"
+    language_has_dictionary_forms = cache.get(cache_key)
+    if language_has_dictionary_forms is None:
         try:
-            input_stream = hfst.HfstInputStream(filename)
-            analyser = input_stream.read()
-        except:
-            return []
-        analysis = analyser.lookup(word_form)
-        return analysis
-
-    def generate_form(self, hfst_query, language="sms"):
-        filename = os.path.join(
-            self._transducers_base_dir, language + "/generator-dict-gt-norm.hfstol"
+            # Attempt to generate with dictionary_forms=True
+            uralicApi.generate(query, language, dictionary_forms=True)
+            language_has_dictionary_forms = True
+        except Exception:
+            # If generating with dictionary_forms=True fails, assume it is not supported
+            language_has_dictionary_forms = False
+        cache.set(
+            cache_key, language_has_dictionary_forms, timeout=3600 * 24
+        )  # Cache for a day
+        print(
+            f"Language {language} has dictionary forms: {language_has_dictionary_forms}"
         )
-        try:
-            input_stream = hfst.HfstInputStream(filename)
-            analyser = input_stream.read()
-        except:
-            return []
-        analysis = analyser.lookup(hfst_query)
-        return analysis
+    return language_has_dictionary_forms
 
-    def return_lemmas(self, word_form, language="sms"):
-        analysis = self.return_all_analysis(word_form, language)
-        lemmas = []
-        for tupla in analysis:
-            an = tupla[0]
-            if "@" in an:
-                lemma = an.split("@")[0]
-            else:
-                lemma = an
-            if "+" in lemma:
-                lemmas.append(lemma.split("+")[0])
-        lemmas = list(set(lemmas))
-        return lemmas
 
-    def __inflect_sms__(self, lemma, pos):
-        file_path = os.path.join(
-            self._transducers_base_dir, "sms/generator-dict-gt-norm.hfstol"
+def generate_using_uralicNLP(query, language):
+    has_dictionary_forms = False  # language_has_dictionary_forms(query, language) #@TODO: Enable when the dictionary forms are fixed
+
+    try:
+        forms = uralicApi.generate(
+            query, language, dictionary_forms=has_dictionary_forms
         )
-        queries, q_trans = self.__generator_queries__(lemma, pos)
-        return self.__inflect_generic__(queries, q_trans, file_path)
+        return forms
+    except Exception as e:
+        # Handle or log the error as needed
+        print(f"Error generating forms: {e}")
+    return []
 
-    def __add_lemma_to_queries__(self, lemma, queries):
-        results = []
-        for q in queries:
-            results.append(lemma + "+" + q)
-        return results
 
-    def __get_trans__(self, key_list):
-        trans = ""
-        for item in key_list:
-            trans = trans + self.human_readable[item] + " "
-        return trans
+def _thread_wrapper(result_container, query, language):
+    try:
+        result = generate_using_uralicNLP(query, language)
+        result_container.append(result)
+    except Exception:
+        result_container.append([])
 
-    def __inflect_generic__(self, queries, q_translations, file_path):
-        input_stream = hfst.HfstInputStream(file_path)
-        synthetiser = input_stream.read()
-        results = defaultdict(list)
-        for i in range(len(queries)):
-            q = queries[i]
-            MP_form = "+".join(q.split("+")[1:])
-            r = synthetiser.lookup(q)
-            try:
-                item = r[0][0].split("@")[0], q_translations[i]
-                results[MP_form].append(item[0])
-            except:
-                pass
-        return results
 
-    def __generator_queries__(self, lemma, pos):
-        d = self.pos_dict[pos]
-        queries = []
-        query_trans = []
+def _call_uralicNLP_with_timeout(query, language, timeout=1):
+    result_container = []
+    thread = threading.Thread(
+        target=_thread_wrapper, args=(result_container, query, language)
+    )
+    thread.start()
+    thread.join(timeout=timeout)
 
-        for x in d["1st"]:
-            for y in d["2nd"]:
-                for z in d["3rd"]:
-                    query = lemma + "+" + pos + x + y + z
-                    queries.append(query)
-                    query_trans.append(self.__get_trans__([x, y, z]))
-            for c in d["comp"]:
-                query = lemma + "+" + pos + x + c
-                queries.append(query)
-                query_trans.append(self.__get_trans__([x, c]))
-        if pos == "N":
-            more_queries = []
-            more_trans = []
-            nums = ["Sg", "Pl"]
-            pers = ["1", "2", "3"]
-            for i in range(len(queries)):
-                query = queries[i]
-                for num in nums:
-                    for per in pers:
-                        more_queries.append(query + "+Px" + num + per)
-                        more_trans.append(
-                            query_trans[i] + self.__get_trans__(["Px", num, per])
-                        )
-            queries.extend(more_queries)
-            query_trans.extend(more_trans)
+    if thread.is_alive():
+        print(
+            "Timeout occurred while generating forms for query:",
+            query,
+            "language:",
+            language,
+        )
+        thread.join()
+        return []
+    else:
+        return result_container[0] if result_container else []
 
-        if pos == "A":
-            queries.append(lemma + "+A+Attr")
-            query_trans.append("Attribuutti")
 
-        return queries, query_trans
+def generate_inflections(lexeme: Lexeme) -> dict:
+    paradigms = load_mini_paradigms(lexeme.language)
 
-    def generate_uralicNLP(self, lang, lemma, pos, *args, **kwargs):
-        if type(lang) is not str:
-            lang = str(lang)
+    if not paradigms:
+        return {}
 
-        generated_forms = defaultdict(list)
-        if uralicApi.is_language_installed(lang):
-            if pos in self.default_forms:
-                poses = self.default_forms[pos]
-                for f in poses:
-                    results = uralicApi.generate(lemma + "+" + f, lang, **kwargs)
-                    for r in results:
-                        generated_forms[f].append(
-                            r[0].split("@")[0],
-                        )
-        return generated_forms
+    ensure_model_is_installed(lexeme.language.id)
 
-    def generate(self, lang, lemma, pos):
-        if type(lang) is not str:
-            lang = str(lang)
-        generated_forms = defaultdict(list)
-        try:
-            if lang == "fin":
-                generated_forms = self.generate_uralicNLP(lang, lemma, pos)
-            else:
-                if lang in self.get_supported_languages():
-                    _method = getattr(self, "__inflect_%s__" % lang)
-                    generated_forms = _method(lemma, pos)
-                else:
-                    generated_forms = self.generate_uralicNLP(lang, lemma, pos)
-        except Exception as e:
-            pass
+    query = lexeme.lexeme
 
-        return generated_forms
+    if lexeme.homonyms_count > 1:
+        query += f"+Hom{lexeme.homoId + 1}"
+
+    generated_forms = {}
+    for paradigm in paradigms:
+        if lexeme.pos == paradigm.pos:
+            query_with_paradigm = f"{query}+{paradigm.form}"
+            _generation_forms = _call_uralicNLP_with_timeout(
+                query_with_paradigm, lexeme.language.id
+            )
+            generated_forms[paradigm.form] = [
+                _generated_form[0] for _generated_form in _generation_forms
+            ]
+    return generated_forms

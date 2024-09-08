@@ -21,3 +21,5 @@ uralicNLP
 xmlschema
 psycopg2-binary
 networkx
+cython
+celery[redis]

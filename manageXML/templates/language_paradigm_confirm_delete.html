@@ -1,0 +1,13 @@
+{% extends 'template.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+    <h2>{% trans "Delete Language Paradigm" %}</h2>    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+        <a href="{% url 'language-paradigm-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+    </form>
+{% endblock %}

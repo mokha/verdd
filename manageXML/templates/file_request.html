@@ -1,0 +1,59 @@
+{% extends "template.html" %}
+{% load i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+  <div class="container mt-4">
+    <h2 class="mb-4">{% trans "Request Download" %}:</h2>
+    <div class="mb-5">{% crispy form %}</div>
+
+    <h3 class="mb-3">{% trans "Current Files" %}</h3>
+    <div class="row">
+      {% for file in files %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ file.name }}</h5>
+              <p class="card-text">
+                {% trans "Status" %}:
+                {% if file.is_completed %}
+                  <span class="badge bg-success">{% trans "Complete" %}</span>
+                {% elif file.is_failed %}
+                  <span class="badge bg-danger">{% trans "Failed" %}</span>
+                  <p class="text-danger">{{ file.output }}</p>
+                {% elif file.is_processing %}
+                  <span class="badge bg-warning">{% trans "Processing" %}</span>
+                {% else %}
+                  <span class="badge bg-secondary">{% trans "Pending" %}</span>
+                {% endif %}
+              </p>
+
+              <p><strong>{% trans "Type" %}:</strong> {% constant_text 'DOWNLOAD_TYPES' file.type %}</p>
+              <p><strong>{% trans "Source Language" %}:</strong> {{ file.lang_source }}</p>
+              <p><strong>{% trans "Target Language" %}:</strong> {{ file.lang_target }}</p>
+              <p><strong>{% trans "Options" %}:</strong> {{ file.options }}</p>
+
+              
+              {% if file.is_completed or file.is_failed %}
+                  <p><strong>{% trans "Time" %}:</strong> {% if file.time_taken is not none %}{{ file.time_taken }} {% trans "minutes" %}{% else %}{% trans "N/A" %}{% endif %}</p>
+              {% endif %}
+
+              {% if file.is_completed %}
+                <a href="{{ file.get_absolute_url }}" class="btn btn-primary">
+                  <i class="fas fa-download"></i> {% trans "Download" %}
+                </a>
+              {% endif %}
+            </div>
+            <div class="card-footer text-muted">
+              {% trans "Requested on" %}: {{ file.created_at|date:"F j, Y, g:i a" }}
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p>{% trans "No files available at the moment." %}</p>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock main_content %}

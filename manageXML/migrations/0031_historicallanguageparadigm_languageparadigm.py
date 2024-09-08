@@ -9,46 +9,113 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manageXML', '0030_alter_historicalaffiliation_options_and_more'),
+        ("manageXML", "0030_alter_historicalaffiliation_options_and_more"),
+
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='HistoricalLanguageParadigm',
+            name="HistoricalLanguageParadigm",
             fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('pos', models.CharField(max_length=25)),
-                ('form', models.CharField(blank=True, max_length=250)),
-                ('mini', models.BooleanField(default=False)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('changed_by', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('language', models.ForeignKey(blank=True, db_column='language_id', db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manageXML.language')),
+                (
+                    "id",
+                    models.IntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                ("pos", models.CharField(max_length=25)),
+                ("form", models.CharField(blank=True, max_length=250)),
+                ("mini", models.BooleanField(default=False)),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField(db_index=True)),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "changed_by",
+                    models.ForeignKey(
+                        blank=True,
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "language",
+                    models.ForeignKey(
+                        blank=True,
+                        db_column="language_id",
+                        db_constraint=False,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="+",
+                        to="manageXML.language",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical language paradigm',
-                'verbose_name_plural': 'historical language paradigms',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
+                "verbose_name": "historical language paradigm",
+                "verbose_name_plural": "historical language paradigms",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": ("history_date", "history_id"),
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
         migrations.CreateModel(
-            name='LanguageParadigm',
+            name="LanguageParadigm",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pos', models.CharField(max_length=25)),
-                ('form', models.CharField(blank=True, max_length=250)),
-                ('mini', models.BooleanField(default=False)),
-                ('changed_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='language_paradigms', to=settings.AUTH_USER_MODEL)),
-                ('language', models.ForeignKey(db_column='language_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='paradigms', to='manageXML.language')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("pos", models.CharField(max_length=25)),
+                ("form", models.CharField(blank=True, max_length=250)),
+                ("mini", models.BooleanField(default=False)),
+                (
+                    "changed_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="language_paradigms",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "language",
+                    models.ForeignKey(
+                        db_column="language_id",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="paradigms",
+                        to="manageXML.language",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('language', 'pos', 'form')},
+                "unique_together": {("language", "pos", "form")},
             },
         ),
     ]

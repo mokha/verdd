@@ -247,14 +247,22 @@ if DEBUG:
         "debug_toolbar.middleware.DebugToolbarMiddleware",
     ]
 
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
     DEBUG_TOOLBAR_CONFIG = {
         "JQUERY_URL": "",
         # "SHOW_TOOLBAR_CALLBACK": lambda request: True, # Show the toolbar to everyone
     }
 
     INTERNAL_IPS = ["127.0.0.1"]
+
+
+# Email Configuration
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+EMAIL_HOST = "smtp.resend.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "resend"
+EMAIL_HOST_PASSWORD = config("RESEND_API_KEY")
 
 
 # Celery Configuration

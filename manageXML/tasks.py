@@ -29,8 +29,12 @@ def process_file_request(
 
         # Mark as completed and send notification
         file_request.mark_completed(file_request.file.name, output="ok")
-        # send_file_ready_email(file_request)
 
     except Exception as e:
         file_request.mark_failed(str(e))
         # Log the error for debugging
+
+    try:
+        send_file_ready_email(file_request)
+    except Exception as e:
+        pass

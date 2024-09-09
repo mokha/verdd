@@ -12,24 +12,74 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.0/dist/latest/bootstrap-autocomplete.min.js"></script>
     <script>
-        $('.lexeme-autocomplete').autoComplete(
-            {
-                minLength: 0,
-                resolverSettings: {
-                    url: '{% url 'lexeme-search' %}'
-                },
-                formatResult: function (item) {
-                    return {value: item.id, text: `${item.lexeme} (${item.pos}) - ${item.homoId} ${item.language}`};
-                },
-                events: {
-                    searchPost: function (resultFromServer) {
-                        return resultFromServer;
-                    }
+      $(function() {
+          function fetchData(query, callback) {
+            $.ajax({
+                url: '{% url "lexeme-search" %}',
+                type: 'GET',
+                data: { q: query },
+                success: function(data) {
+                    callback(data);
                 }
+            });
+        }
+
+        $('#lexemeSearch').on('input', function() {
+            var query = $(this).val();
+            // Check if input is fully numeric
+            var isNumeric = /^\d+$/.test(query);
+            // Set minimum length based on input type
+            var minLength = isNumeric ? 0 : 3;
+
+            if (query.length >= minLength) {
+                fetchData(query, function(data) {
+                    let autoCompleteResults = data.map(item => ({
+                        label: `${item.lexeme} (${item.pos}) - ${item.homoId} ${item.language}`,
+                        value: item.id
+                    }));
+                    displayResults(autoCompleteResults);
+                });
+            } else {
+                clearResults();
             }
-        );
+        });
+
+        function displayResults(results) {
+            let $resultsDropdown = $('#resultsDropdown');
+            if (!$resultsDropdown.length) {
+                $resultsDropdown = $('<div id="resultsDropdown" class="list-group"></div>').insertAfter('#lexemeSearch');
+            }
+            $resultsDropdown.empty();
+            results.forEach(function(item) {
+                $('<button type="button" class="list-group-item list-group-item-action"></button>')
+                    .text(item.label)
+                    .data('value', item.value)  
+                    .on('click', function() {
+                        $('#lexemeSearch').val($(this).data('value')); 
+                        $('#selectedDetails').val($(this).text()); 
+                        $('#selectedDetails').prop('disabled', true); 
+                        clearResults();
+                    })
+                    .appendTo($resultsDropdown);
+            });
+        }
+
+        function clearResults() {
+            $('#resultsDropdown').remove();
+        }
+
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#lexemeSearch').length) {
+                clearResults();
+            }
+        });
+
+        $('form').on('submit', function() {
+            $('#selectedDetails').prop('disabled', true);
+        });
+        
         $('.dropdown-menu').css({'top': 'auto', 'left': 'auto'})
+      });
     </script>
 {% endblock %}

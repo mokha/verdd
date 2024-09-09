@@ -113,7 +113,7 @@ class LexemeCreateForm(LexemeForm):
             "language",
             "pos",
             "homoId",
-            "contlex",
+            # "contlex",
             "type",
             "lemmaId",
             "inflexType",
@@ -128,21 +128,18 @@ class LexemeCreateForm(LexemeForm):
         self.helper.layout = Layout(
             Row(
                 Column("lexeme", css_class="col-md-3 mb-3"),
-                Column("language", css_class="col-md-3 mb-3"),
-                Column("pos", css_class="col-md-3 mb-3"),
+                Column("language", css_class="col-md-2 mb-2"),
+                Column("pos", css_class="col-md-2 mb-2"),
                 Column("homoId", css_class="col-md-3 mb-3"),
+                Column("lemmaId", css_class="col-md-2 mb-2"),
                 css_class="row",
             ),
             Row(
-                Column("contlex", css_class="col-md-6 mb-3"),
+                # Column("contlex", css_class="col-md-6 mb-3"),
+                Column("specification", css_class="col-md-5 mb-5"),
                 Column("type", css_class="col-md-3 mb-3"),
-                Column("inflexId", css_class="col-md-3 mb-3"),
-                css_class="row",
-            ),
-            Row(
-                Column("specification", css_class="col-md-5 mb-3"),
-                Column("inflexType", css_class="col-md-3 mb-3"),
-                Column("lemmaId", css_class="col-md-4 mb-3"),
+                Column("inflexId", css_class="col-md-2 mb-2"),
+                Column("inflexType", css_class="col-md-2 mb-2"),
                 css_class="row",
             ),
             "notes",
@@ -173,10 +170,15 @@ class RelationCreateForm(forms.ModelForm):
     lexeme_to = forms.CharField(
         required=False,
         label=_("To"),
-        widget=forms.Select(
-            attrs={
-                "class": "lexeme-autocomplete",
-            }
+        widget=forms.TextInput(
+            attrs={"class": "lexeme-autocomplete", "id": "lexemeSearch"}
+        ),
+    )
+    lexeme_details = forms.CharField(
+        required=False,
+        label=_("Details"),
+        widget=forms.TextInput(
+            attrs={"readonly": True, "id": "selectedDetails", "disabled": True}
         ),
     )
     notes = forms.CharField(
@@ -200,6 +202,7 @@ class RelationCreateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(HTML("<h4>%s: %s</h4>" % (_("From"), "{{ lexeme }}")), css_class=""),
+            "lexeme_details",
             "lexeme_to",
             "type",
             "notes",

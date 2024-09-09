@@ -1171,9 +1171,14 @@ class LexemeSearchView(generics.ListAPIView):
     def get_queryset(self):
         query = self.request.query_params.get("q", None)
         if query is not None and query:
-            filter_Q = Q(lexeme__icontains=query)
+            filter_Q = Q()
+
             if query.isdigit() and int(query) > 0:
                 filter_Q |= Q(id=query)
+
+            if len(query) >= 3:
+                filter_Q |= Q(lexeme__icontains=query)
+
             return Lexeme.objects.filter(filter_Q).order_by("lexeme_lang")
         return Lexeme.objects.none()
 

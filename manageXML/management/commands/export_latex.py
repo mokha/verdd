@@ -87,7 +87,8 @@ def export(src_lang, tgt_lang, directory_path, approved=None, ignore_file=None):
         ]
         grouped_relations_source = list(
             sorted(
-                grouped_relations_source, key=lambda k: k[1][0].lexeme_from.lexeme_lang
+                grouped_relations_source,
+                key=lambda k: k[1][0].lexeme_from.lexeme_lang.lower(),
             )
         )
         _chapter_html = render_to_string(

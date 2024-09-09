@@ -10,6 +10,9 @@ https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/
 import os
 
 from django.core.wsgi import get_wsgi_application
+from dotenv import load_dotenv
+
+load_dotenv()
 
 env = os.getenv("DEPLOYMENT_SETTINGS", "development")
 

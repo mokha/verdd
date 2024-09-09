@@ -23,3 +23,4 @@ psycopg2-binary
 networkx
 cython
 celery[redis]
+python-dotenv

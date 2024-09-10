@@ -1176,7 +1176,7 @@ class LexemeSearchView(AdminStaffRequiredMixin, generics.ListAPIView):
             if query.isdigit() and int(query) > 0:
                 filter_Q |= Q(id=query)
 
-            if len(query) >= 3:
+            if not query.isdigit() and len(query) >= 3:
                 filter_Q |= Q(lexeme__icontains=query)
 
             return Lexeme.objects.filter(filter_Q).order_by("lexeme_lang")

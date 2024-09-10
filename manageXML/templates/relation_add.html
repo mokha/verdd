@@ -14,32 +14,53 @@
     {{ block.super }}
     <script>
       $(function() {
-          function fetchData(query, callback) {
-            $.ajax({
+
+        var currentRequest = null;  // Variable to keep track of the current request
+
+        function debounce(func, wait, immediate) {
+            var timeout;
+            return function() {
+                var context = this, args = arguments;
+                var later = function() {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        }
+
+        var fetchData = debounce(function(query) {
+            if (currentRequest != null) {
+                currentRequest.abort();
+                currentRequest = null;
+                clearResults();
+            }
+    
+            currentRequest = $.ajax({
                 url: '{% url "lexeme-search" %}',
                 type: 'GET',
                 data: { q: query },
                 success: function(data) {
-                    callback(data);
-                }
-            });
-        }
-
-        $('#lexemeSearch').on('input', function() {
-            var query = $(this).val();
-            // Check if input is fully numeric
-            var isNumeric = /^\d+$/.test(query);
-            // Set minimum length based on input type
-            var minLength = isNumeric ? 0 : 3;
-
-            if (query.length >= minLength) {
-                fetchData(query, function(data) {
-                    let autoCompleteResults = data.map(item => ({
+                    currentRequest = null;
+                    displayResults(data.map(item => ({
                         label: `${item.lexeme} (${item.pos}) - ${item.homoId} ${item.language}`,
                         value: item.id
-                    }));
-                    displayResults(autoCompleteResults);
-                });
+                    })));
+                }
+            });
+        }, 250); 
+    
+        $('#lexemeSearch').on('input', function() {
+            var query = $(this).val();
+            var isNumeric = /^\d+$/.test(query);
+            var minLength = isNumeric ? 0 : 3;
+            
+            if (query.length >= minLength) {
+                clearResults();
+                fetchData(query);
             } else {
                 clearResults();
             }

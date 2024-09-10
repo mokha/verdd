@@ -1165,7 +1165,7 @@ class RelationMetadataDeleteView(LexemeDeleteFormMixin):
         return self.lexeme.get_absolute_url()
 
 
-class LexemeSearchView(generics.ListAPIView):
+class LexemeSearchView(AdminStaffRequiredMixin, generics.ListAPIView):
     serializer_class = LexemeSerializer
 
     def get_queryset(self):

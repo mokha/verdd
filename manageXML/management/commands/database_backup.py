@@ -4,6 +4,7 @@ import shutil
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from subprocess import Popen, PIPE, list2cmdline
+from distutils.util import strtobool
 
 
 def gen_name(ext):
@@ -18,27 +19,39 @@ def sqlite_db_backup(db_name, out_path):
     return False
 
 
-def mysql_db_backup(db_settings, out_path):
+def mysql_db_backup(db_settings, out_path, no_create_info=None):
     username = db_settings["USER"]
     password = db_settings["PASSWORD"]
     database = db_settings["NAME"]
     host = db_settings["HOST"]
     port = db_settings["PORT"]
 
-    cmd = [
-        "mysqldump",
-        "-h",
-        host,
-        "-P",
-        port,
-        "-u",
-        username,
-        "-p%s" % password,
-        "--no-create-info",
+    parameters = [
         "--skip-add-drop-table",
         "--quick",
-        database,
     ]
+
+    if no_create_info is not None and no_create_info:
+        parameters += [
+            "--no-create-info",
+        ]
+
+    cmd = (
+        [
+            "mysqldump",
+            "-h",
+            host,
+            "-P",
+            port,
+            "-u",
+            username,
+            "-p%s" % password,
+        ]
+        + parameters
+        + [
+            database,
+        ]
+    )
 
     with open(out_path, "w", encoding="utf-8") as output_file:
         p = Popen(
@@ -76,6 +89,13 @@ class Command(BaseCommand):
             type=str,
             help="The directory to store the backed up database in.",
         )
+        parser.add_argument(
+            "--no-create-info",
+            type=lambda v: bool(strtobool(v)),
+            nargs="?",
+            const=True,
+            default=None,
+        )
 
     def success_info(self, info):
         return self.stdout.write(self.style.SUCCESS(info))
@@ -103,7 +123,9 @@ class Command(BaseCommand):
             sqlite_db_backup(DB_SETTINGS["NAME"], backup_database_path)
         elif settings.DATABASES[database]["ENGINE"] == "django.db.backends.mysql":
             backup_database_path = os.path.join(dir_path, gen_name("sql"))
-            mysql_db_backup(DB_SETTINGS, backup_database_path)
+            mysql_db_backup(
+                DB_SETTINGS, backup_database_path, options.get("no_create_info", None)
+            )
         else:
             return self.error_info("This script backs up sqlite/mysql databases only!")
 

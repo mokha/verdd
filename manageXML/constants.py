@@ -30,13 +30,14 @@ HOLONYMY = 10
 MERONYMY = 11
 COHYPONYM = 12
 DESC_TRANSLATION = 13
+IS_VARIANT_OF = 14
 
 RELATION_TYPE_OPTIONS = (
     (TRANSLATION, _("Translation")),
     (ETYMOLOGY, _("Etymology")),
     (COMPOUND, _("Compound")),
-    (DERIVATION, _("Derivation")),
-    (VARIATION, _("Variation")),
+    (DERIVATION, _("Has derivative")),
+    (VARIATION, _("Has variant")),
     (PHRASEOLOGY, _("Phraseology")),
     (HYPONYMY, _("Hyponymy")),
     (HYPERONYMY, _("Hyperonymy")),
@@ -46,6 +47,7 @@ RELATION_TYPE_OPTIONS = (
     (SYNONYM, _("Synonym")),
     (ANTONYM, _("Antonym")),
     (DESC_TRANSLATION, _("Description translation")),
+    (IS_VARIANT_OF, _("Is variant of")),
     (99, _("Other")),
 )
 RELATION_TYPE_OPTIONS_DICT = dict(RELATION_TYPE_OPTIONS)
@@ -56,6 +58,8 @@ REVERSE_RELATION_MAPPING = {
     HYPONYMY: HYPERONYMY,
     HYPERONYMY: HYPONYMY,
     COHYPONYM: COHYPONYM,
+    VARIATION: IS_VARIANT_OF,
+    IS_VARIANT_OF: VARIATION,
 }
 
 # num -> [str, ...]

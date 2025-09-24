@@ -107,7 +107,7 @@ def export(src_lang, tgt_lang, directory_path, ignore_file=None, *args, **kwargs
 
 class Command(BaseCommand):
     """
-    This function generates the XML following the format in https://victorio.uit.no/langtech/trunk/words/dicts/finsms/
+    This function generates the XML following the format in https://github.com/giellalt/dict-fin-sms/
     The output is expected to be used in an online dictionary.
     Example: python manage.py export_xml_dict -d ../xml_src/ -s fin
     """

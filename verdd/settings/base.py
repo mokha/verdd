@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",  # for allauth
     "rest_framework",
+    "rest_framework.authtoken",
     "crispy_forms",
     "crispy_bootstrap5",
     "users",
     "manageXML",
+    "api",
     "apertium",
     "allauth",
     "allauth.account",

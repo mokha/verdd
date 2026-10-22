@@ -23,6 +23,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("i18n/", include("django.conf.urls.i18n")),
+    path("api/v1/", include("api.urls")),
     path("", include("manageXML.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

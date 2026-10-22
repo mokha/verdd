@@ -43,7 +43,9 @@ class LanguageSerializer(serializers.ModelSerializer):
 
 class LexemeSerializer(ChangedByMixin, serializers.ModelSerializer):
     language = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all())
-    homoId = serializers.IntegerField(min_value=0, required=False)
+    # A default (not just required=False): the unique_together validator requires every
+    # field of the constraint on create unless it has a default.
+    homoId = serializers.IntegerField(min_value=0, default=0)
     web_url = serializers.SerializerMethodField()
 
     reset_checked_fields = (

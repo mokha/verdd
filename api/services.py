@@ -1,4 +1,4 @@
-from django.db import transaction
+from django.db import IntegrityError, transaction
 
 from manageXML.models import (
     Lexeme,
@@ -36,18 +36,46 @@ def resolve_lexeme(spec, user, role, default_pos=None):
             defaults={"changed_by": user},
         )
 
-    matches = list(
-        Lexeme.objects.filter(lexeme=text, pos=pos, language=language).order_by(
-            "homoId"
-        )
-    )
+    matches = _matching_lexemes(text, pos, language)
+    if not matches:
+        try:
+            with transaction.atomic():  # savepoint: a race must not break the caller's transaction
+                return Lexeme.objects.create(
+                    lexeme=text, pos=pos, language=language, homoId=0, changed_by=user
+                ), True
+        except IntegrityError:  # created by a concurrent request in the meantime
+            matches = _matching_lexemes(text, pos, language)
     if len(matches) == 1:
         return matches[0], False
-    if matches:
-        raise AmbiguousLexeme(role, [m.pk for m in matches])
-    return Lexeme.objects.create(
-        lexeme=text, pos=pos, language=language, homoId=0, changed_by=user
-    ), True
+    raise AmbiguousLexeme(role, [m.pk for m in matches])
+
+
+def _matching_lexemes(text, pos, language):
+    return list(
+        Lexeme.objects.filter(lexeme=text, pos=pos, language=language).order_by("homoId")
+    )
+
+
+def _get_or_create_link(source_example, target_example, user):
+    """Return (link, created); a link created concurrently is reused instead of failing."""
+    link = RelationExampleRelation.objects.filter(
+        example_from=source_example, example_to=target_example
+    ).first()
+    if link is not None:
+        return link, False
+    link = RelationExampleRelation(example_from=source_example, example_to=target_example)
+    link.changed_by = user
+    try:
+        with transaction.atomic():
+            link.save()
+        return link, True
+    except IntegrityError:
+        return (
+            RelationExampleRelation.objects.get(
+                example_from=source_example, example_to=target_example
+            ),
+            False,
+        )
 
 
 def _lexeme_info(lexeme, created):
@@ -105,17 +133,8 @@ def upsert_pair(user, data):
                     defaults=provenance,
                 )
             )
-            created = created or target_example_created
-            link = RelationExampleRelation.objects.filter(
-                example_from=source_example, example_to=target_example
-            ).first()
-            if link is None:
-                link = RelationExampleRelation(
-                    example_from=source_example, example_to=target_example
-                )
-                link.changed_by = user
-                link.save()
-                created = True
+            link, link_created = _get_or_create_link(source_example, target_example, user)
+            created = created or target_example_created or link_created
             result["target_example"] = target_example.pk
             result["link"] = link.pk
         result["created"] = created

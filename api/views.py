@@ -1,5 +1,7 @@
 import logging
 
+from django.db import DatabaseError
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -147,6 +149,11 @@ def _store_pair(request, data):
         return upsert_pair(request.user, serializer.validated_data), None
     except AmbiguousLexeme as exc:
         return None, {exc.role: [str(exc)]}
+    except DatabaseError:
+        # upsert_pair is atomic, so nothing of this pair was stored; report it per item
+        # instead of failing a bulk request whose earlier pairs are already committed.
+        logger.exception("API pair could not be stored")
+        return None, {"non_field_errors": ["The pair could not be stored; please retry."]}
 
 
 class PairView(ApiAccessMixin, APIView):

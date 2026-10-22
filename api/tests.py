@@ -1,7 +1,9 @@
 from io import StringIO
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.db import IntegrityError
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
@@ -169,6 +171,59 @@ class PairTests(ApiTestCase):
         self.assertFalse(failed["ok"])
         self.assertEqual(Relation.objects.count(), 1)
 
+    def test_bulk_reports_database_errors_per_item(self):
+        from api import services
+
+        calls = []
+
+        def flaky_upsert(user, data):
+            calls.append(data)
+            if len(calls) == 1:
+                raise IntegrityError("simulated")
+            return services.upsert_pair(user, data)
+
+        other = {**PAIR, "target": {"lexeme": "hongka", "language": "fin"}}
+        with mock.patch("api.views.upsert_pair", side_effect=flaky_upsert):
+            response = self.client.post(
+                "/api/v1/pairs/bulk/", {"pairs": [other, PAIR]}, format="json"
+            )
+        self.assertEqual(response.status_code, 200)
+        failed, ok = response.data["results"]
+        self.assertFalse(failed["ok"])
+        self.assertTrue(ok["ok"])
+        self.assertEqual(Relation.objects.count(), 1)
+
+    def test_lexeme_created_concurrently_is_reused(self):
+        # Another request creates the lexeme between our lookup and our insert.
+        from api import services
+
+        existing = self.make_lexeme("muõrr", "sms")
+        real = services._matching_lexemes
+        stale = []
+
+        def lookup(text, pos, language):
+            if text == "muõrr" and not stale:  # the first lookup misses the new row
+                stale.append(True)
+                return []
+            return real(text, pos, language)
+
+        with mock.patch("api.services._matching_lexemes", side_effect=lookup):
+            response = self.client.post("/api/v1/pairs/", PAIR, format="json")
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(response.data["source"]["id"], existing.pk)
+        self.assertFalse(response.data["source"]["created"])
+        self.assertEqual(Lexeme.objects.filter(lexeme="muõrr").count(), 1)
+
+    def test_link_created_concurrently_is_reused(self):
+        self.client.post("/api/v1/pairs/", PAIR, format="json")
+        stale = mock.Mock()
+        stale.first.return_value = None  # the link is not seen, then exists on insert
+        with mock.patch.object(RelationExampleRelation.objects, "filter", return_value=stale):
+            response = self.client.post("/api/v1/pairs/", PAIR, format="json")
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertFalse(response.data["created"])
+        self.assertEqual(RelationExampleRelation.objects.count(), 1)
+
     def test_bulk_rejects_non_list(self):
         response = self.client.post("/api/v1/pairs/bulk/", {"pairs": PAIR}, format="json")
         self.assertEqual(response.status_code, 400)
@@ -208,11 +263,18 @@ class EditTests(ApiTestCase):
         self.assertEqual(response.status_code, 405)
         self.assertTrue(Lexeme.objects.filter(pk=lexeme.pk).exists())
 
+    def test_lexeme_without_homoid_is_created(self):
+        payload = {"lexeme": "muõrr", "language": "sms", "pos": "N"}
+        response = self.client.post("/api/v1/lexemes/", payload, format="json")
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(response.data["homoId"], 0)
+
     def test_duplicate_lexeme_is_rejected(self):
         self.make_lexeme("muõrr", "sms")
         payload = {"lexeme": "muõrr", "language": "sms", "pos": "N"}
         response = self.client.post("/api/v1/lexemes/", payload, format="json")
         self.assertEqual(response.status_code, 400)
+        self.assertIn("non_field_errors", response.data)  # the duplicate, not a missing field
 
     def test_relation_delete_records_who_deleted(self):
         a, b = self.make_lexeme("muõrr", "sms"), self.make_lexeme("puu", "fin")

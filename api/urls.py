@@ -19,6 +19,7 @@ router.register("languages", views.LanguageViewSet, basename="api-language")
 
 urlpatterns = [
     path("me/", views.MeView.as_view(), name="api-me"),
+    path("pos/", views.PosView.as_view(), name="api-pos"),
     path("pairs/", views.PairView.as_view(), name="api-pair"),
     path("pairs/bulk/", views.PairBulkView.as_view(), name="api-pair-bulk"),
 ] + router.urls

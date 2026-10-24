@@ -328,6 +328,19 @@ class ReadTests(ApiTestCase):
         self.assertEqual({e["language"] for e in examples}, {"sms", "fin"})
         self.assertEqual(examples[0]["linked_to"], [examples[1]["id"]])
 
+    def test_relations_carry_lexeme_info(self):
+        self.client.post("/api/v1/pairs/", PAIR, format="json")
+        relation = self.client.get("/api/v1/relations/").data["results"][0]
+        self.assertEqual(relation["lexeme_to_info"]["lexeme"], "puu")
+        self.assertEqual(relation["lexeme_to_info"]["language"], "fin")
+        self.assertEqual(relation["lexeme_from_info"]["homoId"], 0)
+
+    def test_pos_lists_values_in_use(self):
+        self.make_lexeme("muõrr", "sms", pos="N")
+        self.make_lexeme("leeʹd", "sms", pos="V")
+        self.make_lexeme("puu", "fin", pos="N")
+        self.assertEqual(self.client.get("/api/v1/pos/").data, ["N", "V"])
+
     def test_languages(self):
         response = self.client.get("/api/v1/languages/")
         self.assertEqual({r["id"] for r in response.data}, {"sms", "fin", "nob"})

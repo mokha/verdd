@@ -119,9 +119,17 @@ class RelationExampleSerializer(ChangedByMixin, serializers.ModelSerializer):
         return attrs
 
 
+class LexemeBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lexeme
+        fields = ("id", "lexeme", "pos", "homoId", "language")
+
+
 class RelationSerializer(ChangedByMixin, serializers.ModelSerializer):
     lexeme_from = serializers.PrimaryKeyRelatedField(queryset=Lexeme.objects.all())
     lexeme_to = serializers.PrimaryKeyRelatedField(queryset=Lexeme.objects.all())
+    lexeme_from_info = LexemeBriefSerializer(source="lexeme_from", read_only=True)
+    lexeme_to_info = LexemeBriefSerializer(source="lexeme_to", read_only=True)
     examples = RelationExampleSerializer(
         source="relationexample_set", many=True, read_only=True
     )
@@ -134,6 +142,8 @@ class RelationSerializer(ChangedByMixin, serializers.ModelSerializer):
             "id",
             "lexeme_from",
             "lexeme_to",
+            "lexeme_from_info",
+            "lexeme_to_info",
             "type",
             "notes",
             "checked",
@@ -179,6 +189,11 @@ class RelationExampleLinkSerializer(serializers.ModelSerializer):
         instance.changed_by = self.context["request"].user
         instance.save()
         return instance
+
+
+class MergeRequestSerializer(serializers.Serializer):
+    into = serializers.PrimaryKeyRelatedField(queryset=Lexeme.objects.all())
+    dry_run = serializers.BooleanField(default=False)
 
 
 class PairSourceSerializer(serializers.Serializer):

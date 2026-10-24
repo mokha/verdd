@@ -5,6 +5,7 @@ from django.db import DatabaseError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
@@ -21,10 +22,18 @@ from manageXML.models import (
 
 from .filters import LexemeFilter, RelationFilter
 from .permissions import IsStaffOrSuperuser
+from .merge import (
+    MergeError,
+    lexeme_summary,
+    merge_candidates_queryset,
+    merge_lexemes,
+    siblings_of,
+)
 from .serializers import (
     ExampleSerializer,
     LanguageSerializer,
     LexemeSerializer,
+    MergeRequestSerializer,
     PairSerializer,
     RelationExampleLinkSerializer,
     RelationExampleSerializer,
@@ -74,6 +83,37 @@ class LexemeViewSet(ApiModelViewSet):
     queryset = Lexeme.objects.order_by("id")
     filterset_class = LexemeFilter
     http_method_names = ["get", "post", "put", "patch", "head", "options"]
+
+    @action(detail=False, methods=["get"], url_path="merge-candidates")
+    def merge_candidates(self, request):
+        """Undetermined-POS lexemes that share their string and language with a lexeme
+        that has a real POS, each with those lexemes and what is attached to them."""
+        queryset = merge_candidates_queryset(request.query_params.get("language"))
+        page = self.paginate_queryset(queryset)
+        groups = [
+            {
+                "undetermined": lexeme_summary(lexeme),
+                "candidates": [lexeme_summary(s) for s in siblings_of(lexeme)],
+            }
+            for lexeme in page
+        ]
+        return self.get_paginated_response(groups)
+
+    @action(detail=True, methods=["post"], url_path="merge")
+    def merge(self, request, pk=None):
+        """Absorb this undetermined-POS lexeme into `into`; send dry_run=true to preview."""
+        absorbed = self.get_object()
+        serializer = MergeRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        keeper = serializer.validated_data["into"]
+        dry_run = serializer.validated_data["dry_run"]
+        try:
+            report = merge_lexemes(absorbed, keeper, request.user, dry_run=dry_run)
+        except MergeError as exc:
+            raise ValidationError({"into": [str(exc)]})
+        if not dry_run:
+            logger.info("API merge lexeme %s into %s by %s", pk, keeper.pk, request.user)
+        return Response(report)
 
 
 class RelationViewSet(ApiModelViewSet):
@@ -127,6 +167,14 @@ class LanguageViewSet(ApiAccessMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = LanguageSerializer
     queryset = Language.objects.order_by("id")
     pagination_class = None
+
+
+class PosView(ApiAccessMixin, APIView):
+    """The POS values currently in use, so clients offer Verdd's own vocabulary."""
+
+    def get(self, request):
+        used = Lexeme.objects.order_by("pos").values_list("pos", flat=True).distinct()
+        return Response([pos for pos in used if pos])
 
 
 class MeView(ApiAccessMixin, APIView):

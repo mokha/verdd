@@ -34,21 +34,33 @@ class ParseTests(SimpleTestCase):
 
     def test_only_readings_of_the_headword_itself_count(self):
         casa = ["casa<n><f><sg>ε", "casar<vblex><imp><p2><sg>ε", "casar<vblex><pri><p3><sg>ε"]
-        self.assertEqual(pos_guess.headword_pos("casa", [(a, 0.0) for a in casa]), ({"N"}, False))
+        self.assertEqual(pos_guess.headword_pos("casa", [(a, 0.0) for a in casa]), ({"N"}, set()))
         falar = ["falar<n><m><sg>ε", "falar<vblex><inf>ε", "falar<vblex><fts><p1><sg>ε"]
-        self.assertEqual(pos_guess.headword_pos("falar", falar), ({"N", "V"}, False))
+        self.assertEqual(pos_guess.headword_pos("falar", falar), ({"N", "V"}, set()))
         letter = ["в+N+Neu+Inan+Sg+Nom", "в+N+Neu+Inan+Pl+Gen", "в+Pr"]
-        self.assertEqual(pos_guess.headword_pos("в", letter), ({"N", "Pr"}, False))
+        self.assertEqual(pos_guess.headword_pos("в", letter), ({"N", "Pr"}, set()))
 
     def test_same_pos_with_different_gender_is_one_pos(self):
         readings = ["casa<n><f><sg>", "casa<n><m><sg>"]
         self.assertEqual(pos_guess.classify(*pos_guess.headword_pos("casa", readings)), "single")
 
     def test_classification(self):
-        self.assertEqual(pos_guess.classify(set(), False), "no reading")
-        self.assertEqual(pos_guess.classify({"N"}, True), "unmapped")
-        self.assertEqual(pos_guess.classify({"N", "V"}, False), "ambiguous")
-        self.assertEqual(pos_guess.headword_pos("Bio", ["bio+N+Sg"]), (set(), False), "case differences do not count")
+        self.assertEqual(pos_guess.classify(set(), set()), "no reading")
+        self.assertEqual(pos_guess.classify({"N"}, {"abbr"}), "unmapped")
+        self.assertEqual(pos_guess.classify({"N", "V"}, set()), "ambiguous")
+        self.assertEqual(pos_guess.headword_pos("Bio", ["bio+N+Sg"]), (set(), set()), "case differences do not count")
+
+    def test_relative_pronouns_and_adverbs(self):
+        quem = ["quem<prn><itg><mf><sp>ε", "quem<rel><nn><mf><sp>ε"]
+        self.assertEqual(pos_guess.headword_pos("quem", quem), ({"Pron"}, set()))
+        self.assertEqual(pos_guess.parse_analysis("que<rel><an><mf><sp>ε"), ("que", "Pron"))
+        self.assertEqual(pos_guess.parse_analysis("который+Pron+Rel+Msc+Sg+Nom"), ("который", "Pron"))
+        self.assertEqual(pos_guess.parse_analysis("onde<rel><adv>ε"), ("onde", "Adv"))
+
+    def test_unmapped_tags_are_reported(self):
+        found, unmapped = pos_guess.headword_pos("a.C.", ["a.C.<abbr>ε", "a.C.<xyz><sg>"])
+        self.assertEqual((found, unmapped), (set(), {"abbr", "xyz"}))
+        self.assertEqual(pos_guess.first_tag("foo+Weird+Sg"), "Weird")
 
 
 ANALYSES = {

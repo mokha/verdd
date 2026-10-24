@@ -7,7 +7,7 @@ from django.db import transaction
 from simple_history.utils import bulk_update_with_history
 
 from api import pos_guess
-from api.merge import UNDETERMINED_POS, MergeError, merge_lexemes
+from api.merge import UNDETERMINED_POS, MergeError, child_counts, merge_lexemes
 from manageXML.models import Lexeme
 
 OUTCOMES = (
@@ -30,12 +30,15 @@ class Command(BaseCommand):
         parser.add_argument("--batch-size", type=int, default=2000)
         parser.add_argument("--limit", type=int, help="Stop after this many entries per language (trial runs).")
         parser.add_argument("--sample", type=int, default=5, help="Examples to print per language and outcome.")
+        parser.add_argument("--start-pk", type=int, default=0,
+                            help="Only look at entries with a primary key above this; use it to sample other parts of the table.")
 
     def handle(self, *args, **options):
         self.apply = options["apply"]
         self.batch = options["batch_size"]
         self.limit = options["limit"]
         self.sample = options["sample"]
+        self.start_pk = options["start_pk"]
         self.user = None
         if self.apply:
             if not options["user"]:
@@ -65,10 +68,10 @@ class Command(BaseCommand):
         return ", ".join("%s %d" % (name, counts[name]) for name in OUTCOMES if counts[name]) or "nothing to do"
 
     def run_language(self, language):
-        counts, assigned = Counter(), Counter()
+        counts, assigned, unapproving = Counter(), Counter(), 0
         samples = defaultdict(list)
         planned = set()
-        last, seen = 0, 0
+        last, seen = self.start_pk, 0
         base = Lexeme.objects.filter(language_id=language, pos__in=UNDETERMINED_POS)
 
         while True:
@@ -89,6 +92,8 @@ class Command(BaseCommand):
                 counts[outcome] += 1
                 if outcome in ("set", "merge"):
                     assigned[pos] += 1
+                if outcome == "merge" and keeper.checked and any(child_counts(entry).values()):
+                    unapproving += 1
                 if len(samples[outcome]) < self.sample:
                     samples[outcome].append("    #%d %r -> %s" % (entry.pk, entry.lexeme, self.describe(outcome, pos, keeper)))
                 if outcome == "set":
@@ -108,6 +113,9 @@ class Command(BaseCommand):
         if assigned:
             self.stdout.write("  POS %s: %s" % ("assigned" if self.apply else "that would be assigned",
                                                ", ".join("%s %d" % kv for kv in assigned.most_common())))
+        if unapproving:
+            self.stdout.write("  merges that %s an approved entry unapproved: %d (relations or examples move into it)"
+                              % ("leave" if self.apply else "would leave", unapproving))
         for outcome in OUTCOMES:
             if samples[outcome]:
                 self.stdout.write("  %s:" % outcome)

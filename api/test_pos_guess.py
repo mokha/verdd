@@ -156,6 +156,26 @@ class GuessPosCommandTests(TestCase):
         self.assertIn("would collide 1", out)
         self.assertEqual(Lexeme.objects.filter(lexeme="livro", pos="N").count(), 1)
 
+    def test_reports_merges_that_would_unapprove_an_entry(self):
+        keeper = self.lex("ребёнок", "rus", "N")
+        Lexeme.objects.filter(pk=keeper.pk).update(checked=True)
+        entry = self.lex("ребёнок", "rus")
+        Relation.objects.create(lexeme_from=entry, lexeme_to=self.lex("lapsi", "fin", "N"), type=TRANSLATION)
+        out, _ = run(languages=["rus"])
+        self.assertIn("would leave an approved entry unapproved: 1", out)
+        plain = self.lex("лес", "rus")
+        ANALYSES[("rus", "лес")] = ["лес+N+Msc+Inan+Sg+Nom"]
+        self.lex("лес", "rus", "N")
+        out, _ = run(languages=["rus"])
+        self.assertIn("unapproved: 1", out, "an empty duplicate moves nothing and unapproves nothing")
+
+    def test_start_pk_skips_earlier_entries(self):
+        first = self.lex("bonito", "por")
+        second = self.lex("mesa", "por")
+        run(languages=["por"], apply=True, user="guesser", start_pk=first.pk)
+        self.assertEqual(Lexeme.objects.get(pk=first.pk).pos, "")
+        self.assertEqual(Lexeme.objects.get(pk=second.pk).pos, "N")
+
     def test_apply_needs_a_named_user(self):
         with self.assertRaisesMessage(CommandError, "--user"):
             run(languages=["por"], apply=True)

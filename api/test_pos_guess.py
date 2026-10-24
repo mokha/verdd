@@ -74,6 +74,11 @@ ANALYSES = {
     ("por", "gato"): ["gato<n><m><sg>ε"],
     ("cat", "xyz"): [],
     ("eng", "walk"): ["walk+N+Sg", "walk+V+Inf"],
+    ("rus", "ж"): ["ж+N+Msc+Inan+Sg+Nom"],
+    ("rus", "в"): ["в+Pr"],
+    ("rus", "охота"): ["охота+N+Fem+Inan+Sg+Nom", "охота+Pred"],
+    ("rus", "супер"): ["супер+Pred"],
+    ("rus", "паремия"): ["паремия+Inan+Fem+Sg+Nom"],
 }
 
 
@@ -187,6 +192,27 @@ class GuessPosCommandTests(TestCase):
         run(languages=["por"], apply=True, user="guesser", start_pk=first.pk)
         self.assertEqual(Lexeme.objects.get(pk=first.pk).pos, "")
         self.assertEqual(Lexeme.objects.get(pk=second.pk).pos, "N")
+
+    def test_short_headwords_get_no_new_pos_but_may_still_merge(self):
+        letter = self.lex("ж", "rus")
+        short_merge = self.lex("в", "rus")
+        self.lex("в", "rus", "Pr")
+        out, _ = run(languages=["rus"], apply=True, user="guesser")
+        self.assertIn("too short 1", out)
+        self.assertEqual(Lexeme.objects.get(pk=letter.pk).pos, "")
+        self.assertFalse(Lexeme.objects.filter(pk=short_merge.pk).exists(), "a matching entry is second evidence")
+
+    def test_min_length_can_be_lowered(self):
+        letter = self.lex("ж", "rus")
+        run(languages=["rus"], apply=True, user="guesser", min_length=1)
+        self.assertEqual(Lexeme.objects.get(pk=letter.pk).pos, "N")
+
+    def test_unmapped_tags_are_counted_per_language(self):
+        for word in ("охота", "супер", "паремия"):
+            self.lex(word, "rus")
+        out, _ = run(languages=["rus"])
+        self.assertIn("unmapped tags: Pred 2, Inan 1", out)
+        self.assertIn("unmapped (tag Pred)", out)
 
     def test_apply_needs_a_named_user(self):
         with self.assertRaisesMessage(CommandError, "--user"):

@@ -12,7 +12,7 @@ from manageXML.models import Lexeme
 
 OUTCOMES = (
     "set", "merge", "ambiguous", "no reading", "unmapped", "multiword",
-    "several candidates", "would collide",
+    "several candidates", "would collide", "too short",
 )
 
 
@@ -30,6 +30,9 @@ class Command(BaseCommand):
         parser.add_argument("--batch-size", type=int, default=2000)
         parser.add_argument("--limit", type=int, help="Stop after this many entries per language (trial runs).")
         parser.add_argument("--sample", type=int, default=5, help="Examples to print per language and outcome.")
+        parser.add_argument("--min-length", type=int, default=3,
+                            help="Do not set a POS on headwords shorter than this (letters and particles get "
+                                 "misleading noun readings); merging into an existing entry is still allowed.")
         parser.add_argument("--start-pk", type=int, default=0,
                             help="Only look at entries with a primary key above this; use it to sample other parts of the table.")
 
@@ -39,6 +42,7 @@ class Command(BaseCommand):
         self.limit = options["limit"]
         self.sample = options["sample"]
         self.start_pk = options["start_pk"]
+        self.min_length = options["min_length"]
         self.user = None
         if self.apply:
             if not options["user"]:
@@ -69,6 +73,7 @@ class Command(BaseCommand):
 
     def run_language(self, language):
         counts, assigned, unapproving = Counter(), Counter(), 0
+        unmapped_tags = Counter()
         samples = defaultdict(list)
         planned = set()
         last, seen = self.start_pk, 0
@@ -92,6 +97,8 @@ class Command(BaseCommand):
                 counts[outcome] += 1
                 if outcome in ("set", "merge"):
                     assigned[pos] += 1
+                elif outcome == "unmapped":
+                    unmapped_tags.update(pos)
                 if outcome == "merge" and keeper.checked and any(child_counts(entry).values()):
                     unapproving += 1
                 if len(samples[outcome]) < self.sample:
@@ -113,6 +120,8 @@ class Command(BaseCommand):
         if assigned:
             self.stdout.write("  POS %s: %s" % ("assigned" if self.apply else "that would be assigned",
                                                ", ".join("%s %d" % kv for kv in assigned.most_common())))
+        if unmapped_tags:
+            self.stdout.write("  unmapped tags: %s" % ", ".join("%s %d" % kv for kv in unmapped_tags.most_common()))
         if unapproving:
             self.stdout.write("  merges that %s an approved entry unapproved: %d (relations or examples move into it)"
                               % ("leave" if self.apply else "would leave", unapproving))
@@ -124,7 +133,7 @@ class Command(BaseCommand):
 
     def describe(self, outcome, pos, keeper):
         if outcome == "unmapped":
-            return "unmapped (%s)" % pos
+            return "unmapped (tag %s)" % "/".join(pos)
         if outcome == "set":
             return "POS %s" % pos
         if outcome == "merge":
@@ -138,7 +147,7 @@ class Command(BaseCommand):
         found, unmapped = pos_guess.headword_pos(entry.lexeme, pos_guess.analyze_word(entry.lexeme, language))
         kind = pos_guess.classify(found, unmapped)
         if kind == "unmapped":
-            return kind, "tag %s" % "/".join(sorted(unmapped)), None
+            return kind, tuple(sorted(unmapped)), None
         if kind != "single":
             return kind, None, None
 
@@ -148,6 +157,9 @@ class Command(BaseCommand):
             return "merge", pos, same_pos[0]
         if len(same_pos) > 1:
             return "several candidates", pos, None
+
+        if len(entry.lexeme) < self.min_length:
+            return "too short", pos, None
 
         key = (entry.lexeme, pos, entry.homoId)
         if key in planned:

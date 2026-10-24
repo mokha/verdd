@@ -31,6 +31,8 @@ def parse_analysis(raw):
     if "<" in text:
         lemma, _, rest = text.partition("<")
         tags = re.findall(r"<([^<>]*)>", "<" + rest)
+        if tags and tags[0] == "rel":  # relative pronoun (Giella: Pron+Rel); <rel><adv> is a relative adverb
+            return lemma, "Adv" if "adv" in tags else "Pron"
         return lemma, APERTIUM_POS.get(tags[0]) if tags else None
 
     lemma, *tags = text.split("+")
@@ -43,23 +45,34 @@ def parse_analysis(raw):
     return lemma, GIELLA_POS.get(tags[0])
 
 
+def first_tag(raw):
+    """The first tag of an analysis, as the analyzer wrote it (for reporting unmapped POS)."""
+    text = raw.strip().rstrip("ε")
+    if "<" in text:
+        tags = re.findall(r"<([^<>]*)>", text)
+        return tags[0] if tags else ""
+    parts = text.split("+")
+    return parts[1] if len(parts) > 1 else ""
+
+
 def headword_pos(headword, analyses):
-    """Return (pos_set, has_unmapped) over the readings whose lemma is the headword."""
-    found, unmapped = set(), False
+    """Return (pos_set, unmapped_tags) over the readings whose lemma is the headword.
+    unmapped_tags holds the first tags that have no Verdd POS; it is empty when all mapped."""
+    found, unmapped = set(), set()
     for item in analyses:
         raw = item[0] if isinstance(item, (tuple, list)) else item
         lemma, pos = parse_analysis(raw)
         if lemma != headword:
             continue
         if pos is None:
-            unmapped = True
+            unmapped.add(first_tag(raw))
         else:
             found.add(pos)
     return found, unmapped
 
 
 def classify(found, unmapped):
-    """single | ambiguous | unmapped | no reading"""
+    """single | ambiguous | unmapped | no reading; unmapped is the set of unmapped tags"""
     if unmapped:
         return "unmapped"
     if not found:

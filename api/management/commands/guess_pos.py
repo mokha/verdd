@@ -123,6 +123,8 @@ class Command(BaseCommand):
         return counts
 
     def describe(self, outcome, pos, keeper):
+        if outcome == "unmapped":
+            return "unmapped (%s)" % pos
         if outcome == "set":
             return "POS %s" % pos
         if outcome == "merge":
@@ -135,6 +137,8 @@ class Command(BaseCommand):
             return "multiword", None, None
         found, unmapped = pos_guess.headword_pos(entry.lexeme, pos_guess.analyze_word(entry.lexeme, language))
         kind = pos_guess.classify(found, unmapped)
+        if kind == "unmapped":
+            return kind, "tag %s" % "/".join(sorted(unmapped)), None
         if kind != "single":
             return kind, None, None
 

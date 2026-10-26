@@ -28,9 +28,9 @@ class MergeTestCase(ApiTestCase):
     def rel(self, a, b, type=TRANSLATION, **kwargs):
         return Relation.objects.create(lexeme_from=a, lexeme_to=b, type=type, **kwargs)
 
-    def merge(self, absorbed, into, dry_run=False):
+    def merge(self, absorbed, into, dry_run=False, **extra):
         return self.client.post(
-            f"/api/v1/lexemes/{absorbed.pk}/merge/", {"into": into.pk, "dry_run": dry_run}, format="json"
+            f"/api/v1/lexemes/{absorbed.pk}/merge/", {"into": into.pk, "dry_run": dry_run, **extra}, format="json"
         )
 
 
@@ -207,6 +207,77 @@ class MergeTests(MergeTestCase):
         self.assertEqual((keeper.contlex, keeper.notes), ("V_BE", "kept note"))
 
 
+class GeneralMergeTests(MergeTestCase):
+    """Any two entries of a language can be joined when their POS is compatible."""
+
+    def test_decorated_headword_folds_into_the_clean_one(self):
+        decorated = self.lex("( ) pӧla", "sms", pos="ZERO")
+        clean = self.lex("pӧla", "sms", pos="N", checked=True)
+        borrowed = self.lex("борт", "fin", "N")
+        relation = self.rel(borrowed, decorated)
+
+        refused = self.merge(decorated, clean)
+        self.assertEqual(refused.status_code, 400)
+        self.assertIn("same headword", str(refused.data["into"]))
+        self.assertTrue(Lexeme.objects.filter(pk=decorated.pk).exists())
+
+        response = self.merge(decorated, clean, allow_different_headword=True)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data["headword_dropped"], "( ) pӧla")
+        self.assertIsNone(response.data["pos_set"])
+        relation.refresh_from_db()
+        self.assertEqual(relation.lexeme_to_id, clean.pk, "the incoming translation follows")
+        clean.refresh_from_db()
+        self.assertEqual((clean.lexeme, clean.pos), ("pӧla", "N"))
+        self.assertFalse(Lexeme.objects.filter(pk=decorated.pk).exists())
+
+    def test_equal_pos_duplicates_merge(self):
+        a, b = self.lex("pӧla", pos="N", homo=0), self.lex("pӧla", pos="N", homo=1)
+        self.rel(a, self.lex("olla", "fin", "V"))
+        response = self.merge(b, a)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(Lexeme.objects.filter(lexeme="pӧla").count(), 1)
+
+    def test_keeper_without_pos_takes_the_absorbed_pos(self):
+        keeper = self.lex("pӧla", pos="UND", checked=True)
+        absorbed = self.lex("pӧla", pos="N", homo=5)
+        response = self.merge(absorbed, keeper)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data["pos_set"], "N")
+        self.assertTrue(response.data["keeper_unapproved"])
+        keeper.refresh_from_db()
+        self.assertEqual((keeper.pos, keeper.homoId, keeper.checked), ("N", 0, False))
+
+    def test_same_homonym_slot_adopts_pos_after_the_absorbed_is_gone(self):
+        keeper, absorbed = self.lex("pӧla", pos="UND"), self.lex("pӧla", pos="N")  # both homonym 0
+        response = self.merge(absorbed, keeper)
+        self.assertEqual(response.status_code, 200, response.data)
+        keeper.refresh_from_db()
+        self.assertEqual(keeper.pos, "N")
+
+    def test_adopted_pos_must_not_clash_with_a_third_entry(self):
+        keeper = self.lex("pӧla", pos="UND", homo=2)
+        absorbed = self.lex("pӧla", pos="N", homo=5)
+        third = self.lex("pӧla", pos="N", homo=2)
+        response = self.merge(absorbed, keeper)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(f"#{third.pk}", str(response.data["into"]))
+        self.assertTrue(Lexeme.objects.filter(pk=absorbed.pk).exists())
+
+    def test_two_undetermined_entries_merge(self):
+        a, b = self.lex("pӧla", pos="ZERO"), self.lex("pӧla", pos="UND")
+        self.assertEqual(self.merge(a, b).status_code, 200)
+
+    def test_dry_run_with_different_headwords_changes_nothing(self):
+        decorated, clean = self.lex("( ) pӧla", pos="UND"), self.lex("pӧla", pos="N")
+        response = self.merge(decorated, clean, dry_run=True, allow_different_headword=True)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertTrue(response.data["dry_run"])
+        self.assertTrue(Lexeme.objects.filter(pk=decorated.pk).exists())
+        clean.refresh_from_db()
+        self.assertEqual(clean.pos, "N")
+
+
 class MergeGuardTests(MergeTestCase):
     def assertRefused(self, absorbed, into, text):
         response = self.merge(absorbed, into)
@@ -219,8 +290,7 @@ class MergeGuardTests(MergeTestCase):
         self.assertRefused(zero, zero, "itself")
         self.assertRefused(zero, self.lex("leeʹd", "fin", "V"), "same language")
         self.assertRefused(zero, self.lex("other", pos="V"), "same headword")
-        self.assertRefused(verb, self.lex("leeʹd", pos="N"), "undetermined POS")
-        self.assertRefused(zero, self.lex("leeʹd", pos="UND", homo=3), "determined part of speech")
+        self.assertRefused(verb, self.lex("leeʹd", pos="N"), "different parts of speech")
 
     def test_refuses_when_an_unhandled_model_references_lexemes(self):
         zero, verb = self.lex("leeʹd", pos="ZERO"), self.lex("leeʹd", pos="V")

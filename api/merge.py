@@ -1,10 +1,13 @@
-"""Join a lexeme whose POS is undetermined into the same-string lexeme that has a real POS.
+"""Join two lexemes of one language into one.
 
-Scope is deliberately narrow: both lexemes must share language and string, the absorbed one
-must have an undetermined POS (empty, ZERO or UND) and the surviving one must not. Everything
-attached to the absorbed lexeme moves to the survivor; rows the survivor already has are
-folded together instead of duplicated. A dry run executes the same code and rolls it back,
-so the preview is exactly what a real merge would do.
+Scope is deliberately narrow. Both lexemes must share their language and have compatible
+parts of speech: equal, or at least one undetermined (empty, ZERO or UND). Different
+headwords are refused unless the caller confirms them, which is how a misspelt or
+decorated headword such as "( ) word" is folded into "word". Everything attached to the
+absorbed lexeme moves to the survivor; rows the survivor already has are folded together
+instead of duplicated. The survivor keeps its own headword and homonym number, and takes
+over the absorbed lexeme's POS when its own is undetermined. A dry run executes the same
+code and rolls it back, so the preview is exactly what a real merge would do.
 """
 
 from collections import defaultdict
@@ -144,17 +147,41 @@ def lexeme_summary(lexeme):
     }
 
 
-def _validate(absorbed, keeper):
+def _validate(absorbed, keeper, allow_different_headword=False):
     if absorbed.pk == keeper.pk:
         raise MergeError("A lexeme cannot be merged into itself.")
     if absorbed.language_id != keeper.language_id:
         raise MergeError("Only lexemes of the same language can be merged.")
-    if absorbed.lexeme != keeper.lexeme:
-        raise MergeError("Only lexemes with the same headword can be merged.")
-    if not is_undetermined(absorbed.pos):
-        raise MergeError("Only an entry with undetermined POS (empty, ZERO or UND) can be absorbed.")
-    if is_undetermined(keeper.pos):
-        raise MergeError("The entry to keep needs a determined part of speech.")
+    if absorbed.lexeme != keeper.lexeme and not allow_different_headword:
+        raise MergeError(
+            "Only lexemes with the same headword can be merged unless you confirm that the "
+            "headwords differ ('%s' and '%s')." % (absorbed.lexeme, keeper.lexeme)
+        )
+    if (
+        not is_undetermined(absorbed.pos)
+        and not is_undetermined(keeper.pos)
+        and absorbed.pos != keeper.pos
+    ):
+        raise MergeError(
+            "The entries have different parts of speech (%s and %s), so they are different "
+            "entries. Change the part of speech of one of them first." % (absorbed.pos, keeper.pos)
+        )
+    if adopted_pos(absorbed, keeper):
+        clash = (
+            Lexeme.objects.filter(
+                lexeme=keeper.lexeme,
+                language=keeper.language,
+                pos=absorbed.pos,
+                homoId=keeper.homoId,
+            )
+            .exclude(pk__in=[absorbed.pk, keeper.pk])
+            .first()
+        )
+        if clash:
+            raise MergeError(
+                "The kept entry would become %s homonym %s, which entry #%s already is."
+                % (absorbed.pos, keeper.homoId, clash.pk)
+            )
 
     found = {(r.related_model.__name__, r.field.name) for r in Lexeme._meta.related_objects}
     unknown = found - HANDLED_RELATIONS
@@ -163,6 +190,13 @@ def _validate(absorbed, keeper):
             "Merging is not available: lexemes are also referenced by %s."
             % ", ".join("%s.%s" % pair for pair in sorted(unknown))
         )
+
+
+def adopted_pos(absorbed, keeper):
+    """The POS the keeper takes over, or None: only when it has none and the absorbed one does."""
+    if is_undetermined(keeper.pos) and not is_undetermined(absorbed.pos):
+        return absorbed.pos
+    return None
 
 
 def _stamp(obj, user):
@@ -307,21 +341,30 @@ def _run(absorbed, keeper, user, report):
 
     _copy_blank_fields(absorbed, keeper, report)
     changed = bool(report["fields_copied"])
-    if sum(report["moved"].values()) and keeper.checked:
+    new_pos = adopted_pos(absorbed, keeper)
+    if absorbed.lexeme != keeper.lexeme:
+        report["headword_dropped"] = absorbed.lexeme
+    if new_pos:
+        keeper.pos = new_pos
+        report["pos_set"] = new_pos
+        changed = True
+    if (sum(report["moved"].values()) or new_pos) and keeper.checked:
         keeper.checked = False
         report["keeper_unapproved"] = True
         changed = True
+
+    # The absorbed lexeme goes first: the keeper may take over its POS, and the two would
+    # otherwise collide on (headword, POS, language, homonym).
+    _stamp(absorbed, user)
+    absorbed.delete()
     if changed:
         _stamp(keeper, user)
         keeper.save()
 
-    _stamp(absorbed, user)
-    absorbed.delete()
 
-
-def merge_lexemes(absorbed, keeper, user, dry_run=False):
+def merge_lexemes(absorbed, keeper, user, dry_run=False, allow_different_headword=False):
     """Absorb `absorbed` into `keeper`; returns a report of what moved, folded or was dropped."""
-    _validate(absorbed, keeper)
+    _validate(absorbed, keeper, allow_different_headword)
     report = {
         "dry_run": dry_run,
         "absorbed": lexeme_summary(absorbed),
@@ -332,6 +375,8 @@ def merge_lexemes(absorbed, keeper, user, dry_run=False):
         "fields_copied": [],
         "notes": [],
         "keeper_unapproved": False,
+        "headword_dropped": None,
+        "pos_set": None,
     }
     with transaction.atomic():
         _run(absorbed, keeper, user, report)

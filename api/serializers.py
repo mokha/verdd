@@ -194,6 +194,23 @@ class RelationExampleLinkSerializer(serializers.ModelSerializer):
 class MergeRequestSerializer(serializers.Serializer):
     into = serializers.PrimaryKeyRelatedField(queryset=Lexeme.objects.all())
     dry_run = serializers.BooleanField(default=False)
+    # Required to join entries whose headwords differ, e.g. "( ) word" into "word".
+    allow_different_headword = serializers.BooleanField(default=False)
+
+
+class SplitRequestSerializer(serializers.Serializer):
+    """The new entry takes the source's language; unset fields default to the source's own."""
+
+    lexeme = serializers.CharField(max_length=250, required=False, allow_blank=True)
+    pos = serializers.CharField(max_length=25, required=False, allow_blank=True)
+    homoId = serializers.IntegerField(min_value=0, required=False)
+    relations = serializers.ListField(
+        child=serializers.IntegerField(), required=False, default=list, max_length=1000
+    )
+    examples = serializers.ListField(
+        child=serializers.IntegerField(), required=False, default=list, max_length=1000
+    )
+    dry_run = serializers.BooleanField(default=False)
 
 
 class PairSourceSerializer(serializers.Serializer):

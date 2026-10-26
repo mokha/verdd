@@ -29,6 +29,7 @@ from .merge import (
     merge_lexemes,
     siblings_of,
 )
+from .split import SplitError, split_lexeme
 from .serializers import (
     ExampleSerializer,
     LanguageSerializer,
@@ -38,6 +39,7 @@ from .serializers import (
     RelationExampleLinkSerializer,
     RelationExampleSerializer,
     RelationSerializer,
+    SplitRequestSerializer,
 )
 from .services import AmbiguousLexeme, upsert_pair
 
@@ -101,19 +103,54 @@ class LexemeViewSet(ApiModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="merge")
     def merge(self, request, pk=None):
-        """Absorb this undetermined-POS lexeme into `into`; send dry_run=true to preview."""
+        """Absorb this lexeme into `into`; send dry_run=true to preview. Headwords that
+        differ need allow_different_headword=true."""
         absorbed = self.get_object()
         serializer = MergeRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         keeper = serializer.validated_data["into"]
         dry_run = serializer.validated_data["dry_run"]
         try:
-            report = merge_lexemes(absorbed, keeper, request.user, dry_run=dry_run)
+            report = merge_lexemes(
+                absorbed,
+                keeper,
+                request.user,
+                dry_run=dry_run,
+                allow_different_headword=serializer.validated_data["allow_different_headword"],
+            )
         except MergeError as exc:
             raise ValidationError({"into": [str(exc)]})
         if not dry_run:
             logger.info("API merge lexeme %s into %s by %s", pk, keeper.pk, request.user)
         return Response(report)
+
+    @action(detail=True, methods=["post"], url_path="split")
+    def split(self, request, pk=None):
+        """Create a new lexeme (same language) and move the chosen relations and examples of
+        this one onto it; send dry_run=true to preview."""
+        source = self.get_object()
+        serializer = SplitRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        try:
+            report = split_lexeme(
+                source,
+                request.user,
+                new={key: data[key] for key in ("lexeme", "pos", "homoId") if key in data},
+                relations=data["relations"],
+                examples=data["examples"],
+                dry_run=data["dry_run"],
+            )
+        except SplitError as exc:
+            raise ValidationError({"non_field_errors": [str(exc)]})
+        if not data["dry_run"]:
+            logger.info(
+                "API split lexeme %s into new lexeme %s by %s",
+                pk,
+                report["new"]["id"],
+                request.user,
+            )
+        return Response(report, status=200 if data["dry_run"] else status.HTTP_201_CREATED)
 
 
 class RelationViewSet(ApiModelViewSet):

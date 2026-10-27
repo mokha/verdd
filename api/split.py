@@ -114,8 +114,11 @@ def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=Fals
         "Relation",
     )
     chosen_examples = _load(Example, examples, lambda e: e.lexeme_id == source.pk, "Example")
-    if not chosen and not chosen_examples:
-        raise SplitError("Choose at least one translation, relation or example to move to the new entry.")
+    if not chosen and not chosen_examples and (lexeme, pos) == (source.lexeme, source.pos):
+        raise SplitError(
+            "Choose at least one translation, relation or example to move to the new entry, "
+            "or give it a different headword or part of speech."
+        )
     if any(r.lexeme_from_id == r.lexeme_to_id for r in chosen):
         raise SplitError("A relation that links the entry to itself cannot be moved.")
 

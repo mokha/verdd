@@ -278,6 +278,51 @@ class GeneralMergeTests(MergeTestCase):
         self.assertEqual(clean.pos, "N")
 
 
+class DifferentPosTests(MergeTestCase):
+    """An entry given the wrong POS can be folded into the right one, but only on request."""
+
+    def test_refused_without_confirmation_and_allowed_with_it(self):
+        wrong = self.lex("саевемс", "sms", pos="N", checked=True, notes="(костояк)")
+        right = self.lex("саевемс", "sms", pos="V", checked=True)
+        source = self.lex("борт", "fin", "N")
+        relation = self.rel(source, wrong)
+
+        refused = self.merge(wrong, right)
+        self.assertEqual(refused.status_code, 400)
+        self.assertIn("different parts of speech", str(refused.data["into"]))
+        self.assertTrue(Lexeme.objects.filter(pk=wrong.pk).exists())
+
+        preview = self.merge(wrong, right, dry_run=True, allow_different_pos=True)
+        self.assertEqual(preview.status_code, 200, preview.data)
+        self.assertEqual(preview.data["pos_dropped"], "N")
+        self.assertTrue(Lexeme.objects.filter(pk=wrong.pk).exists())
+
+        response = self.merge(wrong, right, allow_different_pos=True)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data["pos_dropped"], "N")
+        self.assertIsNone(response.data["pos_set"])
+        relation.refresh_from_db()
+        self.assertEqual(relation.lexeme_to_id, right.pk, "the translation follows")
+        right.refresh_from_db()
+        self.assertEqual((right.pos, right.notes), ("V", "(костояк)"), "POS stays, blank notes are filled")
+        self.assertFalse(right.checked)
+
+    def test_same_pos_and_undetermined_pos_report_nothing_dropped(self):
+        a, b = self.lex("a", pos="N"), self.lex("a", pos="N", homo=1)
+        self.assertIsNone(self.merge(a, b, allow_different_pos=True).data["pos_dropped"])
+        c, d = self.lex("c", pos="UND"), self.lex("c", pos="V")
+        self.assertIsNone(self.merge(c, d, allow_different_pos=True).data["pos_dropped"])
+
+    def test_the_flag_does_not_waive_the_other_rules(self):
+        self.assertRefusedWith(self.lex("x", pos="N"), self.lex("x", "fin", pos="V"), "same language")
+        self.assertRefusedWith(self.lex("p", pos="N"), self.lex("q", pos="V"), "same headword")
+
+    def assertRefusedWith(self, absorbed, into, text):
+        response = self.merge(absorbed, into, allow_different_pos=True)
+        self.assertEqual(response.status_code, 400, response.data)
+        self.assertIn(text, str(response.data["into"]))
+
+
 class MergeGuardTests(MergeTestCase):
     def assertRefused(self, absorbed, into, text):
         response = self.merge(absorbed, into)

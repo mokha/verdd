@@ -104,7 +104,7 @@ class LexemeViewSet(ApiModelViewSet):
     @action(detail=True, methods=["post"], url_path="merge")
     def merge(self, request, pk=None):
         """Absorb this lexeme into `into`; send dry_run=true to preview. Headwords that
-        differ need allow_different_headword=true."""
+        differ need allow_different_headword=true, and different POS allow_different_pos=true."""
         absorbed = self.get_object()
         serializer = MergeRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -117,6 +117,7 @@ class LexemeViewSet(ApiModelViewSet):
                 request.user,
                 dry_run=dry_run,
                 allow_different_headword=serializer.validated_data["allow_different_headword"],
+                allow_different_pos=serializer.validated_data["allow_different_pos"],
             )
         except MergeError as exc:
             raise ValidationError({"into": [str(exc)]})

@@ -196,6 +196,9 @@ class MergeRequestSerializer(serializers.Serializer):
     dry_run = serializers.BooleanField(default=False)
     # Required to join entries whose headwords differ, e.g. "( ) word" into "word".
     allow_different_headword = serializers.BooleanField(default=False)
+    # Required to join entries with different parts of speech, i.e. when the absorbed one
+    # was given the wrong POS; the kept entry's POS stays.
+    allow_different_pos = serializers.BooleanField(default=False)
 
 
 class SplitRequestSerializer(serializers.Serializer):

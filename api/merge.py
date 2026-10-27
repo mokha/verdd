@@ -2,8 +2,9 @@
 
 Scope is deliberately narrow. Both lexemes must share their language and have compatible
 parts of speech: equal, or at least one undetermined (empty, ZERO or UND). Different
-headwords are refused unless the caller confirms them, which is how a misspelt or
-decorated headword such as "( ) word" is folded into "word". Everything attached to the
+headwords and different determined POS are refused unless the caller confirms them, which
+is how a misspelt or decorated headword such as "( ) word", or an entry given the wrong POS,
+is folded into the right one; the kept entry's headword and POS win. Everything attached to the
 absorbed lexeme moves to the survivor; rows the survivor already has are folded together
 instead of duplicated. The survivor keeps its own headword and homonym number, and takes
 over the absorbed lexeme's POS when its own is undetermined. A dry run executes the same
@@ -147,7 +148,7 @@ def lexeme_summary(lexeme):
     }
 
 
-def _validate(absorbed, keeper, allow_different_headword=False):
+def _validate(absorbed, keeper, allow_different_headword=False, allow_different_pos=False):
     if absorbed.pk == keeper.pk:
         raise MergeError("A lexeme cannot be merged into itself.")
     if absorbed.language_id != keeper.language_id:
@@ -157,14 +158,11 @@ def _validate(absorbed, keeper, allow_different_headword=False):
             "Only lexemes with the same headword can be merged unless you confirm that the "
             "headwords differ ('%s' and '%s')." % (absorbed.lexeme, keeper.lexeme)
         )
-    if (
-        not is_undetermined(absorbed.pos)
-        and not is_undetermined(keeper.pos)
-        and absorbed.pos != keeper.pos
-    ):
+    if differing_pos(absorbed, keeper) and not allow_different_pos:
         raise MergeError(
-            "The entries have different parts of speech (%s and %s), so they are different "
-            "entries. Change the part of speech of one of them first." % (absorbed.pos, keeper.pos)
+            "The entries have different parts of speech (%s and %s), so they may be different "
+            "entries. Confirm that the absorbed entry has the wrong POS to merge them anyway."
+            % (absorbed.pos, keeper.pos)
         )
     if adopted_pos(absorbed, keeper):
         clash = (
@@ -190,6 +188,15 @@ def _validate(absorbed, keeper, allow_different_headword=False):
             "Merging is not available: lexemes are also referenced by %s."
             % ", ".join("%s.%s" % pair for pair in sorted(unknown))
         )
+
+
+def differing_pos(absorbed, keeper):
+    """True when both entries have a real POS and it is not the same."""
+    return (
+        not is_undetermined(absorbed.pos)
+        and not is_undetermined(keeper.pos)
+        and absorbed.pos != keeper.pos
+    )
 
 
 def adopted_pos(absorbed, keeper):
@@ -344,6 +351,8 @@ def _run(absorbed, keeper, user, report):
     new_pos = adopted_pos(absorbed, keeper)
     if absorbed.lexeme != keeper.lexeme:
         report["headword_dropped"] = absorbed.lexeme
+    if differing_pos(absorbed, keeper):
+        report["pos_dropped"] = absorbed.pos
     if new_pos:
         keeper.pos = new_pos
         report["pos_set"] = new_pos
@@ -362,9 +371,11 @@ def _run(absorbed, keeper, user, report):
         keeper.save()
 
 
-def merge_lexemes(absorbed, keeper, user, dry_run=False, allow_different_headword=False):
+def merge_lexemes(
+    absorbed, keeper, user, dry_run=False, allow_different_headword=False, allow_different_pos=False
+):
     """Absorb `absorbed` into `keeper`; returns a report of what moved, folded or was dropped."""
-    _validate(absorbed, keeper, allow_different_headword)
+    _validate(absorbed, keeper, allow_different_headword, allow_different_pos)
     report = {
         "dry_run": dry_run,
         "absorbed": lexeme_summary(absorbed),
@@ -376,6 +387,7 @@ def merge_lexemes(absorbed, keeper, user, dry_run=False, allow_different_headwor
         "notes": [],
         "keeper_unapproved": False,
         "headword_dropped": None,
+        "pos_dropped": None,
         "pos_set": None,
     }
     with transaction.atomic():

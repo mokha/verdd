@@ -108,6 +108,13 @@ class SplitTests(SplitTestCase):
         self.assertEqual(self.to_side.lexeme_from_id, self.source.pk)
         self.assertTrue(self.source.checked)
 
+    def test_a_new_headword_alone_is_enough_when_nothing_needs_to_move(self):
+        response = self.split(self.source, lexeme="pӧla2")
+        self.assertEqual(response.status_code, 201, response.data)
+        created = Lexeme.objects.get(pk=response.data["new"]["id"])
+        self.assertEqual((created.lexeme, created.pos), ("pӧla2", self.source.pos))
+        self.assertEqual(sum(response.data["moved"].values()), 0)
+
     def test_the_whole_entry_can_be_moved_and_says_so(self):
         response = self.split(self.source, relations=[self.to_side.pk, self.to_beside.pk])
         self.assertEqual(response.status_code, 201, response.data)

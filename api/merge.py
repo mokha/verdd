@@ -116,6 +116,39 @@ def merge_candidates_queryset(language=None):
     return queryset.order_by("language_id", "lexeme", "id")
 
 
+def starts_with_capital(text):
+    """True when the first letter of the headword is upper case ("Kala", "(Pietari)")."""
+    first = next((char for char in text or "" if char.isalpha()), "")
+    return first.isupper()
+
+
+def capitalised_noun_ids(language):
+    """Ids of the noun (POS N) lexemes of one language whose headword begins with a capital,
+    in headword order: names written like proper nouns but tagged as common nouns. Whether
+    that is wrong depends on the language (weekdays and months are common nouns in many), so
+    this always works on one language. Judged in Python, not SQL: SQLite lowercases only
+    ASCII and MySQL's collation may ignore case, so the database cannot tell reliably."""
+    rows = (
+        Lexeme.objects.filter(language_id=language, pos="N")
+        .order_by("lexeme", "id")
+        .values_list("pk", "lexeme")
+    )
+    return [pk for pk, text in rows if starts_with_capital(text)]
+
+
+def counterparts_of(lexeme):
+    """Other lexemes of the same language to join a capitalised noun with: the same headword
+    written with a lower-case initial or entirely in lower case (kala for Kala), and
+    the same headword under another POS (Pietari as Prop beside Pietari as N)."""
+    text = lexeme.lexeme
+    spellings = {text, text[:1].lower() + text[1:], text.lower()}
+    return (
+        Lexeme.objects.filter(language=lexeme.language, lexeme__in=spellings)
+        .exclude(pk=lexeme.pk)
+        .order_by("homoId", "id")
+    )
+
+
 def child_counts(lexeme):
     return {
         "relations_from": lexeme.lexeme_from_lexeme_set.count(),

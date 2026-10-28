@@ -66,6 +66,58 @@ class CandidateTests(MergeTestCase):
         self.assertEqual(body["results"][0]["undetermined"]["language"], "fin")
 
 
+class CapitalisedNounTests(MergeTestCase):
+    URL = "/api/v1/lexemes/merge-candidates/"
+
+    def get(self, **params):
+        return self.client.get(self.URL, {"mode": "capitalised-noun", **params})
+
+    def test_lists_capitalised_nouns_of_one_language_with_their_counterparts(self):
+        fish = self.lex("Kala", "fin", "N")
+        lower = self.lex("kala", "fin", "N")
+        name = self.lex("Pietari", "fin", "N")
+        prop = self.lex("Pietari", "fin", "Prop")
+        self.lex("Matti", "fin", "Prop")             # already a proper noun
+        self.lex("puu", "fin", "N")                  # not capitalised
+        self.lex("Ǻ", "sms", "N")                    # other language
+        self.lex("Kalaa", "fin", "V")                # capitalised but not a noun
+        body = self.get(language="fin").data
+        self.assertEqual(body["count"], 2)
+        found = {g["entry"]["id"]: g for g in body["results"]}
+        self.assertEqual(set(found), {fish.pk, name.pk})
+        self.assertEqual([c["id"] for c in found[fish.pk]["candidates"]], [lower.pk])
+        self.assertEqual([c["id"] for c in found[name.pk]["candidates"]], [prop.pk])
+
+    def test_capitals_beyond_ascii_and_leading_punctuation_count(self):
+        cyr = self.lex("Мон", "sms", "N")
+        bracket = self.lex("(Ärr)", "sms", "N")
+        self.lex("(ärr)", "sms", "N")
+        self.lex("123", "sms", "N")
+        ids = {g["entry"]["id"] for g in self.get(language="sms").data["results"]}
+        self.assertEqual(ids, {cyr.pk, bracket.pk})
+
+    def test_a_language_is_required(self):
+        response = self.get()
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("language", response.data)
+
+    def test_unknown_mode_is_refused(self):
+        self.assertEqual(self.client.get(self.URL, {"mode": "nope"}).status_code, 400)
+
+    def test_paging(self):
+        for text in ("Aa", "Bb", "Cc"):
+            self.lex(text, "fin", "N")
+        body = self.get(language="fin", limit=2, offset=2).data
+        self.assertEqual(body["count"], 3)
+        self.assertEqual([g["entry"]["lexeme"] for g in body["results"]], ["Cc"])
+
+    def test_a_capitalised_noun_can_be_merged_into_its_lowercase_twin(self):
+        upper = self.lex("Kala", "fin", "N")
+        lower = self.lex("kala", "fin", "N")
+        response = self.client.post(f"/api/v1/lexemes/{upper.pk}/merge/", {"into": lower.pk, "allow_different_headword": True}, format="json")
+        self.assertEqual(response.status_code, 200, response.data)
+
+
 class MergeTests(MergeTestCase):
     def test_empty_entry_is_absorbed_without_touching_the_keeper(self):
         absorbed, keeper = self.lex("leeʹd", pos="ZERO"), self.lex("leeʹd", pos="V", checked=True)

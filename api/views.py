@@ -25,6 +25,8 @@ from .permissions import IsStaffOrSuperuser
 from .merge import (
     MergeError,
     lexeme_summary,
+    capitalised_noun_ids,
+    counterparts_of,
     merge_candidates_queryset,
     merge_lexemes,
     siblings_of,
@@ -88,9 +90,31 @@ class LexemeViewSet(ApiModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="merge-candidates")
     def merge_candidates(self, request):
-        """Undetermined-POS lexemes that share their string and language with a lexeme
-        that has a real POS, each with those lexemes and what is attached to them."""
-        queryset = merge_candidates_queryset(request.query_params.get("language"))
+        """Lexemes worth merging. By default: undetermined-POS lexemes that share their string
+        and language with a lexeme that has a real POS, each with those lexemes and what is
+        attached to them. With mode=capitalised-noun (and a language): POS N lexemes whose
+        headword begins with a capital, each with the same word in lower case or under another
+        POS."""
+        mode = request.query_params.get("mode") or "undetermined"
+        language = request.query_params.get("language")
+        if mode == "capitalised-noun":
+            if not language:
+                raise ValidationError({"language": ["Choose a language: whether a capitalised noun is wrong depends on it."]})
+            ids = capitalised_noun_ids(language)
+            page_ids = self.paginate_queryset(ids)
+            lexemes = Lexeme.objects.in_bulk(page_ids)
+            groups = [
+                {
+                    "entry": lexeme_summary(lexemes[pk]),
+                    "candidates": [lexeme_summary(c) for c in counterparts_of(lexemes[pk])],
+                }
+                for pk in page_ids
+                if pk in lexemes
+            ]
+            return self.get_paginated_response(groups)
+        if mode != "undetermined":
+            raise ValidationError({"mode": ["Unknown mode. Use undetermined or capitalised-noun."]})
+        queryset = merge_candidates_queryset(language)
         page = self.paginate_queryset(queryset)
         groups = [
             {

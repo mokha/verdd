@@ -1,14 +1,19 @@
 import logging
 
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.db import DatabaseError
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.views import APIView
 
 from manageXML.models import (
@@ -20,6 +25,7 @@ from manageXML.models import (
     RelationExampleRelation,
 )
 
+from .access import lexeme_q, relation_q, relations_outside, scope_for
 from .filters import LexemeFilter, RelationFilter
 from .permissions import IsStaffOrSuperuser
 from .merge import (
@@ -75,7 +81,20 @@ class AuditedDestroyMixin:
         instance.delete()
 
 
-class ApiModelViewSet(ApiAccessMixin, AuditedDestroyMixin, viewsets.ModelViewSet):
+class ScopedQuerysetMixin:
+    """Limit what a user whose access is restricted to some language pairs can see, change or
+    delete: out-of-scope rows are not listed and answer 404, as if they did not exist."""
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        scope = scope_for(self.request.user)
+        return self.restrict(queryset, scope) if scope.restricted else queryset
+
+    def restrict(self, queryset, scope):
+        return queryset
+
+
+class ApiModelViewSet(ApiAccessMixin, ScopedQuerysetMixin, AuditedDestroyMixin, viewsets.ModelViewSet):
     pagination_class = ApiPagination
     filter_backends = [DjangoFilterBackend]
 
@@ -88,6 +107,9 @@ class LexemeViewSet(ApiModelViewSet):
     filterset_class = LexemeFilter
     http_method_names = ["get", "post", "put", "patch", "head", "options"]
 
+    def restrict(self, queryset, scope):
+        return queryset.filter(lexeme_q(scope))
+
     @action(detail=False, methods=["get"], url_path="merge-candidates")
     def merge_candidates(self, request):
         """Lexemes worth merging. By default: undetermined-POS lexemes that share their string
@@ -97,6 +119,9 @@ class LexemeViewSet(ApiModelViewSet):
         POS."""
         mode = request.query_params.get("mode") or "undetermined"
         language = request.query_params.get("language")
+        scope = scope_for(request.user)
+        if language and not scope.language(language):
+            raise PermissionDenied("You do not have access to language %s." % language)
         if mode == "capitalised-noun":
             if not language:
                 raise ValidationError({"language": ["Choose a language: whether a capitalised noun is wrong depends on it."]})
@@ -105,8 +130,8 @@ class LexemeViewSet(ApiModelViewSet):
             lexemes = Lexeme.objects.in_bulk(page_ids)
             groups = [
                 {
-                    "entry": lexeme_summary(lexemes[pk]),
-                    "candidates": [lexeme_summary(c) for c in counterparts_of(lexemes[pk])],
+                    "entry": lexeme_summary(lexemes[pk], request.user),
+                    "candidates": [lexeme_summary(c, request.user) for c in counterparts_of(lexemes[pk])],
                 }
                 for pk in page_ids
                 if pk in lexemes
@@ -115,11 +140,13 @@ class LexemeViewSet(ApiModelViewSet):
         if mode != "undetermined":
             raise ValidationError({"mode": ["Unknown mode. Use undetermined or capitalised-noun."]})
         queryset = merge_candidates_queryset(language)
+        if scope.restricted:
+            queryset = queryset.filter(lexeme_q(scope))
         page = self.paginate_queryset(queryset)
         groups = [
             {
-                "undetermined": lexeme_summary(lexeme),
-                "candidates": [lexeme_summary(s) for s in siblings_of(lexeme)],
+                "undetermined": lexeme_summary(lexeme, request.user),
+                "candidates": [lexeme_summary(s, request.user) for s in siblings_of(lexeme)],
             }
             for lexeme in page
         ]
@@ -134,6 +161,16 @@ class LexemeViewSet(ApiModelViewSet):
         serializer.is_valid(raise_exception=True)
         keeper = serializer.validated_data["into"]
         dry_run = serializer.validated_data["dry_run"]
+        scope = scope_for(request.user)
+        if scope.restricted:
+            if not scope.language(keeper.language_id):
+                raise ValidationError({"into": ["You do not have access to language %s." % keeper.language_id]})
+            outside = relations_outside(scope, absorbed).count()
+            if outside:
+                raise ValidationError({"into": [
+                    "This entry has %d translation(s) in language pairs you do not have access to, "
+                    "so it cannot be merged by you. Ask an administrator." % outside
+                ]})
         try:
             report = merge_lexemes(
                 absorbed,
@@ -157,6 +194,11 @@ class LexemeViewSet(ApiModelViewSet):
         serializer = SplitRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+        scope = scope_for(request.user)
+        if scope.restricted and data["relations"]:
+            chosen = Relation.objects.filter(pk__in=data["relations"])
+            if chosen.exclude(relation_q(scope)).exists():
+                raise ValidationError({"relations": ["Some of the chosen translations are in language pairs you do not have access to."]})
         try:
             report = split_lexeme(
                 source,
@@ -188,6 +230,9 @@ class RelationViewSet(ApiModelViewSet):
     ).order_by("id")
     filterset_class = RelationFilter
 
+    def restrict(self, queryset, scope):
+        return queryset.filter(relation_q(scope))
+
 
 class RelationExampleViewSet(ApiModelViewSet):
     serializer_class = RelationExampleSerializer
@@ -202,15 +247,22 @@ class RelationExampleViewSet(ApiModelViewSet):
     )
     filterset_fields = ["relation", "language"]
 
+    def restrict(self, queryset, scope):
+        return queryset.filter(relation_q(scope, "relation__"))
+
 
 class ExampleViewSet(ApiModelViewSet):
     serializer_class = ExampleSerializer
     queryset = Example.objects.order_by("id")
     filterset_fields = ["lexeme"]
 
+    def restrict(self, queryset, scope):
+        return queryset.filter(lexeme_q(scope, "lexeme__"))
+
 
 class RelationExampleLinkViewSet(
     ApiAccessMixin,
+    ScopedQuerysetMixin,
     AuditedDestroyMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -224,11 +276,17 @@ class RelationExampleLinkViewSet(
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["example_from", "example_to"]
 
+    def restrict(self, queryset, scope):
+        return queryset.filter(relation_q(scope, "example_from__relation__"))
 
-class LanguageViewSet(ApiAccessMixin, viewsets.ReadOnlyModelViewSet):
+
+class LanguageViewSet(ApiAccessMixin, ScopedQuerysetMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = LanguageSerializer
     queryset = Language.objects.order_by("id")
     pagination_class = None
+
+    def restrict(self, queryset, scope):
+        return queryset.filter(pk__in=sorted(scope.languages))
 
 
 class PosView(ApiAccessMixin, APIView):
@@ -247,6 +305,57 @@ class MeView(ApiAccessMixin, APIView):
                 "username": user.get_username(),
                 "is_staff": user.is_staff,
                 "is_superuser": user.is_superuser,
+                "access": scope_for(user).describe(),
+            }
+        )
+
+
+class LoginThrottle(SimpleRateThrottle):
+    """Slows password guessing: a few sign-in attempts a minute per address."""
+
+    scope = "api-login"
+    rate = "10/min"
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {"scope": self.scope, "ident": self.get_ident(request)}
+
+
+class LoginView(APIView):
+    """Exchange a Ve'rdd username (or e-mail address) and password for the user's API token, so a
+    staff member signs in to the Workbench with the credentials they already have. The password is
+    only checked here, never stored by the client. The token is the one the user already has (or
+    a new one); an administrator revokes access by deleting it, or the Workbench user by signing
+    out, which only forgets it on that device."""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    throttle_classes = [LoginThrottle]
+
+    def post(self, request):
+        identifier = str(request.data.get("username") or "").strip()
+        password = request.data.get("password") or ""
+        if not identifier or not password:
+            raise ValidationError({"non_field_errors": ["Enter your username (or e-mail address) and password."]})
+        username = identifier
+        if "@" in identifier:
+            matches = list(User.objects.filter(email__iexact=identifier)[:2])
+            if len(matches) == 1:
+                username = matches[0].get_username()
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            logger.info("API sign-in failed for %r", identifier)
+            raise ValidationError({"non_field_errors": ["Wrong username or password."]})
+        if not (user.is_staff or user.is_superuser):
+            raise PermissionDenied("This account is not a staff account, so it cannot use the Workbench.")
+        token, _ = Token.objects.get_or_create(user=user)
+        logger.info("API sign-in by %s", user)
+        return Response(
+            {
+                "token": token.key,
+                "username": user.get_username(),
+                "is_staff": user.is_staff,
+                "is_superuser": user.is_superuser,
+                "access": scope_for(user).describe(),
             }
         )
 

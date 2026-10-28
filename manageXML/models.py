@@ -674,6 +674,34 @@ class StemMetadata(models.Model):
         self.changed_by = value
 
 
+class LanguageAccess(models.Model):
+    """
+    A language pair a staff member may work on through the API (Ve'rdd Workbench in LangJack).
+    The pair is unordered: sms and fin allows sms->fin and fin->sms translations and the entries
+    of both languages. Both fields equal means one language on its own (entries, examples and
+    relations inside it). A user with no rows here is not limited; superusers never are.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="language_access")
+    language_a = models.ForeignKey(Language, on_delete=models.CASCADE, related_name="+")
+    language_b = models.ForeignKey(Language, on_delete=models.CASCADE, related_name="+")
+
+    class Meta:
+        unique_together = ("user", "language_a", "language_b")
+        verbose_name_plural = "language access"
+
+    def __str__(self):
+        if self.language_a_id == self.language_b_id:
+            return "%s: %s" % (self.user, self.language_a_id)
+        return "%s: %s <-> %s" % (self.user, self.language_a_id, self.language_b_id)
+
+    def save(self, *args, **kwargs):
+        # one stored order per pair, so sms<->fin and fin<->sms cannot both exist
+        if self.language_a_id > self.language_b_id:
+            self.language_a_id, self.language_b_id = self.language_b_id, self.language_a_id
+        super().save(*args, **kwargs)
+
+
 class LanguageParadigm(models.Model):
     class Meta:
         unique_together = (

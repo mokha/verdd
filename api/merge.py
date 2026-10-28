@@ -18,6 +18,8 @@ from django.db.models import Count, Exists, IntegerField, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 
 from manageXML.constants import DESC_TRANSLATION, TRANSLATION
+
+from .access import relation_q, scope_for
 from manageXML.models import (
     Affiliation,
     Example,
@@ -161,13 +163,15 @@ def child_counts(lexeme):
     }
 
 
-def lexeme_summary(lexeme):
+def lexeme_summary(lexeme, user=None):
+    """The lexeme with its attachments counted and a few of its translations. For a user limited
+    to some language pairs the translations shown are only those of the pairs they may see."""
     counts = child_counts(lexeme)
-    translations = (
-        lexeme.lexeme_from_lexeme_set.filter(type__in=[TRANSLATION, DESC_TRANSLATION])
-        .select_related("lexeme_to")
-        .order_by("id")[:5]
-    )
+    scope = scope_for(user)
+    translations = lexeme.lexeme_from_lexeme_set.filter(type__in=[TRANSLATION, DESC_TRANSLATION])
+    if scope.restricted:
+        translations = translations.filter(relation_q(scope))
+    translations = translations.select_related("lexeme_to").order_by("id")[:5]
     return {
         "id": lexeme.pk,
         "lexeme": lexeme.lexeme,
@@ -411,8 +415,8 @@ def merge_lexemes(
     _validate(absorbed, keeper, allow_different_headword, allow_different_pos)
     report = {
         "dry_run": dry_run,
-        "absorbed": lexeme_summary(absorbed),
-        "into": lexeme_summary(keeper),
+        "absorbed": lexeme_summary(absorbed, user),
+        "into": lexeme_summary(keeper, user),
         "moved": defaultdict(int),
         "deduplicated": defaultdict(int),
         "dropped": defaultdict(int),

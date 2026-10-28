@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from manageXML.constants import DESC_TRANSLATION, TRANSLATION
+from .access import scope_for
 from manageXML.models import (
     Example,
     Language,
@@ -9,6 +10,24 @@ from manageXML.models import (
     RelationExample,
     RelationExampleRelation,
 )
+
+
+class ScopeMixin:
+    """Refuse values outside the language pairs the requesting user may work on."""
+
+    def scope(self):
+        request = self.context.get("request")
+        return scope_for(request.user) if request else scope_for(None)
+
+    def require_language(self, code, field):
+        if not self.scope().language(code):
+            raise serializers.ValidationError({field: "You do not have access to language %s." % code})
+
+    def require_pair(self, a, b, field):
+        if not self.scope().pair(a, b):
+            raise serializers.ValidationError(
+                {field: "You do not have access to the language pair %s - %s." % (a, b)}
+            )
 
 
 class ChangedByMixin:
@@ -41,7 +60,7 @@ class LanguageSerializer(serializers.ModelSerializer):
         fields = ("id", "name")
 
 
-class LexemeSerializer(ChangedByMixin, serializers.ModelSerializer):
+class LexemeSerializer(ScopeMixin, ChangedByMixin, serializers.ModelSerializer):
     language = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all())
     # A default (not just required=False): the unique_together validator requires every
     # field of the constraint on create unless it has a default.
@@ -80,8 +99,14 @@ class LexemeSerializer(ChangedByMixin, serializers.ModelSerializer):
     def get_web_url(self, obj):
         return obj.get_absolute_url()
 
+    def validate(self, attrs):
+        language = attrs.get("language")
+        if language is not None:
+            self.require_language(language.id, "language")
+        return attrs
 
-class RelationExampleSerializer(ChangedByMixin, serializers.ModelSerializer):
+
+class RelationExampleSerializer(ScopeMixin, ChangedByMixin, serializers.ModelSerializer):
     language = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all())
     linked_to = serializers.SerializerMethodField()
 
@@ -106,6 +131,11 @@ class RelationExampleSerializer(ChangedByMixin, serializers.ModelSerializer):
             relation = attrs["relation"]
             language = attrs["language"]
 
+        self.require_pair(
+            relation.lexeme_from.language_id,
+            relation.lexeme_to.language_id if relation.lexeme_to_id else relation.lexeme_from.language_id,
+            "relation",
+        )
         allowed = {relation.lexeme_from.language_id}
         if relation.lexeme_to_id:
             allowed.add(relation.lexeme_to.language_id)
@@ -125,7 +155,7 @@ class LexemeBriefSerializer(serializers.ModelSerializer):
         fields = ("id", "lexeme", "pos", "homoId", "language")
 
 
-class RelationSerializer(ChangedByMixin, serializers.ModelSerializer):
+class RelationSerializer(ScopeMixin, ChangedByMixin, serializers.ModelSerializer):
     lexeme_from = serializers.PrimaryKeyRelatedField(queryset=Lexeme.objects.all())
     lexeme_to = serializers.PrimaryKeyRelatedField(queryset=Lexeme.objects.all())
     lexeme_from_info = LexemeBriefSerializer(source="lexeme_from", read_only=True)
@@ -159,16 +189,24 @@ class RelationSerializer(ChangedByMixin, serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "lexeme_from and lexeme_to must be different lexemes."
             )
+        if lexeme_from is not None and lexeme_to is not None:
+            self.require_pair(lexeme_from.language_id, lexeme_to.language_id, "lexeme_to")
         return attrs
 
 
-class ExampleSerializer(ChangedByMixin, serializers.ModelSerializer):
+class ExampleSerializer(ScopeMixin, ChangedByMixin, serializers.ModelSerializer):
     class Meta:
         model = Example
         fields = ("id", "lexeme", "text", "source", "notes")
 
+    def validate(self, attrs):
+        lexeme = attrs.get("lexeme")
+        if lexeme is not None:
+            self.require_language(lexeme.language_id, "lexeme")
+        return attrs
 
-class RelationExampleLinkSerializer(serializers.ModelSerializer):
+
+class RelationExampleLinkSerializer(ScopeMixin, serializers.ModelSerializer):
     class Meta:
         model = RelationExampleRelation
         fields = ("id", "example_from", "example_to", "notes")
@@ -181,6 +219,12 @@ class RelationExampleLinkSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Linked examples must belong to the same relation."
             )
+        relation = example_from.relation
+        self.require_pair(
+            relation.lexeme_from.language_id,
+            relation.lexeme_to.language_id if relation.lexeme_to_id else relation.lexeme_from.language_id,
+            "example_from",
+        )
         return attrs
 
     def create(self, validated_data):
@@ -191,7 +235,7 @@ class RelationExampleLinkSerializer(serializers.ModelSerializer):
         return instance
 
 
-class MergeRequestSerializer(serializers.Serializer):
+class MergeRequestSerializer(serializers.Serializer):  # access is checked in the view
     into = serializers.PrimaryKeyRelatedField(queryset=Lexeme.objects.all())
     dry_run = serializers.BooleanField(default=False)
     # Required to join entries whose headwords differ, e.g. "( ) word" into "word".
@@ -236,7 +280,7 @@ class PairExampleSerializer(serializers.Serializer):
     notes = serializers.CharField(max_length=250, required=False, allow_blank=True)
 
 
-class PairSerializer(serializers.Serializer):
+class PairSerializer(ScopeMixin, serializers.Serializer):
     source = PairSourceSerializer()
     target = PairTargetSerializer()
     type = serializers.ChoiceField(
@@ -251,4 +295,5 @@ class PairSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "source and target must be in different languages."
             )
+        self.require_pair(attrs["source"]["language"].id, attrs["target"]["language"].id, "target")
         return attrs

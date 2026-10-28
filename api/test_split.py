@@ -96,6 +96,59 @@ class SplitTests(SplitTestCase):
         self.assertEqual(Relation.objects.filter(type=SYNONYM).count(), 2)
         self.assertEqual(response.data["moved"], {"relations": 2})
 
+    def test_copy_gives_both_entries_the_same_translations(self):
+        """gluck(s)en -> glucksen + glucken: both end up with the same to-and-from translations."""
+        borrowed = self.lex("борт", "fin", "N")
+        incoming = self.rel(borrowed, self.source)
+        src = RelationExample.objects.create(relation=self.to_side, language_id="sms", text="Pӧla.", source="book")
+        tgt = RelationExample.objects.create(relation=self.to_side, language_id="fin", text="Puoli.")
+        RelationExampleRelation.objects.create(example_from=src, example_to=tgt)
+        keep = Example.objects.create(lexeme=self.source, text="Keep.")
+        before = Relation.objects.count()
+
+        response = self.split(
+            self.source, lexeme="pӧla-2", relations=[self.to_side.pk, incoming.pk], examples=[keep.pk], copy=True
+        )
+        self.assertEqual(response.status_code, 201, response.data)
+        new = Lexeme.objects.get(pk=response.data["new"]["id"])
+        self.assertEqual(response.data["copied"], {"relations": 2, "examples": 1})
+        self.assertEqual(response.data["moved"], {})
+        self.assertFalse(response.data["source_unapproved"])
+
+        # the original keeps everything it had and stays approved
+        self.to_side.refresh_from_db(); incoming.refresh_from_db(); self.source.refresh_from_db()
+        self.assertEqual((self.to_side.lexeme_from_id, incoming.lexeme_to_id), (self.source.pk, self.source.pk))
+        self.assertTrue(self.source.checked)
+        self.assertEqual(self.source.example_set.count(), 1)
+        # the new entry has the same two relations, in both directions
+        self.assertEqual(Relation.objects.count(), before + 2)
+        out = Relation.objects.get(lexeme_from=new, lexeme_to=self.side)
+        into = Relation.objects.get(lexeme_from=borrowed, lexeme_to=new)
+        self.assertEqual((out.type, into.type), (self.to_side.type, incoming.type))
+        self.assertFalse(out.checked)
+        self.assertEqual(out.changed_by, self.staff)
+        # translated examples and the link between them were copied with the relation
+        self.assertEqual(sorted(out.relationexample_set.values_list("text", "source")), [("Puoli.", ""), ("Pӧla.", "book")])
+        self.assertEqual(RelationExampleRelation.objects.filter(example_from__relation=out).count(), 1)
+        self.assertEqual(new.example_set.get().text, "Keep.")
+
+    def test_copy_of_mirrored_relations_makes_one_mirrored_pair(self):
+        other = self.lex("pieli", "sms", "N")
+        self.rel(self.source, other, type=SYNONYM)
+        ids = list(Relation.objects.filter(type=SYNONYM).values_list("pk", flat=True))
+        response = self.split(self.source, lexeme="pӧla-2", relations=ids, copy=True)
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(Relation.objects.filter(type=SYNONYM).count(), 4)
+        self.assertEqual(response.data["copied"], {"relations": 2})
+        self.assertEqual(Relation.objects.filter(type=SYNONYM, lexeme_from=self.source).count(), 1)
+
+    def test_copy_dry_run_changes_nothing(self):
+        before = (Lexeme.objects.count(), Relation.objects.count())
+        response = self.split(self.source, lexeme="pӧla-2", relations=[self.to_side.pk], copy=True, dry_run=True)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data["copied"], {"relations": 1})
+        self.assertEqual((Lexeme.objects.count(), Relation.objects.count()), before)
+
     def test_dry_run_reports_without_changing_anything(self):
         before = (Lexeme.objects.count(), Lexeme.history.count(), Relation.history.count())
         response = self.split(self.source, dry_run=True, relations=[self.to_side.pk])

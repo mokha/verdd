@@ -207,6 +207,7 @@ class LexemeViewSet(ApiModelViewSet):
                 relations=data["relations"],
                 examples=data["examples"],
                 dry_run=data["dry_run"],
+                copy=data["copy"],
             )
         except SplitError as exc:
             raise ValidationError({"non_field_errors": [str(exc)]})

@@ -258,6 +258,8 @@ class SplitRequestSerializer(serializers.Serializer):
         child=serializers.IntegerField(), required=False, default=list, max_length=1000
     )
     dry_run = serializers.BooleanField(default=False)
+    # Duplicate the chosen relations and examples onto the new entry instead of moving them.
+    copy = serializers.BooleanField(default=False)
 
 
 class PairSourceSerializer(serializers.Serializer):

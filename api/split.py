@@ -6,6 +6,11 @@ relation moves whole, with its sources, metadata and translated examples. Relati
 have a mirror (synonyms, antonyms, ...) move together with it. Forms, stems, metadata and
 affiliations stay on the original entry. Both entries are left unapproved so they are
 reviewed again. A dry run executes the same code and rolls it back.
+
+With copy=True nothing moves: the chosen relations (with their sources, metadata, translated
+examples and the links between those) and usage examples are duplicated onto the new entry and
+the original keeps its own, for the case where both new entries share the same translations,
+such as a headword written "gluck(s)en" becoming glucksen and glucken.
 """
 
 from collections import defaultdict
@@ -14,7 +19,15 @@ from django.db import transaction
 from django.db.models import Max
 
 from manageXML.constants import REVERSE_RELATION_MAPPING
-from manageXML.models import Example, Lexeme, Relation
+from manageXML.models import (
+    Example,
+    Lexeme,
+    Relation,
+    RelationExample,
+    RelationExampleRelation,
+    RelationMetadata,
+    Source,
+)
 
 from .merge import lexeme_summary
 
@@ -102,8 +115,42 @@ def _move_relation(relation, source, target, user):
     return mirror
 
 
-def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=False):
-    """Move the given relations and examples of `source` onto a new lexeme; returns a report."""
+def _copy_relation(relation, source, target, user):
+    """Duplicate a relation (with what hangs off it) so that `target` stands where `source` stood.
+    Saving a mirrored relation creates its mirror, which is returned (or None)."""
+    clone = Relation(
+        lexeme_from=target if relation.lexeme_from_id == source.pk else relation.lexeme_from,
+        lexeme_to=target if relation.lexeme_to_id == source.pk else relation.lexeme_to,
+        type=relation.type,
+        notes=relation.notes,
+        checked=False,
+    )
+    _stamp(clone, user)
+    clone.save()
+    for row in relation.source_set.all():
+        Source.objects.create(
+            relation=clone, name=row.name, page=row.page, type=row.type, notes=row.notes, changed_by=user
+        )
+    for row in relation.relationmetadata_set.all():
+        RelationMetadata.objects.create(
+            relation=clone, text=row.text, language=row.language, type=row.type, changed_by=user
+        )
+    copies = {}
+    for row in relation.relationexample_set.all():
+        copies[row.pk] = RelationExample.objects.create(
+            relation=clone, text=row.text, language=row.language, source=row.source, notes=row.notes, changed_by=user
+        )
+    for link in RelationExampleRelation.objects.filter(example_from_id__in=copies, example_to_id__in=copies):
+        duplicate = RelationExampleRelation(
+            example_from=copies[link.example_from_id], example_to=copies[link.example_to_id], notes=link.notes
+        )
+        _stamp(duplicate, user)
+        duplicate.save()
+    return clone, _mirror_of(clone)
+
+
+def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=False, copy=False):
+    """Move (or, with copy=True, duplicate) the given relations and examples of `source` onto a new lexeme; returns a report."""
     new = new or {}
     lexeme, pos, homo = _new_fields(source, new)
 
@@ -125,8 +172,9 @@ def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=Fals
     report = {
         "dry_run": dry_run,
         "moved": defaultdict(int),
+        "copied": defaultdict(int),
         "notes": [],
-        "source_unapproved": bool(source.checked),
+        "source_unapproved": bool(source.checked) and not copy,
     }
     with transaction.atomic():
         target = Lexeme(lexeme=lexeme, pos=pos, language=source.language, homoId=homo)
@@ -139,6 +187,16 @@ def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=Fals
             if relation.pk in done:
                 continue
             relation.refresh_from_db()  # an earlier mirror move may have saved it
+            if copy:
+                _, mirror = _copy_relation(relation, source, target, user)
+                done.add(relation.pk)
+                report["copied"]["relations"] += 1
+                original_mirror = _mirror_of(relation)
+                if mirror is not None:
+                    report["copied"]["relations" if original_mirror and original_mirror.pk in chosen_ids else "mirror_relations"] += 1
+                if original_mirror is not None:
+                    done.add(original_mirror.pk)  # its copy was made with the relation's own
+                continue
             mirror = _move_relation(relation, source, target, user)
             done.add(relation.pk)
             report["moved"]["relations"] += 1
@@ -147,12 +205,18 @@ def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=Fals
                 report["moved"]["relations" if mirror.pk in chosen_ids else "mirror_relations"] += 1
 
         for example in chosen_examples:
+            if copy:
+                Example.objects.create(
+                    lexeme=target, text=example.text, source=example.source, notes=example.notes, changed_by=user
+                )
+                report["copied"]["examples"] += 1
+                continue
             example.lexeme = target
             _stamp(example, user)
             example.save()
             report["moved"]["examples"] += 1
 
-        if source.checked:
+        if source.checked and not copy:
             source.checked = False
             _stamp(source, user)
             source.save()
@@ -166,4 +230,5 @@ def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=Fals
             report["new"]["id"] = None  # rolled back below, so there is no such entry
             transaction.set_rollback(True)
     report["moved"] = dict(report["moved"])
+    report["copied"] = dict(report["copied"])
     return report

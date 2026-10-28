@@ -7,11 +7,82 @@ from .constants import *
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Q, Count
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
+import re
 
 
 class LanguageChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s (%s)" % (obj.name, obj.id)
+
+
+class LanguageCodeWidget(forms.TextInput):
+    """
+    A text box for a language code, with the known languages offered as suggestions (an HTML datalist).
+    A long <select> is awkward on a phone; typing "myv" is quick, and the keyboard is told not to
+    capitalise or autocorrect it.
+    """
+
+    def __init__(self, attrs=None):
+        defaults = {
+            "placeholder": _("ISO 639-3 code, e.g. myv"),
+            "autocapitalize": "none",
+            "autocorrect": "off",
+            "autocomplete": "off",
+            "spellcheck": "false",
+            "maxlength": "60",
+            "size": "8",
+        }
+        super().__init__({**defaults, **(attrs or {})})
+
+    def render(self, name, value, attrs=None, renderer=None):
+        list_id = "id_%s_codes" % name
+        html = super().render(name, value, {**(attrs or {}), "list": list_id}, renderer)
+        options = format_html_join(
+            "",
+            '<option value="{}">{}</option>',
+            Language.objects.order_by("id").values_list("id", "name"),
+        )
+        return mark_safe(html + format_html('<datalist id="{}">{}</datalist>', list_id, options))
+
+
+class LanguageCodeField(forms.ModelChoiceField):
+    """
+    Chooses a Language by typing its three-letter ISO 639 code (case does not matter). "Skolt Sami (sms)" and the
+    plain language name are accepted as well, so a value picked from the suggestions or pasted always works.
+    """
+
+    widget = LanguageCodeWidget
+    default_error_messages = {
+        "invalid_choice": _(
+            "There is no language with the code “%(value)s”. Use a three-letter ISO 639 code, e.g. myv."
+        ),
+    }
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return None
+        if isinstance(value, Language):
+            return value
+        text = str(value).strip()
+        bracketed = re.search(r"\(([A-Za-z]{3})\)\s*$", text)
+        guesses = [bracketed.group(1)] if bracketed else []
+        guesses.append(text)
+        for guess in guesses:
+            try:
+                return Language.objects.get(pk=guess.lower())
+            except Language.DoesNotExist:
+                pass
+        by_name = Language.objects.filter(name__iexact=text)
+        if by_name.count() == 1:
+            return by_name.first()
+        raise forms.ValidationError(
+            self.error_messages["invalid_choice"], code="invalid_choice", params={"value": text}
+        )
+
+    def prepare_value(self, value):
+        return value.pk if isinstance(value, Language) else value
 
 
 class LexemeChoiceField(forms.ModelChoiceField):
@@ -102,8 +173,8 @@ class LexemeForm(forms.ModelForm):
 
 
 class LexemeCreateForm(LexemeForm):
-    language = LanguageChoiceField(
-        queryset=Language.objects.all(), required=True, label=_("Languages")
+    language = LanguageCodeField(
+        queryset=Language.objects.all(), required=True, label=_("Language (ISO 639-3 code)")
     )
 
     class Meta:

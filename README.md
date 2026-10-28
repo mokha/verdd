@@ -26,6 +26,11 @@ Veʹrdd is rich in features, the main ones are:
 
 For further information (e.g. installation, usages and localization), visit the [wiki](https://github.com/mokha/verdd/wiki).
 
+## Staff access to the Workbench API
+Staff members sign in to the LangJack Ve'rdd Workbench with their own Ve'rdd username (or e-mail address) and password: `POST /api/v1/auth/login/` checks them and returns the account's API token (the same one `manage.py create_api_token USER` makes). Only staff and superusers can sign in. To revoke a token, delete it under *Auth Token → Tokens* in the Django admin.
+
+To limit what a staff member can reach, add rows under *Language access* in the Django admin: each row is one language pair (unordered; `sms` and `fin` covers sms→fin and fin→sms), or one language twice for that language on its own. A staff user **without rows is not limited**; superusers never are. With rows the user sees and changes only entries and examples of those languages and translations of those pairs; merging or splitting an entry is refused while it carries translations of other pairs. The limit applies to the API (the Workbench), not to the Ve'rdd website's own pages.
+
 ## Contributors
 - Khalid Alnajjar ([@mokha](https://github.com/mokha))
 - Jack Rueter ([@rueter](https://github.com/rueter))

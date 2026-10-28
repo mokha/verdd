@@ -157,11 +157,11 @@ def split_lexeme(source, user, new=None, relations=(), examples=(), dry_run=Fals
             _stamp(source, user)
             source.save()
 
-        remaining = lexeme_summary(source)
+        remaining = lexeme_summary(source, user)
         if remaining["empty"]:
             report["notes"].append("Nothing is left on the original entry.")
         report["source"] = remaining
-        report["new"] = lexeme_summary(target)
+        report["new"] = lexeme_summary(target, user)
         if dry_run:
             report["new"]["id"] = None  # rolled back below, so there is no such entry
             transaction.set_rollback(True)

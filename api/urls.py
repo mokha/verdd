@@ -18,6 +18,7 @@ router.register(
 router.register("languages", views.LanguageViewSet, basename="api-language")
 
 urlpatterns = [
+    path("auth/login/", views.LoginView.as_view(), name="api-login"),
     path("me/", views.MeView.as_view(), name="api-me"),
     path("pos/", views.PosView.as_view(), name="api-pos"),
     path("pairs/", views.PairView.as_view(), name="api-pair"),

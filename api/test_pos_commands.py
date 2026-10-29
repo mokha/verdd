@@ -120,3 +120,74 @@ class PosCommandTests(TestCase):
         self.assertEqual(Lexeme.objects.filter(pos="ZERO").count(), 2)
         run("fix_undetermined_pos", "--skip-absorb", apply=True, user="cleaner", limit=1, batch_size=1)
         self.assertEqual(Lexeme.objects.filter(pos="ZERO").count(), 1)
+
+
+class RenamePosTests(TestCase):
+    def setUp(self):
+        for code in ("sms", "fin"):
+            Language.objects.create(id=code, name=code)
+        self.user = User.objects.create_user("cleaner", is_staff=True)
+
+    def lex(self, text, pos, language="sms", homo=0):
+        return Lexeme.objects.create(lexeme=text, language_id=language, pos=pos, homoId=homo)
+
+    def pos(self, lexeme):
+        return Lexeme.objects.get(pk=lexeme.pk).pos
+
+    def test_dry_run_changes_nothing(self):
+        a, b = self.lex("a", "Desc"), self.lex("b", "Ideoph")
+        out, _ = run("rename_pos", "Descr", "Desc", "Ideoph")
+        self.assertEqual((self.pos(a), self.pos(b)), ("Desc", "Ideoph"))
+        self.assertIn("2 would be set to Descr", out)
+        self.assertIn("Dry run", out)
+
+    def test_apply_needs_a_named_user(self):
+        with self.assertRaisesMessage(CommandError, "--user"):
+            run("rename_pos", "Descr", "Desc", apply=True)
+        with self.assertRaisesMessage(CommandError, "No such user"):
+            run("rename_pos", "Descr", "Desc", apply=True, user="nobody")
+
+    def test_apply_unifies_and_leaves_other_values_alone(self):
+        desc, ideoph, descr = self.lex("a", "Desc"), self.lex("b", "Ideoph"), self.lex("c", "Descr")
+        noun, other = self.lex("d", "N"), self.lex("e", "Desc", "fin")
+        run("rename_pos", "Descr", "Desc", "Ideoph", apply=True, user="cleaner", batch_size=2)
+        for lexeme in (desc, ideoph, descr, other):
+            self.assertEqual(self.pos(lexeme), "Descr")
+        self.assertEqual(self.pos(noun), "N")
+        self.assertEqual(Lexeme.objects.get(pk=desc.pk).changed_by, self.user)
+        self.assertEqual(Lexeme.objects.get(pk=descr.pk).changed_by, None, "an entry already Descr is not touched")
+
+    def test_collisions_are_left_alone_and_listed(self):
+        clash_desc, clash_descr = self.lex("a", "Desc"), self.lex("a", "Descr")   # Descr exists already
+        two_a, two_b = self.lex("b", "Desc"), self.lex("b", "Ideoph")             # both would become Descr
+        numbered = self.lex("c", "Desc"); self.lex("c", "Descr", homo=1)           # told apart by homonym number
+        other_lang = self.lex("d", "Desc"); self.lex("d", "Descr", "fin")
+        out, _ = run("rename_pos", "Descr", "Desc", "Ideoph", apply=True, user="cleaner")
+        self.assertEqual(self.pos(clash_desc), "Desc")
+        self.assertEqual((self.pos(two_a), self.pos(two_b)), ("Desc", "Ideoph"))
+        self.assertEqual(self.pos(numbered), "Descr")
+        self.assertEqual(self.pos(other_lang), "Descr")
+        self.assertIn("3 left alone", out)
+
+    def test_history_names_the_user_and_the_reason(self):
+        lexeme = self.lex("a", "Ideoph")
+        run("rename_pos", "Descr", "Desc", "Ideoph", apply=True, user="cleaner")
+        record = Lexeme.history.filter(id=lexeme.pk).order_by("-history_id").first()
+        self.assertEqual(record.pos, "Descr")
+        self.assertEqual(record.history_user, self.user)
+        self.assertIn("Descr", record.history_change_reason)
+
+    def test_language_filter_and_second_run(self):
+        sms, fin = self.lex("a", "Desc", "sms"), self.lex("a", "Desc", "fin")
+        run("rename_pos", "Descr", "Desc", apply=True, user="cleaner", language="fin")
+        self.assertEqual((self.pos(sms), self.pos(fin)), ("Desc", "Descr"))
+        run("rename_pos", "Descr", "Desc", apply=True, user="cleaner")
+        out, _ = run("rename_pos", "Descr", "Desc", apply=True, user="cleaner")
+        self.assertIn("0 set to Descr", out)
+
+    def test_target_among_sources_is_ignored_and_nothing_to_replace_is_an_error(self):
+        lexeme = self.lex("a", "Desc")
+        run("rename_pos", "Descr", "Descr", "Desc", apply=True, user="cleaner")
+        self.assertEqual(self.pos(lexeme), "Descr")
+        with self.assertRaisesMessage(CommandError, "at least one"):
+            run("rename_pos", "Descr", "Descr")

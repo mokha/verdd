@@ -3,6 +3,8 @@
 {% load custom_tags %}
 {% load crispy_forms_tags %}
 
+{% block canonical %}<link rel="canonical" href="https://{{ request.get_host }}{{ request.path }}">{% endblock %}
+
 {% block main_content %}
     <div class="row sticky-sidebar-container d-none d-xl-block">
         <div class="col">

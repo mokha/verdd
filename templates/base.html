@@ -21,6 +21,12 @@
     <title>{% block title %}{{ title }}{% endblock %} - {% blocktrans %}Verdd{% endblocktrans %}</title>
     {% endblock %}
 
+    {% if request.GET %}
+    <!-- filtered/paged variants: keep crawlers to the plain URLs -->
+    <meta name="robots" content="noindex, nofollow">
+    {% endif %}
+    {% block canonical %}{% endblock %}
+
     {% block css %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% endblock %}

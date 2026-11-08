@@ -73,6 +73,10 @@ def getattrfilter(value, arg):
 @register.simple_tag
 def query_transform(request, **kwargs):
     updated = request.GET.copy()
+    # "page" belongs to the list being viewed, not to the linked detail page.
+    # Passing it on gave every lexeme/relation page endless ?page=N variants
+    # for crawlers to walk.
+    updated.pop("page", None)
     for k, v in kwargs.items():
         if v is not None:
             updated[k] = v

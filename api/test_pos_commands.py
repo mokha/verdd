@@ -1,3 +1,6 @@
+import csv
+import os
+import tempfile
 from io import StringIO
 
 from django.contrib.auth.models import User
@@ -191,3 +194,207 @@ class RenamePosTests(TestCase):
         self.assertEqual(self.pos(lexeme), "Descr")
         with self.assertRaisesMessage(CommandError, "at least one"):
             run("rename_pos", "Descr", "Descr")
+
+
+class ConvertPosCsvTests(TestCase):
+    """convert_pos_csv: the listed entries change POS, nothing else does."""
+
+    def setUp(self):
+        for code in ("sms", "fin"):
+            Language.objects.create(id=code, name=code)
+        self.user = User.objects.create_user("cleaner", is_staff=True)
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+
+    def lex(self, text, pos="N", language="fin", homo=0, **extra):
+        return Lexeme.objects.create(lexeme=text, language_id=language, pos=pos, homoId=homo, **extra)
+
+    def pos(self, lexeme):
+        return Lexeme.objects.get(pk=lexeme.pk).pos
+
+    def csv(self, *lexemes, header=True, name="approved.csv"):
+        path = os.path.join(self.folder.name, name)
+        with open(path, "w", encoding="utf-8-sig", newline="") as handle:
+            writer = csv.writer(handle)
+            if header:
+                writer.writerow(["ID", "Language", "Lexeme", "POS", "Contlex", "Inflex Type"])
+            for item in lexemes:
+                if isinstance(item, Lexeme):
+                    item = [item.pk, item.language_id, item.lexeme, item.pos, item.contlex, ""]
+                writer.writerow(item)
+        return path
+
+    def test_dry_run_changes_nothing(self):
+        a = self.lex("Aatu")
+        out, _ = run("convert_pos_csv", self.csv(a), "N", "Prop")
+        self.assertEqual(self.pos(a), "N")
+        self.assertIn("1 would be set to Prop", out)
+        self.assertIn("Dry run", out)
+
+    def test_apply_needs_a_named_user(self):
+        path = self.csv(self.lex("Aatu"))
+        with self.assertRaisesMessage(CommandError, "--user"):
+            run("convert_pos_csv", path, "N", "Prop", apply=True)
+        with self.assertRaisesMessage(CommandError, "No such user"):
+            run("convert_pos_csv", path, "N", "Prop", apply=True, user="root")
+
+    def test_bad_arguments_and_files(self):
+        path = self.csv(self.lex("Aatu"))
+        with self.assertRaisesMessage(CommandError, "same"):
+            run("convert_pos_csv", path, "N", "N")
+        with self.assertRaisesMessage(CommandError, "Cannot read"):
+            run("convert_pos_csv", os.path.join(self.folder.name, "missing.csv"), "N", "Prop")
+        with self.assertRaisesMessage(CommandError, "numeric ID"):
+            run("convert_pos_csv", self.csv(), "N", "Prop")
+
+    def test_apply_changes_only_the_pos_of_the_listed_entries(self):
+        listed = self.lex("Aatu", contlex="PROPER_NOUN", notes="kept", checked=True)
+        unlisted = self.lex("Eero")
+        other_pos = self.lex("juosta", "V")
+        before = Lexeme.objects.get(pk=listed.pk)
+        run("convert_pos_csv", self.csv(listed), "N", "Prop", apply=True, user="cleaner")
+        after = Lexeme.objects.get(pk=listed.pk)
+        self.assertEqual(after.pos, "Prop")
+        for field in ("lexeme", "language_id", "homoId", "contlex", "notes", "checked", "inflexType"):
+            self.assertEqual(getattr(after, field), getattr(before, field), field)
+        self.assertEqual(self.pos(unlisted), "N")
+        self.assertEqual(self.pos(other_pos), "V")
+        self.assertEqual(after.changed_by, self.user)
+
+    def test_rows_that_do_not_match_ve_rdd_are_left_out_and_reported(self):
+        good = self.lex("Aatu")
+        wrong_lexeme, wrong_language = self.lex("Eero"), self.lex("Ilmari")
+        changed_since, already = self.lex("Kalle", "V"), self.lex("Pekka", "Prop")
+        rows = [
+            good,
+            [wrong_lexeme.pk, "fin", "Eerop", "N", "", ""],
+            [wrong_language.pk, "sms", "Ilmari", "N", "", ""],
+            [changed_since.pk, "fin", "Kalle", "N", "", ""],       # the list says N, Ve'rdd has V now
+            [already.pk, "fin", "Pekka", "N", "", ""],
+            [999999, "fin", "Nobody", "N", "", ""],
+            ["abc", "fin", "Bad", "N", "", ""],
+        ]
+        skipped = os.path.join(self.folder.name, "skipped.csv")
+        out, _ = run("convert_pos_csv", self.csv(*rows), "N", "Prop", apply=True, user="cleaner", skipped=skipped)
+        self.assertEqual(self.pos(good), "Prop")
+        self.assertEqual((self.pos(wrong_lexeme), self.pos(wrong_language)), ("N", "N"))
+        self.assertEqual(self.pos(changed_since), "V")
+        self.assertIn("1 set to Prop", out)
+        self.assertIn("6 rows left out", out)
+        with open(skipped, encoding="utf-8-sig") as handle:
+            lines = list(csv.reader(handle))
+        self.assertEqual(lines[0][-1], "Reason")
+        self.assertEqual(len(lines), 1 + 6)
+
+    def test_an_entry_that_would_collide_is_left_alone(self):
+        clash, existing = self.lex("Pietari"), self.lex("Pietari", "Prop")
+        numbered = self.lex("Aatu"); self.lex("Aatu", "Prop", homo=1)   # told apart by homonym number
+        other_language = self.lex("Eero"); self.lex("Eero", "Prop", "sms")
+        out, _ = run("convert_pos_csv", self.csv(clash, numbered, other_language), "N", "Prop", apply=True, user="cleaner")
+        self.assertEqual((self.pos(clash), self.pos(existing)), ("N", "Prop"))
+        self.assertEqual((self.pos(numbered), self.pos(other_language)), ("Prop", "Prop"))
+        self.assertIn("1 row left out", out)
+        self.assertIn("Merge tab", out)
+
+    def test_output_is_the_list_with_only_the_pos_changed(self):
+        a, b = self.lex("Aatu", contlex="PROPER_NOUN"), self.lex("Eero", contlex="PROPER_NOUN")
+        target = os.path.join(self.folder.name, "converted.csv")
+        run("convert_pos_csv", self.csv(a, b), "N", "Prop", output=target)   # a dry run still writes it
+        with open(target, encoding="utf-8-sig") as handle:
+            lines = list(csv.reader(handle))
+        self.assertEqual(lines[0][:4], ["ID", "Language", "Lexeme", "POS"])
+        self.assertEqual(lines[1], [str(a.pk), "fin", "Aatu", "Prop", "PROPER_NOUN", ""])
+        self.assertEqual(self.pos(a), "N", "the dry run changed nothing in the database")
+
+    def test_history_names_the_user_and_the_reason(self):
+        lexeme = self.lex("Aatu")
+        run("convert_pos_csv", self.csv(lexeme), "N", "Prop", apply=True, user="cleaner")
+        record = Lexeme.history.filter(id=lexeme.pk).order_by("-history_id").first()
+        self.assertEqual(record.pos, "Prop")
+        self.assertEqual(record.history_user, self.user)
+        self.assertIn("approved list", record.history_change_reason)
+
+    def test_no_history_option_and_a_second_run(self):
+        lexeme = self.lex("Aatu")
+        path = self.csv(lexeme)
+        before = Lexeme.history.count()
+        run("convert_pos_csv", path, "N", "Prop", apply=True, user="cleaner", no_history=True)
+        self.assertEqual(Lexeme.history.count(), before)
+        out, _ = run("convert_pos_csv", path, "N", "Prop", apply=True, user="cleaner")
+        self.assertIn("0 set to Prop", out)
+        self.assertIn("already has the target POS", out)
+
+    def test_batches_cover_every_row(self):
+        lexemes = [self.lex("Nimi%d" % n) for n in range(7)]
+        run("convert_pos_csv", self.csv(*lexemes), "N", "Prop", apply=True, user="cleaner", batch_size=3)
+        self.assertEqual([self.pos(l) for l in lexemes], ["Prop"] * 7)
+
+    # --- --merge-clashes: an entry that already exists with the target POS is merged into it ---
+
+    def clash_pair(self, text="Pietari", **listed_extra):
+        """The listed N entry and the Prop entry it would collide with."""
+        return self.lex(text, "N", **listed_extra), self.lex(text, "Prop")
+
+    def translation(self, source, text="Peter", language="sms"):
+        return Relation.objects.create(lexeme_from=source, lexeme_to=self.lex(text, "N", language), type=TRANSLATION)
+
+    def test_a_clash_is_left_alone_unless_merging_is_asked_for(self):
+        listed, existing = self.clash_pair()
+        run("convert_pos_csv", self.csv(listed), "N", "Prop", apply=True, user="cleaner")
+        self.assertTrue(Lexeme.objects.filter(pk=listed.pk).exists())
+        self.assertEqual((self.pos(listed), self.pos(existing)), ("N", "Prop"))
+
+    def test_merge_dry_run_previews_and_changes_nothing(self):
+        listed, existing = self.clash_pair()
+        relation = self.translation(listed)
+        out, _ = run("convert_pos_csv", self.csv(listed), "N", "Prop", merge_clashes=True)
+        self.assertIn("1 would be merged into the existing Prop entry", out)
+        self.assertIn("1 relations", out)
+        self.assertTrue(Lexeme.objects.filter(pk=listed.pk).exists(), "the dry run deletes nothing")
+        self.assertEqual(Relation.objects.get(pk=relation.pk).lexeme_from_id, listed.pk)
+
+    def test_merge_moves_everything_to_the_existing_entry_and_deletes_the_listed_one(self):
+        listed, existing = self.clash_pair()
+        relation = self.translation(listed)
+        example = Example.objects.create(lexeme=listed, text="Pietari tuli.")
+        out, _ = run("convert_pos_csv", self.csv(listed), "N", "Prop", merge_clashes=True, apply=True, user="cleaner")
+        self.assertIn("1 merged into the existing Prop entry", out)
+        self.assertFalse(Lexeme.objects.filter(pk=listed.pk).exists())
+        self.assertEqual(Relation.objects.get(pk=relation.pk).lexeme_from_id, existing.pk)
+        self.assertEqual(Example.objects.get(pk=example.pk).lexeme_id, existing.pk)
+        kept = Lexeme.objects.get(pk=existing.pk)
+        self.assertEqual((kept.pos, kept.lexeme, kept.homoId), ("Prop", "Pietari", 0), "the existing entry keeps its own identity")
+
+    def test_equal_relations_are_folded_not_duplicated(self):
+        listed, existing = self.clash_pair()
+        target = self.lex("Peter", "N", "sms")
+        for source in (listed, existing):
+            Relation.objects.create(lexeme_from=source, lexeme_to=target, type=TRANSLATION)
+        out, _ = run("convert_pos_csv", self.csv(listed), "N", "Prop", merge_clashes=True, apply=True, user="cleaner")
+        self.assertEqual(Relation.objects.filter(lexeme_from=existing, lexeme_to=target).count(), 1)
+        self.assertEqual(Relation.objects.filter(lexeme_to=target).count(), 1)
+        self.assertIn("folded into equal rows", out)
+
+    def test_an_approved_existing_entry_that_receives_something_is_unapproved(self):
+        listed, existing = self.clash_pair()
+        Lexeme.objects.filter(pk=existing.pk).update(checked=True)
+        self.translation(listed)
+        out, _ = run("convert_pos_csv", self.csv(listed), "N", "Prop", merge_clashes=True, apply=True, user="cleaner")
+        self.assertFalse(Lexeme.objects.get(pk=existing.pk).checked)
+        self.assertIn("marked unapproved", out)
+
+    def test_merging_and_converting_in_one_list(self):
+        clash_listed, existing = self.clash_pair("Pietari")
+        plain = self.lex("Aatu")
+        out, _ = run("convert_pos_csv", self.csv(clash_listed, plain), "N", "Prop", merge_clashes=True, apply=True, user="cleaner")
+        self.assertEqual(self.pos(plain), "Prop")
+        self.assertFalse(Lexeme.objects.filter(pk=clash_listed.pk).exists())
+        self.assertIn("1 set to Prop", out)
+        self.assertIn("1 merged", out)
+
+    def test_a_homonym_number_keeps_two_entries_apart_even_when_merging(self):
+        listed = self.lex("Pietari", "N", homo=1)
+        other = self.lex("Pietari", "Prop", homo=0)          # another homonym, not a clash
+        run("convert_pos_csv", self.csv(listed), "N", "Prop", merge_clashes=True, apply=True, user="cleaner")
+        self.assertEqual(self.pos(listed), "Prop", "converted, not merged")
+        self.assertTrue(Lexeme.objects.filter(pk=other.pk).exists())
